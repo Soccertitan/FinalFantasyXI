@@ -14,7 +14,7 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	 */
 	GameplayTags.Attribute = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute"), FString("Root Gameplay Tag for GAS attributes."));
 	GameplayTags.EquipSlot = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot"), FString("Root Gameplay Tag for equipment slots."));
-	GameplayTags.HeroClass = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("HeroClass"), FString("Root Gameplay Tag for Hero classes."));
+	GameplayTags.Job = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("HeroClass"), FString("Root Gameplay Tag for Hero classes."));
 	GameplayTags.Input = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input"), FString("Root Gameplay Tag for input related events."));
 	GameplayTags.Item = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Item"), FString("Root Gameplay Tag for items."));
 	GameplayTags.Message = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message"), FString("Root Gameplay Tag to send messages via Gameplay Message Subsystem."));
@@ -25,16 +25,28 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	 * Attribute Gameplay Tags
 	 */
 	GameplayTags.Attribute_Level = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Level"), FString("The level of the character."));
-
-	GameplayTags.Attribute_Attack_Melee  = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Attack.Melee"), FString("Melee Attack power."));
-	GameplayTags.Attribute_Attack_Range = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Attack.Range"), FString("Range Attack Power."));
-	GameplayTags.Attribute_Attack_Technique = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Attack.Technique"), FString("Technique Attack Power."));
-
-	GameplayTags.Attribute_Defense_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Defense.Melee"), FString("Melee defense power."));
-	GameplayTags.Attribute_Defense_Range = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Defense.Range"), FString("Range defense power."));
-	GameplayTags.Attribute_Defense_Technique = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Defense.Technique"), FString("Technique defense power."));
-
-	GameplayTags.Attribute_Dexterity = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Dexterity"), FString("Dexterity increases the minimum damage threshold."));
+	
+	GameplayTags.Attribute_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Strength"), FString("Strength increases physical damage."));
+	GameplayTags.Attribute_Vitality = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Vitality"), FString("Increases maximum HP and reduces physical damage."));
+	GameplayTags.Attribute_Dexterity = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Dexterity"), FString("Increases the hit and critical hit rate."));
+	GameplayTags.Attribute_Agility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Agility"), FString("Increases evasion and reduces the chance to be hit by a critical strike."));
+	GameplayTags.Attribute_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Intelligence"), FString("Increases offensive magic damage."));
+	GameplayTags.Attribute_Mind = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Mind"), FString("Increases MP, reduces offensive magic damage, and increases healing effectiveness."));
+	GameplayTags.Attribute_Charisma = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Charisma"), FString("Misc boosts to ability effectiveness."));
+	
+	GameplayTags.Attribute_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Attack"), FString("A generic attribute for attack attributes."));
+	GameplayTags.Attribute_Defense = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Defense"), FString("A generic attribute for defense attributes."));
+	GameplayTags.Attribute_Accuracy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Accuracy"), FString("A generic attribute for accuracy attributes."));
+	GameplayTags.Attribute_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Evasion"), FString("A generic attribute for evasion attributes."));
+	GameplayTags.Attribute_CriticalHitRate = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.CriticalHitRate"), FString("A generic attribute for critical hit rate attributes."));
+	GameplayTags.Attribute_CriticalHitDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.CriticalHitDamage"), FString("A generic attribute for critical hit damage attributes."));
+	
+	GameplayTags.Attribute_Haste = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Haste"), FString("A generic attribute for haste attribute bonus."));
+	GameplayTags.Attribute_Resistance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Resistance"), FString("A generic attribute for resisting damage and status effects."));
+	
+	GameplayTags.Attribute_MoveSpeed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.MoveSpeed"), FString("Character move speed."));
+	
+	GameplayTags.Attribute_Chance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Chance"), FString("Generic attributes that have a chance to occur. E.g. block, parry, evasion."));
 	GameplayTags.Attribute_Bonus = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Bonus"), FString("Random attributes like, increased exp, drop chance, etc."));
 
 	/**

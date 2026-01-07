@@ -17,7 +17,6 @@ ACrysCharacter::ACrysCharacter(const FObjectInitializer& ObjectInitializer)
 	bReplicates = true;
 	bUseControllerRotationYaw = false;
 
-	PrimaryActorTick.bStartWithTickEnabled = false;
 	AIControllerClass = ACrysAIController::StaticClass();
 }
 
@@ -35,11 +34,6 @@ void ACrysCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MergeSkeletalMeshes();
-	
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	check(CapsuleComp);
-	CachedCapsuleCollisionType = CapsuleComp->GetCollisionEnabled();
-	CachedCapsuleCollisionResponse = CapsuleComp->GetCollisionResponseToChannels();
 }
 
 void ACrysCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -63,34 +57,23 @@ UAnimationTagRelationship* ACrysCharacter::GetAnimationTagRelationship() const
 	return AnimationTagRelationship;
 }
 
-void ACrysCharacter::DisableMovementAndCollision()
+void ACrysCharacter::DisableMovement()
 {
 	if (Controller)
 	{
 		Controller->SetIgnoreMoveInput(true);
 	}
 
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	check(CapsuleComp);
-	
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 }
 
-void ACrysCharacter::EnableMovementAndCollision()
+void ACrysCharacter::EnableMovement()
 {
 	if (Controller)
 	{
 		Controller->SetIgnoreMoveInput(false);
 	}
-
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	check(CapsuleComp);
-	CapsuleComp->SetCollisionEnabled(CachedCapsuleCollisionType);
-	CapsuleComp->SetCollisionResponseToChannels(CachedCapsuleCollisionResponse);
 
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }

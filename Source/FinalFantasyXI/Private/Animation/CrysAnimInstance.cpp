@@ -6,6 +6,7 @@
 #include "AbilitySystemGlobals.h"
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "CrimAbilitySystemComponent.h"
+#include "CrimAbilitySystemInterface.h"
 
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
@@ -43,7 +44,7 @@ void UCrysAnimInstance::NativeInitializeAnimation()
 	{
 		if (UCrimAbilitySystemComponent* ASC = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(OwningActor))
 		{
-			Execute_InitializeWithAbilitySystem(this, ASC);
+			ICrimAbilitySystemInterface::Execute_InitializeWithAbilitySystem(this, ASC);
 		}
 	}
 }

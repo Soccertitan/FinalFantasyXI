@@ -7,7 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
 #include "CrysLogChannels.h"
-#include "Settings/PhantasyStarOnlineGameData.h"
+#include "Settings/FinalFantasyXIGameData.h"
 
 void UAttributeViewModel::SetAttribute(const FGameplayTag& AttributeTag, UAbilitySystemComponent* InAbilitySystemComponent)
 {
@@ -23,7 +23,7 @@ void UAttributeViewModel::SetAttribute(const FGameplayTag& AttributeTag, UAbilit
 	{
 		if (!AttributeTagRelationshipItem.GameplayAttribute.IsValid())
 		{
-			UE_LOG(LogCrys, Error, TEXT("Invalid GameplayAttribute found with AttributeTag [%s] in [%s]"), *AttributeTag.ToString(), *GetDefault<UPhantasyStarOnlineGameData>()->GetName());
+			UE_LOG(LogCrys, Error, TEXT("Invalid GameplayAttribute found with AttributeTag [%s] in [%s]"), *AttributeTag.ToString(), *GetDefault<UFinalFantasyXIGameData>()->GetName());
 			return;
 		}
 	}

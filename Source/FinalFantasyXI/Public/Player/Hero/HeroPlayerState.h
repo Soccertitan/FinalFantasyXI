@@ -10,13 +10,14 @@
 #include "HeroSystem/HeroSystemInterface.h"
 #include "HeroPlayerState.generated.h"
 
+class UManaPointsAttributeSet;
 class UEquipmentManagerComponent;
 class UHeroManagerComponent;
 class UCrysManaPointsSet;
 class UCrysAttributeSet;
 class UTacticalPointsAttributeSet;
 class UCrimAbilitySystemComponent;
-class UHitPointsAttributeSet;
+class UCrysHitPointsAttributeSet;
 
 /**
  * 
@@ -30,9 +31,11 @@ class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbi
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY()
-	TObjectPtr<UHitPointsAttributeSet> HitPointsAttributeSet;
+	TObjectPtr<UCrysHitPointsAttributeSet> HitPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UTacticalPointsAttributeSet> TacticalPointsAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UCrysAttributeSet> CrysAttributeSet;
 

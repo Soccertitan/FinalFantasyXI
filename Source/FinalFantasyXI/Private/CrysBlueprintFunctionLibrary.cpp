@@ -9,7 +9,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Player/CrysPlayerController.h"
 #include "Player/CrysPlayerState.h"
-#include "Settings/PhantasyStarOnlineGameData.h"
+#include "Settings/FinalFantasyXIGameData.h"
 #include "System/CrysAssetManager.h"
 
 ACrysPlayerController* UCrysBlueprintFunctionLibrary::GetCrysPlayerController(AActor* Actor)
@@ -103,12 +103,12 @@ bool UCrysBlueprintFunctionLibrary::IsAnimationRelationshipItemValid(const FAnim
 
 FAttributeRelationshipItem UCrysBlueprintFunctionLibrary::FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound)
 {
-	const UAttributeTagRelationship* AttributeTagRelationship = UCrysAssetManager::GetAsset(GetDefault<UPhantasyStarOnlineGameData>()->AttributeTagRelationship);
+	const UAttributeTagRelationship* AttributeTagRelationship = UCrysAssetManager::GetAsset(GetDefault<UFinalFantasyXIGameData>()->AttributeTagRelationship);
 	if (!AttributeTagRelationship)
 	{
 		if (bLogNotFound)
 		{
-			UE_LOG(LogCrys, Error, TEXT("AttributeTagRelationship is invalid in [%s]"), *GetDefault<UPhantasyStarOnlineGameData>()->GetName());
+			UE_LOG(LogCrys, Error, TEXT("AttributeTagRelationship is invalid in [%s]"), *GetDefault<UFinalFantasyXIGameData>()->GetName());
 		}
 		return FAttributeRelationshipItem();
 	}

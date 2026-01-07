@@ -24,7 +24,7 @@ public:
 	 */
 	FGameplayTag Attribute;
 	FGameplayTag EquipSlot;
-	FGameplayTag HeroClass;
+	FGameplayTag Job;
 	FGameplayTag Input;
 	FGameplayTag Item;
 	FGameplayTag Message;
@@ -36,16 +36,27 @@ public:
 	 */
 	FGameplayTag Attribute_Level;
 
-	FGameplayTag Attribute_Attack_Melee;
-	FGameplayTag Attribute_Attack_Range;
-	FGameplayTag Attribute_Attack_Technique;
-
-	FGameplayTag Attribute_Defense_Melee;
-	FGameplayTag Attribute_Defense_Range;
-	FGameplayTag Attribute_Defense_Technique;
-
+	FGameplayTag Attribute_Strength;
+	FGameplayTag Attribute_Vitality;
 	FGameplayTag Attribute_Dexterity;
+	FGameplayTag Attribute_Agility;
+	FGameplayTag Attribute_Intelligence;
+	FGameplayTag Attribute_Mind;
+	FGameplayTag Attribute_Charisma;
+	
+	FGameplayTag Attribute_Attack;
+	FGameplayTag Attribute_Defense;
+	FGameplayTag Attribute_Accuracy;
+	FGameplayTag Attribute_Evasion;
+	FGameplayTag Attribute_CriticalHitRate;
+	FGameplayTag Attribute_CriticalHitDamage;
 
+	FGameplayTag Attribute_Haste;
+	FGameplayTag Attribute_Resistance;
+
+	FGameplayTag Attribute_MoveSpeed;
+
+	FGameplayTag Attribute_Chance;
 	FGameplayTag Attribute_Bonus;
 
 	/**

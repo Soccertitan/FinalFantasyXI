@@ -5,6 +5,7 @@
 
 #include "CrimAbilitySystemComponent.h"
 #include "CrysGameplayTags.h"
+#include "AbilitySystem/AttributeSet/CrysAttributeSet.h"
 
 
 UCrysCharacterMovementComponent::UCrysCharacterMovementComponent()
@@ -20,6 +21,8 @@ float UCrysCharacterMovementComponent::GetMaxSpeed() const
 		{
 			return 0.f;	
 		}
+		
+		return AbilitySystemComponent->GetNumericAttribute(UCrysAttributeSet::GetMoveSpeedAttribute());
 	}
 	
 	return Super::GetMaxSpeed();

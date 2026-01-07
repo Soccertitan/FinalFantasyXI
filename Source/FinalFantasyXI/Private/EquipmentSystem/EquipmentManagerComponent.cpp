@@ -13,7 +13,7 @@
 #include "HeroSystem/HeroManagerComponent.h"
 #include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
-#include "Settings/PhantasyStarOnlineGameData.h"
+#include "Settings/FinalFantasyXIGameData.h"
 #include "System/CrysAssetManager.h"
 
 
@@ -378,10 +378,10 @@ FEquipGrantedHandle UEquipmentManagerComponent::ApplyItemStats(const TInstancedS
 
 	FEquipGrantedHandle Result;
 
-	const TSubclassOf<UGameplayEffect> EquipmentGE = UCrysAssetManager::GetSubclass(GetDefault<UPhantasyStarOnlineGameData>()->EquipmentGameplayEffect);
+	const TSubclassOf<UGameplayEffect> EquipmentGE;// = UCrysAssetManager::GetSubclass(GetDefault<UFinalFantasyXIGameData>()->EquipmentGameplayEffect);
 	if (!EquipmentGE)
 	{
-		UE_LOG(LogCrys, Error, TEXT("EquipmentGameplayEffect is invalid in [%s]"), *GetDefault<UPhantasyStarOnlineGameData>()->GetName());
+		UE_LOG(LogCrys, Error, TEXT("EquipmentGameplayEffect is invalid in [%s]"), *GetDefault<UFinalFantasyXIGameData>()->GetName());
 		return Result;
 	}
 

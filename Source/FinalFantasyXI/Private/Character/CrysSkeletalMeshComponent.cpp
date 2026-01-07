@@ -3,6 +3,9 @@
 
 #include "Character/CrysSkeletalMeshComponent.h"
 
+#include "CrimAbilitySystemComponent.h"
+#include "CrimAbilitySystemInterface.h"
+
 void UCrysSkeletalMeshComponent::InitializeWithAbilitySystem_Implementation(UCrimAbilitySystemComponent* NewAbilitySystemComponent)
 {
 	if (UAnimInstance* AnimInstance = GetAnimInstance())

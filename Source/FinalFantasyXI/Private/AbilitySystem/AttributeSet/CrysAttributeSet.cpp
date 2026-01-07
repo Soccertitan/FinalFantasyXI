@@ -6,7 +6,10 @@
 #include "Net/UnrealNetwork.h"
 
 UCrysAttributeSet::UCrysAttributeSet()
-	: CriticalHitRate(0.05f)
+	: Strength(1.f), Vitality(1.f), Dexterity(1.f), 
+	Agility(1.f), Intelligence(1.f), Mind(1.f), Charisma(1.f),
+	Attack(1.f), Defense(1.f), Accuracy(1.f), Evasion(1.f), 
+	CriticalHitRate(0.05f), MoveSpeed(350.f)
 {
 }
 

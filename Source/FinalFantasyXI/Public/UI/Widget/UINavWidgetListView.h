@@ -98,7 +98,7 @@ public:
 protected:
 	/** The type of widget to create for each entry displayed in the list. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UINavListEntry,
-		meta = (ExposeOnSpawn, DesignerRebuild, AllowPrivateAccess = true, MustImplement = "/Script/PhantasyStarOnline.UINavListViewEntryInterface"))
+		meta = (ExposeOnSpawn, DesignerRebuild, AllowPrivateAccess = true, MustImplement = "/Script/FinalFantasyXI.UINavListViewEntryInterface"))
 	TSubclassOf<UUINavComponent> EntryWidgetClass;
 
 	/** The number of EntryWidgets to create as children in the ListView widget. */

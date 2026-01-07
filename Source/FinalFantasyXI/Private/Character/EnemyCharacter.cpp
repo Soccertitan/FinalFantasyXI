@@ -6,7 +6,8 @@
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSet/CrysAttributeSet.h"
-#include "Attribute/HitPointsAttributeSet.h"
+#include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
+#include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "Attribute/HitPointsComponent.h"
 #include "Attribute/TacticalPointsAttributeSet.h"
 #include "Character/CrysCharacterMovementComponent.h"
@@ -21,8 +22,9 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& ObjectInitializer)
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
-	HitPointsAttributeSet = CreateDefaultSubobject<UHitPointsAttributeSet>("HitPointsAttributeSet");
+	HitPointsAttributeSet = CreateDefaultSubobject<UCrysHitPointsAttributeSet>("HitPointsAttributeSet");
 	TacticalPointsAttributeSet = CreateDefaultSubobject<UTacticalPointsAttributeSet>("TacticalPointsAttributeSet");
+	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
 	CrysAttributeSet = CreateDefaultSubobject<UCrysAttributeSet>("CrysAttributeSet");
 	
 	HitPointsComponent = CreateDefaultSubobject<UHitPointsComponent>(TEXT("HitPointsComponent"));
@@ -67,12 +69,12 @@ UAbilitySystemComponent* AEnemyCharacter::GetAbilitySystemComponent() const
 
 void AEnemyCharacter::OnDeathStarted(AActor* OwningActor)
 {
-	DisableMovementAndCollision();
+	DisableMovement();
 }
 
 void AEnemyCharacter::OnResurrectionFinished(AActor* OwningActor)
 {
-	EnableMovementAndCollision();
+	EnableMovement();
 }
 
 void AEnemyCharacter::BeginPlay()

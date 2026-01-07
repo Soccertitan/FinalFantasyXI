@@ -12,9 +12,9 @@ class UAbilitySet;
 class UHitPointsComponent;
 class UCrimAbilitySystemComponent;
 class UCrysAttributeSet;
-class UCrysManaPointsSet;
+class UManaPointsAttributeSet;
 class UTacticalPointsAttributeSet;
-class UHitPointsAttributeSet;
+class UCrysHitPointsAttributeSet;
 
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API AEnemyCharacter : public ACrysCharacter, public IGameplayTagAssetInterface,
@@ -26,9 +26,12 @@ class FINALFANTASYXI_API AEnemyCharacter : public ACrysCharacter, public IGamepl
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UHitPointsAttributeSet> HitPointsAttributeSet;
+	TObjectPtr<UCrysHitPointsAttributeSet> HitPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UTacticalPointsAttributeSet> TacticalPointsAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
+	
 	UPROPERTY()
 	TObjectPtr<UCrysAttributeSet> CrysAttributeSet;
 	

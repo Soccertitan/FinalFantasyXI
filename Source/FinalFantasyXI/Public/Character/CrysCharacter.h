@@ -41,8 +41,8 @@ public:
 	
 	UAnimationTagRelationship* GetAnimationTagRelationship() const;
 	
-	void DisableMovementAndCollision();
-	void EnableMovementAndCollision();
+	void DisableMovement();
+	void EnableMovement();
 
 protected:
 	UFUNCTION()
@@ -62,11 +62,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Character|Animation")
 	TObjectPtr<UAnimationTagRelationship> AnimationTagRelationship;
-	
-	UPROPERTY()
-	TEnumAsByte<ECollisionEnabled::Type> CachedCapsuleCollisionType;
-	UPROPERTY()
-	FCollisionResponseContainer CachedCapsuleCollisionResponse;
 
 	void BroadcastCharacterName();
 };

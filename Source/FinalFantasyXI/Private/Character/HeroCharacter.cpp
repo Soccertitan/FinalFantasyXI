@@ -143,10 +143,10 @@ void AHeroCharacter::InitAbilitySystem()
 
 void AHeroCharacter::OnDeathStarted(AActor* OwningActor)
 {
-	DisableMovementAndCollision();
+	DisableMovement();
 }
 
 void AHeroCharacter::OnResurrectionFinished(AActor* OwningActor)
 {
-	EnableMovementAndCollision();
+	EnableMovement();
 }
