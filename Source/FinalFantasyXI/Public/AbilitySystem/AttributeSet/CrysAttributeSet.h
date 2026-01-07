@@ -39,7 +39,6 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, Haste);
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, Resistance);
-	ATTRIBUTE_ACCESSORS(ThisClass, DamageTaken);
 
 	ATTRIBUTE_ACCESSORS(ThisClass, MoveSpeed);
 
@@ -88,8 +87,6 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_Resistance(const FGameplayAttributeData& OldValue);
-	UFUNCTION()
-	void OnRep_DamageTaken(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
 	void OnRep_MoveSpeed(const FGameplayAttributeData& OldValue);
@@ -152,9 +149,6 @@ private:
 	/** Secondary Attribute - To status and damage types. */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Resistance, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Resistance;
-	/** Secondary Attribute - The final multiplier for damage taken.*/
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_DamageTaken, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData DamageTaken;
 
 	/** Secondary Attribute */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MoveSpeed, meta = (AllowPrivateAccess = true))

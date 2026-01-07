@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 
 UCrysAttributeSet::UCrysAttributeSet()
+	: CriticalHitRate(0.05f)
 {
 }
 
@@ -33,7 +34,6 @@ void UCrysAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Haste, COND_None, REPNOTIFY_Always);
 	
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Resistance, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, DamageTaken, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MoveSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Chance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Bonus, COND_None, REPNOTIFY_Always);
@@ -71,7 +71,9 @@ void UCrysAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, floa
 		// Ensure none of these attributes can drop below 1. As they will be divided into.
 		NewValue = FMath::Max(NewValue, 1.0f);
 	}
-	else if (Attribute == GetMoveSpeedAttribute())
+	else if (Attribute == GetMoveSpeedAttribute() ||
+		Attribute == GetCriticalHitRateAttribute() ||
+		Attribute == GetCriticalHitDamageAttribute())
 	{
 		// Ensure none of these attributes can drop below 0.
 		NewValue = FMath::Max(NewValue, 0.f);
@@ -156,11 +158,6 @@ void UCrysAttributeSet::OnRep_Haste(const FGameplayAttributeData& OldValue)
 void UCrysAttributeSet::OnRep_Resistance(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Resistance, OldValue);
-}
-
-void UCrysAttributeSet::OnRep_DamageTaken(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, DamageTaken, OldValue);
 }
 
 void UCrysAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldValue)

@@ -338,37 +338,37 @@ void UHeroManagerComponent::ApplyBaseAttributes(const float Level)
 	FGameplayModifierInfo& InfoMeleeAttack = BaseStats->Modifiers[Idx + 2];
 	InfoMeleeAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MeleeAttack);
 	InfoMeleeAttack.ModifierOp = EGameplayModOp::Override;
-	InfoMeleeAttack.Attribute = UCrysAttributeSet::GetMeleeAttackAttribute();
+	// InfoMeleeAttack.Attribute = UCrysAttributeSet::GetMeleeAttackAttribute();
 
 	FGameplayModifierInfo& InfoMeleeDefense = BaseStats->Modifiers[Idx + 3];
 	InfoMeleeDefense.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MeleeDefense);
 	InfoMeleeDefense.ModifierOp = EGameplayModOp::Override;
-	InfoMeleeDefense.Attribute = UCrysAttributeSet::GetMeleeDefenseAttribute();
+	// InfoMeleeDefense.Attribute = UCrysAttributeSet::GetMeleeDefenseAttribute();
 
 	FGameplayModifierInfo& InfoRangeAttack = BaseStats->Modifiers[Idx +4 ];
 	InfoRangeAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.RangeAttack);
 	InfoRangeAttack.ModifierOp = EGameplayModOp::Override;
-	InfoRangeAttack.Attribute = UCrysAttributeSet::GetRangeAttackAttribute();
+	// InfoRangeAttack.Attribute = UCrysAttributeSet::GetRangeAttackAttribute();
 
 	FGameplayModifierInfo& InfoRangeDefense = BaseStats->Modifiers[Idx + 5];
 	InfoRangeDefense.ModifierMagnitude = FScalableFloat(CalculatedAttributes.RangeDefense);
 	InfoRangeDefense.ModifierOp = EGameplayModOp::Override;
-	InfoRangeDefense.Attribute = UCrysAttributeSet::GetRangeDefenseAttribute();
+	// InfoRangeDefense.Attribute = UCrysAttributeSet::GetRangeDefenseAttribute();
 
 	FGameplayModifierInfo& InfoTechniqueAttack = BaseStats->Modifiers[Idx + 6];
 	InfoTechniqueAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.TechniqueAttack);
 	InfoTechniqueAttack.ModifierOp = EGameplayModOp::Override;
-	InfoTechniqueAttack.Attribute = UCrysAttributeSet::GetTechniqueAttackAttribute();
+	// InfoTechniqueAttack.Attribute = UCrysAttributeSet::GetTechniqueAttackAttribute();
 
 	FGameplayModifierInfo& InfoTechniqueDefense = BaseStats->Modifiers[Idx + 7];
 	InfoTechniqueDefense.ModifierMagnitude = FScalableFloat(CalculatedAttributes.TechniqueDefense);
 	InfoTechniqueDefense.ModifierOp = EGameplayModOp::Override;
-	InfoTechniqueDefense.Attribute = UCrysAttributeSet::GetTechniqueDefenseAttribute();
+	// InfoTechniqueDefense.Attribute = UCrysAttributeSet::GetTechniqueDefenseAttribute();
 
 	FGameplayModifierInfo& InfoDexterity = BaseStats->Modifiers[Idx + 8];
 	InfoDexterity.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Dexterity);
 	InfoDexterity.ModifierOp = EGameplayModOp::Override;
-	InfoDexterity.Attribute = UCrysAttributeSet::GetDexterityAttribute();
+	// InfoDexterity.Attribute = UCrysAttributeSet::GetDexterityAttribute();
 
 	AbilitySystemComponent->ApplyGameplayEffectToSelf(BaseStats, 1.0f, AbilitySystemComponent->MakeEffectContext());
 	OnHeroBaseStatsChangedDelegate.Broadcast(this);

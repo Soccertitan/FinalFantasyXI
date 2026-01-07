@@ -34,6 +34,6 @@ private:
 	/**
 	 * The current points that can be absorbed attribute. Damage will be inflicted to this attribute before being passed onto Health.
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentBarrierPoints, Category = "Crim Ability System|HitPoints", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BarrierPoints, Category = "Crim Ability System|HitPoints", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData BarrierPoints;
 };
