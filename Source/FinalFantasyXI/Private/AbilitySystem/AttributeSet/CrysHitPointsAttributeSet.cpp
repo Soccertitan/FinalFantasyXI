@@ -21,7 +21,7 @@ void UCrysHitPointsAttributeSet::OnRep_BarrierPoints(const FGameplayAttributeDat
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, BarrierPoints, OldValue);
 }
 
-void UCrysHitPointsAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
+void UCrysHitPointsAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetBarrierPointsAttribute())
 	{
@@ -30,7 +30,7 @@ void UCrysHitPointsAttributeSet::ClampAttribute(const FGameplayAttribute& Attrib
 	}
 	else
 	{
-		Super::ClampAttribute(Attribute, NewValue);
+		Super::ClampAttributes(Attribute, NewValue);
 	}
 }
 

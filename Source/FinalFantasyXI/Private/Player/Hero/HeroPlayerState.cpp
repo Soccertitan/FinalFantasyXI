@@ -5,10 +5,10 @@
 
 #include "CrimAbilitySystemComponent.h"
 #include "InventoryManagerComponent.h"
-#include "AbilitySystem/AttributeSet/CrysAttributeSet.h"
+#include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
-#include "Attribute/TacticalPointsAttributeSet.h"
+#include "Attribute/ResourcePointsAttributeSet.h"
 #include "EquipmentSystem/EquipmentManagerComponent.h"
 #include "HeroSystem/HeroManagerComponent.h"
 
@@ -19,9 +19,9 @@ AHeroPlayerState::AHeroPlayerState()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
 
 	HitPointsAttributeSet = CreateDefaultSubobject<UCrysHitPointsAttributeSet>("HitPointsAttributeSet");
-	TacticalPointsAttributeSet = CreateDefaultSubobject<UTacticalPointsAttributeSet>("TacticalPointsAttributeSet");
+	TacticalPointsAttributeSet = CreateDefaultSubobject<UResourcePointsAttributeSet>("TacticalPointsAttributeSet");
 	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
-	CrysAttributeSet = CreateDefaultSubobject<UCrysAttributeSet>("CrysAttributeSet");
+	CrysAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("CrysAttributeSet");
 
 	SetNetUpdateFrequency(100.f);
 

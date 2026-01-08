@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/CrimAttributeSet.h"
+#include "Attribute/CrimAttributeSetBase.h"
 #include "ManaPointsAttributeSet.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UManaPointsAttributeSet : public UCrimAttributeSet
+class FINALFANTASYXI_API UManaPointsAttributeSet : public UCrimAttributeSetBase
 {
 	GENERATED_BODY()
 	
@@ -34,12 +34,9 @@ protected:
 
 	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 
-	void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const;
+	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
 	virtual void HandleDamage(const FGameplayEffectModCallbackData& Data, float Magnitude);
 	virtual void HandleHealing(const FGameplayEffectModCallbackData& Data, float Magnitude);
@@ -49,13 +46,13 @@ private:
 	/**
 	 * The current ManaPoints attribute. The value will be capped by the MaxManaPoints attribute.
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentPoints, Category = "Crys|ManaPoints", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentPoints, Category = "Resource Attribute Set", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData CurrentPoints;
 
 	/**
 	 * The current MaxManaPoints attribute. MaxManaPoints is an attribute since gameplay effects can modify it.
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxPoints, Category = "Crys|ManaPoints", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxPoints, Category = "Resource Attribute Set", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxPoints;
 
 	// -------------------------------------------------------------------
@@ -63,10 +60,10 @@ private:
 	// -------------------------------------------------------------------
 
 	// Incoming healing. This is mapped directly to +CurrentPoints
-	UPROPERTY(BlueprintReadOnly, Category="Crys|ManaPoints", Meta=(AllowPrivateAccess=true))
+	UPROPERTY(BlueprintReadOnly, Category="Resource Attribute Set", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData Healing;
 
 	// Incoming damage. This is mapped directly to -CurrentPoints
-	UPROPERTY(BlueprintReadOnly, Category="Crys|ManaPoints", Meta=(AllowPrivateAccess=true))
+	UPROPERTY(BlueprintReadOnly, Category="Resource Attribute Set", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData Damage;
 };

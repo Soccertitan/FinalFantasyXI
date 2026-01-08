@@ -5,11 +5,11 @@
 
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
-#include "AbilitySystem/AttributeSet/CrysAttributeSet.h"
+#include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "Attribute/HitPointsComponent.h"
-#include "Attribute/TacticalPointsAttributeSet.h"
+#include "Attribute/ResourcePointsAttributeSet.h"
 #include "Character/CrysCharacterMovementComponent.h"
 #include "Character/CrysSkeletalMeshComponent.h"
 
@@ -23,9 +23,9 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& ObjectInitializer)
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	HitPointsAttributeSet = CreateDefaultSubobject<UCrysHitPointsAttributeSet>("HitPointsAttributeSet");
-	TacticalPointsAttributeSet = CreateDefaultSubobject<UTacticalPointsAttributeSet>("TacticalPointsAttributeSet");
+	TacticalPointsAttributeSet = CreateDefaultSubobject<UResourcePointsAttributeSet>("TacticalPointsAttributeSet");
 	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
-	CrysAttributeSet = CreateDefaultSubobject<UCrysAttributeSet>("CrysAttributeSet");
+	CrysAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("CrysAttributeSet");
 	
 	HitPointsComponent = CreateDefaultSubobject<UHitPointsComponent>(TEXT("HitPointsComponent"));
 

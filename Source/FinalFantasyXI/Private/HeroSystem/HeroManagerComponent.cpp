@@ -6,9 +6,9 @@
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
 #include "CrysLogChannels.h"
-#include "AbilitySystem/AttributeSet/CrysAttributeSet.h"
+#include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "Attribute/HitPointsAttributeSet.h"
-#include "Attribute/TacticalPointsAttributeSet.h"
+#include "Attribute/ResourcePointsAttributeSet.h"
 #include "HeroSystem/HeroRaceDefinition.h"
 #include "Net/UnrealNetwork.h"
 #include "System/CrysAssetManager.h"
@@ -38,7 +38,7 @@ void UHeroManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbil
 	if (IsValid(AbilitySystemComponent))
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-			UCrysAttributeSet::GetLevelAttribute()).RemoveAll(this);
+			UPrimaryAttributeSet::GetLevelAttribute()).RemoveAll(this);
 	}
 
 	if (NewAbilitySystemComponent)
@@ -48,7 +48,7 @@ void UHeroManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbil
 		if (HasAuthority())
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-				UCrysAttributeSet::GetLevelAttribute()).AddUObject(this, &UHeroManagerComponent::OnLevelAttributeChanged);
+				UPrimaryAttributeSet::GetLevelAttribute()).AddUObject(this, &UHeroManagerComponent::OnLevelAttributeChanged);
 
 			if (HeroRace)
 			{
@@ -232,7 +232,7 @@ void UHeroManagerComponent::SetHeroClassLevel(const int32 Level)
 		FGameplayModifierInfo& InfoLevel = SetLevel->Modifiers[Idx];
 		InfoLevel.ModifierMagnitude = FScalableFloat(Level);
 		InfoLevel.ModifierOp = EGameplayModOp::Override;
-		InfoLevel.Attribute = UCrysAttributeSet::GetLevelAttribute();
+		InfoLevel.Attribute = UPrimaryAttributeSet::GetLevelAttribute();
 		AbilitySystemComponent->ApplyGameplayEffectToSelf(SetLevel, 1.0f, AbilitySystemComponent->MakeEffectContext());
 	}
 }
@@ -253,7 +253,7 @@ void UHeroManagerComponent::SetHeroRace(UHeroRaceDefinition* InHeroRace)
 	if (AbilitySystemComponent)
 	{
 		ApplyHeroRaceTraits();
-		ApplyBaseAttributes(AbilitySystemComponent->GetNumericAttribute(UCrysAttributeSet::GetLevelAttribute()));
+		ApplyBaseAttributes(AbilitySystemComponent->GetNumericAttribute(UPrimaryAttributeSet::GetLevelAttribute()));
 	}
 	OnRep_HeroRace();
 }
@@ -333,7 +333,7 @@ void UHeroManagerComponent::ApplyBaseAttributes(const float Level)
 	FGameplayModifierInfo& InfoMaxTP = BaseStats->Modifiers[Idx + 1];
 	InfoMaxTP.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MaxTacticalPoints);
 	InfoMaxTP.ModifierOp = EGameplayModOp::Override;
-	InfoMaxTP.Attribute = UTacticalPointsAttributeSet::GetMaxPointsAttribute();
+	InfoMaxTP.Attribute = UResourcePointsAttributeSet::GetMaxPointsAttribute();
 
 	FGameplayModifierInfo& InfoMeleeAttack = BaseStats->Modifiers[Idx + 2];
 	InfoMeleeAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MeleeAttack);

@@ -26,7 +26,7 @@ protected:
 	UFUNCTION()
 	void OnRep_BarrierPoints(const FGameplayAttributeData& OldValue);
 	
-	virtual void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const override;
+	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	virtual void HandleDamage(const FGameplayEffectModCallbackData& Data, float Magnitude) override;
 	
 private:

@@ -4,23 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/CrimAttributeSet.h"
-#include "CrysAttributeSet.generated.h"
+#include "Attribute/CrimAttributeSetBase.h"
+#include "PrimaryAttributeSet.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UCrysAttributeSet : public UCrimAttributeSet
+class FINALFANTASYXI_API UPrimaryAttributeSet : public UCrimAttributeSetBase
 {
 	GENERATED_BODY()
 
 public:
-	UCrysAttributeSet();
+	UPrimaryAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	ATTRIBUTE_ACCESSORS(ThisClass, Level);
-	
 	ATTRIBUTE_ACCESSORS(ThisClass, Strength);
 	ATTRIBUTE_ACCESSORS(ThisClass, Vitality);
 	ATTRIBUTE_ACCESSORS(ThisClass, Dexterity);
@@ -40,16 +39,11 @@ public:
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, Resistance);
 
-	ATTRIBUTE_ACCESSORS(ThisClass, MoveSpeed);
-
 	ATTRIBUTE_ACCESSORS(ThisClass, Chance);
 	ATTRIBUTE_ACCESSORS(ThisClass, Bonus);
 
 protected:
-	
-	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const;
+	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
 	UFUNCTION()
 	void OnRep_Level(const FGameplayAttributeData& OldValue);
@@ -87,9 +81,6 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_Resistance(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	void OnRep_MoveSpeed(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
 	void OnRep_Chance(const FGameplayAttributeData& OldValue);
@@ -149,10 +140,6 @@ private:
 	/** Secondary Attribute - To status and damage types. */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Resistance, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Resistance;
-
-	/** Secondary Attribute */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MoveSpeed, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData MoveSpeed;
 
 	/** Secondary Attribute - A generic attribute for various events that need to check a percent. */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Chance, meta = (AllowPrivateAccess = true))

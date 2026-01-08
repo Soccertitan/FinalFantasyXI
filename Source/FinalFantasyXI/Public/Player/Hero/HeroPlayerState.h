@@ -14,8 +14,8 @@ class UManaPointsAttributeSet;
 class UEquipmentManagerComponent;
 class UHeroManagerComponent;
 class UCrysManaPointsSet;
-class UCrysAttributeSet;
-class UTacticalPointsAttributeSet;
+class UPrimaryAttributeSet;
+class UResourcePointsAttributeSet;
 class UCrimAbilitySystemComponent;
 class UCrysHitPointsAttributeSet;
 
@@ -33,11 +33,11 @@ class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbi
 	UPROPERTY()
 	TObjectPtr<UCrysHitPointsAttributeSet> HitPointsAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UTacticalPointsAttributeSet> TacticalPointsAttributeSet;
+	TObjectPtr<UResourcePointsAttributeSet> TacticalPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UCrysAttributeSet> CrysAttributeSet;
+	TObjectPtr<UPrimaryAttributeSet> CrysAttributeSet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "InventoryManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryManagerComponent> InventoryManagerComponent;

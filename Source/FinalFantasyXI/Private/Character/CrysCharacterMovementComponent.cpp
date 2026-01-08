@@ -5,7 +5,8 @@
 
 #include "CrimAbilitySystemComponent.h"
 #include "CrysGameplayTags.h"
-#include "AbilitySystem/AttributeSet/CrysAttributeSet.h"
+#include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
+#include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 
 
 UCrysCharacterMovementComponent::UCrysCharacterMovementComponent()
@@ -15,27 +16,19 @@ UCrysCharacterMovementComponent::UCrysCharacterMovementComponent()
 
 float UCrysCharacterMovementComponent::GetMaxSpeed() const
 {
-	if (AbilitySystemComponent)
+	if (bMovementRooted)
 	{
-		if (AbilitySystemComponent->HasMatchingGameplayTag(FCrysGameplayTags::Get().Gameplay_State_MovementRooted))
-		{
-			return 0.f;	
-		}
-		
-		return AbilitySystemComponent->GetNumericAttribute(UCrysAttributeSet::GetMoveSpeedAttribute());
+		return 0.f;
 	}
 	
-	return Super::GetMaxSpeed();
+	return Super::GetMaxSpeed() * MovementSpeedMultiplier;
 }
 
 FRotator UCrysCharacterMovementComponent::GetDeltaRotation(float DeltaTime) const
 {
-	if (AbilitySystemComponent)
+	if (bMovementRooted)
 	{
-		if (AbilitySystemComponent->HasMatchingGameplayTag(FCrysGameplayTags::Get().Gameplay_State_MovementRooted))
-		{
-			return FRotator();
-		}
+		return FRotator();
 	}
 
 	return Super::GetDeltaRotation(DeltaTime);
@@ -43,8 +36,46 @@ FRotator UCrysCharacterMovementComponent::GetDeltaRotation(float DeltaTime) cons
 
 void UCrysCharacterMovementComponent::InitializeWithAbilitySystem_Implementation(UCrimAbilitySystemComponent* NewAbilitySystemComponent)
 {
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RegisterGameplayTagEvent(
+			FCrysGameplayTags::Get().Gameplay_State_MovementRooted,
+			EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
+	}
+
 	AbilitySystemComponent = NewAbilitySystemComponent;
+	
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RegisterGameplayTagEvent(
+		   FCrysGameplayTags::Get().Gameplay_State_MovementRooted,
+		   EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UCrysCharacterMovementComponent::OnGameplayTagMovementRootedUpdated);
+		
+		bMovementRooted = AbilitySystemComponent->HasMatchingGameplayTag(FCrysGameplayTags::Get().Gameplay_State_MovementRooted);
+		
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UMovementAttributeSet::GetMovementSpeedMultiplierAttribute())
+		.AddUObject(this, &UCrysCharacterMovementComponent::OnMovementSpeedMultiplierUpdated);
+		
+		bool bFound = false;
+		MovementSpeedMultiplier = AbilitySystemComponent->GetGameplayAttributeValue(
+			UMovementAttributeSet::GetMovementSpeedMultiplierAttribute(), bFound);
+		MovementSpeedMultiplier = bFound ? MovementSpeedMultiplier : 1.f;
+	}
 }
 
+void UCrysCharacterMovementComponent::OnGameplayTagMovementRootedUpdated(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		bMovementRooted = true;
+	}
+	else
+	{
+		bMovementRooted = false;
+	}
+}
 
-
+void UCrysCharacterMovementComponent::OnMovementSpeedMultiplierUpdated(const FOnAttributeChangeData& Data)
+{
+	MovementSpeedMultiplier = Data.NewValue;
+}

@@ -8,6 +8,9 @@
 #include "CrysCharacterMovementComponent.generated.h"
 
 
+struct FOnAttributeChangeData;
+struct FGameplayTag;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FINALFANTASYXI_API UCrysCharacterMovementComponent : public UCharacterMovementComponent, public ICrimAbilitySystemInterface
 {
@@ -27,4 +30,14 @@ private:
 	// Cached ASC from the owner.
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
+	
+	// Cached value from the ASC.
+	UPROPERTY()
+	float MovementSpeedMultiplier = 1.f;
+	
+	UPROPERTY()
+	bool bMovementRooted = false;
+	
+	void OnGameplayTagMovementRootedUpdated(const FGameplayTag Tag, int32 NewCount);
+	void OnMovementSpeedMultiplierUpdated(const FOnAttributeChangeData& Data);
 };

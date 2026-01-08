@@ -8,8 +8,9 @@
 #include "Net/UnrealNetwork.h"
 
 UManaPointsAttributeSet::UManaPointsAttributeSet()
-	: CurrentPoints(100.f), MaxPoints(100.f)
 {
+	CurrentPoints = 1.f;
+	MaxPoints = 1.f;
 }
 
 void UManaPointsAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -69,20 +70,6 @@ void UManaPointsAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 	}
 }
 
-void UManaPointsAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-	Super::PreAttributeBaseChange(Attribute, NewValue);
-	
-	ClampAttribute(Attribute, NewValue);
-}
-
-void UManaPointsAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
-{
-	Super::PreAttributeChange(Attribute, NewValue);
-	
-	ClampAttribute(Attribute, NewValue);
-}
-
 void UManaPointsAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
@@ -92,15 +79,12 @@ void UManaPointsAttributeSet::PostAttributeChange(const FGameplayAttribute& Attr
 		// Make sure current ManaPoints is not greater than the new MaxManaPoints.
 		if (GetCurrentPoints() > NewValue)
 		{
-			UCrimAbilitySystemComponent* CrimASC = GetCrimAbilitySystemComponent();
-			check(CrimASC);
-
-			CrimASC->ApplyModToAttribute(GetCurrentPointsAttribute(), EGameplayModOp::Override, NewValue);
+			GetOwningAbilitySystemComponentChecked()->SetNumericAttributeBase(GetCurrentPointsAttribute(), NewValue);
 		}
 	}
 }
 
-void UManaPointsAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
+void UManaPointsAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetCurrentPointsAttribute())
 	{
