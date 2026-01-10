@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/CrimAttributeSetBase.h"
+#include "Attribute/CrimAttributeSet.h"
 #include "ManaPointsAttributeSet.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UManaPointsAttributeSet : public UCrimAttributeSetBase
+class FINALFANTASYXI_API UManaPointsAttributeSet : public UCrimAttributeSet
 {
 	GENERATED_BODY()
 	

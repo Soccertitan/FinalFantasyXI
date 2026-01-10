@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/CrimAttributeSetBase.h"
+#include "Attribute/CrimAttributeSet.h"
 #include "MovementAttributeSet.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UMovementAttributeSet : public UCrimAttributeSetBase
+class FINALFANTASYXI_API UMovementAttributeSet : public UCrimAttributeSet
 {
 	GENERATED_BODY()
 	

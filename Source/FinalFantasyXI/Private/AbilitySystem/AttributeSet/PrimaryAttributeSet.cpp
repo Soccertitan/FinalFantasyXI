@@ -7,20 +7,14 @@
 
 UPrimaryAttributeSet::UPrimaryAttributeSet()
 {
-	Level = 1;
-	Strength = 1;
-	Vitality = 1;
-	Dexterity = 1;
-	Agility = 1;
-	Intelligence = 1;
-	Mind = 1;
-	Charisma = 1;
-	
-	Attack = 1;
-	Defense = 1.f;
-	Accuracy = 1.f;
-	Evasion = 1.f;
-	CriticalHitRate = .05f;
+	InitLevel(1.f);
+	InitStrength(1.f);
+	InitVitality(1.f);
+	InitDexterity(1.f);
+	InitAgility(1.f);
+	InitIntelligence(1.f);
+	InitMind(1.f);
+	InitCharisma(1.f);
 }
 
 void UPrimaryAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -28,7 +22,6 @@ void UPrimaryAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Level, COND_None, REPNOTIFY_Always);
-
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Strength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Vitality, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Dexterity, COND_None, REPNOTIFY_Always);
@@ -36,46 +29,12 @@ void UPrimaryAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Intelligence, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Mind, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Charisma, COND_None, REPNOTIFY_Always);
-
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Attack, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Defense, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Accuracy, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Evasion, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CriticalHitRate, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CriticalHitDamage, COND_None, REPNOTIFY_Always);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Haste, COND_None, REPNOTIFY_Always);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Resistance, COND_None, REPNOTIFY_Always);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Chance, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Bonus, COND_None, REPNOTIFY_Always);
 }
 
 void UPrimaryAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	if (Attribute == GetLevelAttribute() ||
-		Attribute == GetStrengthAttribute() ||
-		Attribute == GetVitalityAttribute() ||
-		Attribute == GetDexterityAttribute() ||
-		Attribute == GetAgilityAttribute() ||
-		Attribute == GetIntelligenceAttribute() ||
-		Attribute == GetMindAttribute() ||
-		Attribute == GetCharismaAttribute() ||
-		Attribute == GetAttackAttribute() ||
-		Attribute == GetDefenseAttribute() ||
-		Attribute == GetAccuracyAttribute() ||
-		Attribute == GetEvasionAttribute())
-	{
-		// Ensure none of these attributes can drop below 1. As they will be divided into.
-		NewValue = FMath::Max(NewValue, 1.0f);
-	}
-	else if (Attribute == GetCriticalHitRateAttribute() ||
-		Attribute == GetCriticalHitDamageAttribute())
-	{
-		// Ensure none of these attributes can drop below 0.
-		NewValue = FMath::Max(NewValue, 0.f);
-	}
+	// Ensure none of these attributes can drop below 0.
+	NewValue = FMath::Max(NewValue, .0f);
 }
 
 void UPrimaryAttributeSet::OnRep_Level(const FGameplayAttributeData& OldValue)
@@ -116,54 +75,4 @@ void UPrimaryAttributeSet::OnRep_Mind(const FGameplayAttributeData& OldValue)
 void UPrimaryAttributeSet::OnRep_Charisma(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Charisma, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Attack(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Attack, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Defense(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Defense, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Accuracy(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Accuracy, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Evasion(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Evasion, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_CriticalHitRate(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, CriticalHitRate, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_CriticalHitDamage(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, CriticalHitDamage, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Haste(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Haste, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Resistance(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Resistance, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Chance(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Chance, OldValue);
-}
-
-void UPrimaryAttributeSet::OnRep_Bonus(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Bonus, OldValue);
 }
