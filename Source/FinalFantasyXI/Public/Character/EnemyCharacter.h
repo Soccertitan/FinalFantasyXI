@@ -8,6 +8,10 @@
 #include "GameplayTagAssetInterface.h"
 #include "EnemyCharacter.generated.h"
 
+class UAbilityAttributeSet;
+class UMovementAttributeSet;
+class UCombatSkillAttributeSet;
+class UCombatAttributeSet;
 class UAbilitySet;
 class UHitPointsComponent;
 class UCrimAbilitySystemComponent;
@@ -31,9 +35,16 @@ class FINALFANTASYXI_API AEnemyCharacter : public ACrysCharacter, public IGamepl
 	TObjectPtr<UResourcePointsAttributeSet> TacticalPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
-	
 	UPROPERTY()
-	TObjectPtr<UPrimaryAttributeSet> CrysAttributeSet;
+	TObjectPtr<UPrimaryAttributeSet> PrimaryAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UCombatSkillAttributeSet> CombatSkillAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UMovementAttributeSet> MovementAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UAbilityAttributeSet> AbilityAttributeSet;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitPointsComponent, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UHitPointsComponent> HitPointsComponent;

@@ -10,6 +10,10 @@
 #include "HeroSystem/HeroSystemInterface.h"
 #include "HeroPlayerState.generated.h"
 
+class UAbilityAttributeSet;
+class UCombatSkillAttributeSet;
+class UMovementAttributeSet;
+class UCombatAttributeSet;
 class UManaPointsAttributeSet;
 class UEquipmentManagerComponent;
 class UHeroManagerComponent;
@@ -37,7 +41,15 @@ class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbi
 	UPROPERTY()
 	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UPrimaryAttributeSet> CrysAttributeSet;
+	TObjectPtr<UPrimaryAttributeSet> PrimaryAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UCombatSkillAttributeSet> CombatSkillAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UMovementAttributeSet> MovementAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UAbilityAttributeSet> AbilityAttributeSet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "InventoryManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryManagerComponent> InventoryManagerComponent;

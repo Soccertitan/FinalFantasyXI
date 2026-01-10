@@ -5,9 +5,13 @@
 
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
+#include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
+#include "AbilitySystem/AttributeSet/CombatAttributeSet.h"
+#include "AbilitySystem/AttributeSet/CombatSkillAttributeSet.h"
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
+#include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "Attribute/HitPointsComponent.h"
 #include "Attribute/ResourcePointsAttributeSet.h"
 #include "Character/CrysCharacterMovementComponent.h"
@@ -25,7 +29,11 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& ObjectInitializer)
 	HitPointsAttributeSet = CreateDefaultSubobject<UCrysHitPointsAttributeSet>("HitPointsAttributeSet");
 	TacticalPointsAttributeSet = CreateDefaultSubobject<UResourcePointsAttributeSet>("TacticalPointsAttributeSet");
 	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
-	CrysAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("CrysAttributeSet");
+	PrimaryAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("PrimaryAttributeSet");
+	CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>("CombatAttributeSet");
+	CombatSkillAttributeSet = CreateDefaultSubobject<UCombatSkillAttributeSet>("CombatSkillAttributeSet");
+	MovementAttributeSet = CreateDefaultSubobject<UMovementAttributeSet>("MovementAttributeSet");
+	AbilityAttributeSet = CreateDefaultSubobject<UAbilityAttributeSet>("AbilityAttributeSet");
 	
 	HitPointsComponent = CreateDefaultSubobject<UHitPointsComponent>(TEXT("HitPointsComponent"));
 
