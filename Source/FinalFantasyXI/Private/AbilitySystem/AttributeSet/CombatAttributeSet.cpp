@@ -13,6 +13,10 @@ UCombatAttributeSet::UCombatAttributeSet()
 	InitEvasion(1.f);
 
 	InitCriticalHitChance(0.05f);
+	InitPotencyMultiplier(1.f);
+	InitAbilityCooldownMultiplier(1.f);
+	InitAbilityCostMultiplier(1.f);
+	InitEnmityMultiplier(1.f);
 }
 
 void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -22,8 +26,6 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Attack, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Defense, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Resistance, COND_None, REPNOTIFY_Always);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CriticalHitChance, COND_None, REPNOTIFY_Always);
 }
 
 void UCombatAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
@@ -37,7 +39,8 @@ void UCombatAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, f
 		return;
 	}
 	
-	if (Attribute == GetCriticalHitChanceAttribute())
+	if (Attribute == GetCriticalHitChanceAttribute() || Attribute == GetEnmityMultiplierAttribute() ||
+		Attribute == GetPotencyMultiplierAttribute() || Attribute == GetProbabilityAttribute())
 	{
 		NewValue = FMath::Max(NewValue, 0.f);
 	}
@@ -56,9 +59,4 @@ void UCombatAttributeSet::OnRep_Defense(const FGameplayAttributeData& OldValue)
 void UCombatAttributeSet::OnRep_Resistance(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Resistance, OldValue);
-}
-
-void UCombatAttributeSet::OnRep_CriticalHitChance(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, CriticalHitChance, OldValue);
 }
