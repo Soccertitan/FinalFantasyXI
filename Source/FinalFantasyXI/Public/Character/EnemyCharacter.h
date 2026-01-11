@@ -8,10 +8,11 @@
 #include "GameplayTagAssetInterface.h"
 #include "EnemyCharacter.generated.h"
 
+class UDefenderAttributeSet;
 class UAbilityAttributeSet;
 class UMovementAttributeSet;
 class UCombatSkillAttributeSet;
-class UCombatAttributeSet;
+class UAttackerAttributeSet;
 class UAbilitySet;
 class UHitPointsComponent;
 class UCrimAbilitySystemComponent;
@@ -38,7 +39,9 @@ class FINALFANTASYXI_API AEnemyCharacter : public ACrysCharacter, public IGamepl
 	UPROPERTY()
 	TObjectPtr<UPrimaryAttributeSet> PrimaryAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+	TObjectPtr<UAttackerAttributeSet> AttackerAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UDefenderAttributeSet> DefenderAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UCombatSkillAttributeSet> CombatSkillAttributeSet;
 	UPROPERTY()

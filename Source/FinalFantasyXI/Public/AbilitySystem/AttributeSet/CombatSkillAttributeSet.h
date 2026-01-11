@@ -21,7 +21,6 @@ public:
 
 	ATTRIBUTE_ACCESSORS(ThisClass, WeaponSkill);
 	ATTRIBUTE_ACCESSORS(ThisClass, MagicSkill);
-	ATTRIBUTE_ACCESSORS(ThisClass, EvasionSkill);
 	
 protected:
 	
@@ -31,8 +30,6 @@ protected:
 	void OnRep_WeaponSkill(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
 	void OnRep_MagicSkill(const FGameplayAttributeData& OldValue);
-	UFUNCTION()
-	void OnRep_EvasionSkill(const FGameplayAttributeData& OldValue);
 	
 private:
 	
@@ -43,8 +40,4 @@ private:
 	/** Boost the effectiveness of magic. */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MagicSkill, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MagicSkill;
-	
-	/** Boost the likelihood of evading attacks. */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_EvasionSkill, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData EvasionSkill;
 };

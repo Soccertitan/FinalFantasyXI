@@ -15,7 +15,6 @@ void UCombatSkillAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetime
 	
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, WeaponSkill, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MagicSkill, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, EvasionSkill, COND_None, REPNOTIFY_Always);
 }
 
 void UCombatSkillAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
@@ -33,9 +32,4 @@ void UCombatSkillAttributeSet::OnRep_WeaponSkill(const FGameplayAttributeData& O
 void UCombatSkillAttributeSet::OnRep_MagicSkill(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MagicSkill, OldValue);
-}
-
-void UCombatSkillAttributeSet::OnRep_EvasionSkill(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, EvasionSkill, OldValue);
 }

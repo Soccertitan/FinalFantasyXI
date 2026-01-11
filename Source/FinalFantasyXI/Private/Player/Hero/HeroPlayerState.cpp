@@ -6,10 +6,12 @@
 #include "CrimAbilitySystemComponent.h"
 #include "InventoryManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
-#include "AbilitySystem/AttributeSet/CombatAttributeSet.h"
+#include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CombatSkillAttributeSet.h"
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
+#include "AbilitySystem/AttributeSet/DefenderAttributeSet.h"
+#include "AbilitySystem/AttributeSet/JobAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "Attribute/ResourcePointsAttributeSet.h"
@@ -26,10 +28,12 @@ AHeroPlayerState::AHeroPlayerState()
 	TacticalPointsAttributeSet = CreateDefaultSubobject<UResourcePointsAttributeSet>("TacticalPointsAttributeSet");
 	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
 	PrimaryAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("PrimaryAttributeSet");
-	CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>("CombatAttributeSet");
+	AttackerAttributeSet = CreateDefaultSubobject<UAttackerAttributeSet>("AttackerAttributeSet");
+	DefenderAttributeSet = CreateDefaultSubobject<UDefenderAttributeSet>("DefenderAttributeSet");
 	CombatSkillAttributeSet = CreateDefaultSubobject<UCombatSkillAttributeSet>("CombatSkillAttributeSet");
 	MovementAttributeSet = CreateDefaultSubobject<UMovementAttributeSet>("MovementAttributeSet");
 	AbilityAttributeSet = CreateDefaultSubobject<UAbilityAttributeSet>("AbilityAttributeSet");
+	JobAttributeSet = CreateDefaultSubobject<UJobAttributeSet>("JobAttributeSet");
 
 	SetNetUpdateFrequency(100.f);
 
