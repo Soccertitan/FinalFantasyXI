@@ -22,10 +22,6 @@ AHeroPlayerController::AHeroPlayerController()
 	AbilityInputManagerComponent->SetIsReplicated(false);
 
 	WeaponSetManagerComponent = CreateDefaultSubobject<UWeaponSetManagerComponent>(TEXT("WeaponSetManagerComponent"));
-
-	UTargetPointFilter_Cone* Filter_Cone = CreateDefaultSubobject<UTargetPointFilter_Cone>(TEXT("Filter_Cone"));
-	Filter_Cone->ConeHalfAngle = 60.f;
-	TargetFilters.Add(Filter_Cone);
 }
 
 void AHeroPlayerController::BeginPlay()
@@ -70,11 +66,6 @@ void AHeroPlayerController::OnRep_PlayerState()
 void AHeroPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if (IsLocalController() && TargetSystemComponent && !TargetSystemComponent->IsCameraLocked())
-	{
-		TargetSystemComponent->SetTarget(TargetSystemComponent->FindNearestTarget(TargetFilters));
-	}
 }
 
 void AHeroPlayerController::SetupInputComponent()
@@ -115,7 +106,7 @@ void AHeroPlayerController::RemoveAbilityMappingContextAndReleaseAbilityInputs()
 		EnhancedInputSubsystem->RemoveMappingContext(HeroInputSet->ContextAbility);
 
 		FInputActionValue FalseActionValue(false);
-		InputActionAbilityToggle(FalseActionValue);
+		InputActionPrimaryAbilityToggle(FalseActionValue);
 
 		if (HeroInputSet->InputConfigGenericAbility)
 		{
@@ -198,7 +189,8 @@ void AHeroPlayerController::SetupHeroInputSet()
 	//-----------------------------------------------------------------
 	// Ability Input Actions
 	//-----------------------------------------------------------------
-	if (HeroInputSet->InputActionAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionAbilityToggle);
+	if (HeroInputSet->InputActionPrimaryAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionPrimaryAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionPrimaryAbilityToggle);
+	if (HeroInputSet->InputActionSubAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionSubAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionSubAbilityToggle);
 	
 	EnhancedInputComponent->BindInputActions(
 			HeroInputSet->InputConfigPrimaryAbility,
@@ -249,7 +241,7 @@ void AHeroPlayerController::InputActionPrimaryAbility(const FInputActionValue& V
 {
 	if (Value.Get<bool>())
 	{
-		if (bAbilityTogglePressed == false)
+		if (bPrimaryAbilityTogglePressed == true)
 		{
 			OnAbilityInputPressed(InputTag);
 		}
@@ -264,7 +256,7 @@ void AHeroPlayerController::InputActionSubAbility(const FInputActionValue& Value
 {
 	if (Value.Get<bool>())
 	{
-		if (bAbilityTogglePressed == true)
+		if (bSubAbilityTogglePressed == true && bPrimaryAbilityTogglePressed == false)
 		{
 			OnAbilityInputPressed(InputTag);
 		}
@@ -287,10 +279,16 @@ void AHeroPlayerController::InputActionGenericAbility(const FInputActionValue& V
 	}
 }
 
-void AHeroPlayerController::InputActionAbilityToggle(const FInputActionValue& Value)
+void AHeroPlayerController::InputActionPrimaryAbilityToggle(const FInputActionValue& Value)
 {
-	bAbilityTogglePressed = Value.Get<bool>();
-	OnAbilityToggleStateChangedDelegate.Broadcast(Value.Get<bool>());
+	bPrimaryAbilityTogglePressed = Value.Get<bool>();
+	OnPrimaryAbilityToggleStateChangedDelegate.Broadcast(Value.Get<bool>());
+}
+
+void AHeroPlayerController::InputActionSubAbilityToggle(const FInputActionValue& Value)
+{
+	bSubAbilityTogglePressed = Value.Get<bool>();
+	OnSubAbilityToggleStateChangedDelegate.Broadcast(Value.Get<bool>());
 }
 
 void AHeroPlayerController::OnAbilityInputPressed(FGameplayTag InputTag)

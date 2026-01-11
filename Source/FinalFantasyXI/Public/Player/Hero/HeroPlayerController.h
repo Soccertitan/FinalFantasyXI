@@ -42,10 +42,14 @@ public:
 	FHeroPlayerControllerInputSignature OnInputReleasedDelegate;
 	
 	/** Called when the InputAction PrimaryAbilityToggle is pressed or released. */
-	FHeroPlayerControllerBoolSignature OnAbilityToggleStateChangedDelegate;
+	FHeroPlayerControllerBoolSignature OnPrimaryAbilityToggleStateChangedDelegate;
+	/** Called when the InputAction SubAbilityToggle is pressed or released. */
+	FHeroPlayerControllerBoolSignature OnSubAbilityToggleStateChangedDelegate;
 	
 	UFUNCTION(BlueprintPure, Category = "PlayerController|Hero")
-	bool IsAbilityTogglePressed() const { return bAbilityTogglePressed; }
+	bool IsPrimaryAbilityTogglePressed() const { return bPrimaryAbilityTogglePressed; }
+	UFUNCTION(BlueprintPure, Category = "PlayerController|Hero")
+	bool IsSubAbilityTogglePressed() const { return bSubAbilityTogglePressed; }
 
 	//-----------------------------------------------------------------------------------------
 	// Class overrides
@@ -106,7 +110,9 @@ private:
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem;
 
 	UPROPERTY()
-	bool bAbilityTogglePressed = false;
+	bool bPrimaryAbilityTogglePressed = false;
+	UPROPERTY()
+	bool bSubAbilityTogglePressed = false;
 
 	/** Binds the input in the HeroInputSet to the EnhancedInputSubsystem. */
 	void SetupHeroInputSet();
@@ -120,7 +126,8 @@ private:
 	void InputActionSubAbility(const FInputActionValue& Value, FGameplayTag InputTag);
 	void InputActionGenericAbility(const FInputActionValue& Value, FGameplayTag InputTag);
 
-	void InputActionAbilityToggle(const FInputActionValue& Value);
+	void InputActionPrimaryAbilityToggle(const FInputActionValue& Value);
+	void InputActionSubAbilityToggle(const FInputActionValue& Value);
 
 	void OnAbilityInputPressed(FGameplayTag InputTag);
 	void OnAbilityInputReleased(FGameplayTag InputTag);
