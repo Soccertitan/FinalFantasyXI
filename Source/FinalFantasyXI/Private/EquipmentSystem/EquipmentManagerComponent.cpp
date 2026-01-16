@@ -57,7 +57,7 @@ void UEquipmentManagerComponent::InitializeWithAbilitySystem_Implementation(UCri
 
 	if (IsReadyToManageEquipment())
 	{
-		HeroManagerComponent->OnHeroClassChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnHeroClassChanged);
+		// HeroManagerComponent->OnHeroClassChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnHeroClassChanged);
 		InventoryManagerComponent->OnItemRemovedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnItemRemoved);
 		OnEquipmentManagerInitializedDelegate.Broadcast();
 	}
@@ -217,9 +217,9 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 
 	if (ItemFragment_Equipment->EquipRequirement.HeroClassRestrictions.IsValid())
 	{
-		if (UHeroClassDefinition* HeroClass = HeroManagerComponent->GetHeroClass())
+		if (UHeroJobDefinition* HeroClass = HeroManagerComponent->GetHeroMainJob())
 		{
-			if (!ItemFragment_Equipment->EquipRequirement.HeroClassRestrictions.HasTag(HeroClass->HeroClassTag))
+			if (!ItemFragment_Equipment->EquipRequirement.HeroClassRestrictions.HasTag(HeroClass->JobTag))
 			{
 				return false;
 			}

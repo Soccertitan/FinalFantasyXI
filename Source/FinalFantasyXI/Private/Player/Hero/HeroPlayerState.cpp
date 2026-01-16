@@ -11,7 +11,7 @@
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/DefenderAttributeSet.h"
-#include "AbilitySystem/AttributeSet/JobAttributeSet.h"
+#include "AbilitySystem/AttributeSet/HeroJobAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "Attribute/ResourcePointsAttributeSet.h"
@@ -33,7 +33,7 @@ AHeroPlayerState::AHeroPlayerState()
 	CombatSkillAttributeSet = CreateDefaultSubobject<UCombatSkillAttributeSet>("CombatSkillAttributeSet");
 	MovementAttributeSet = CreateDefaultSubobject<UMovementAttributeSet>("MovementAttributeSet");
 	AbilityAttributeSet = CreateDefaultSubobject<UAbilityAttributeSet>("AbilityAttributeSet");
-	JobAttributeSet = CreateDefaultSubobject<UJobAttributeSet>("JobAttributeSet");
+	JobAttributeSet = CreateDefaultSubobject<UHeroJobAttributeSet>("JobAttributeSet");
 
 	SetNetUpdateFrequency(100.f);
 

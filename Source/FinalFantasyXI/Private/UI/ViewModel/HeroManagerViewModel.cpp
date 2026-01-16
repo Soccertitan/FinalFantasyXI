@@ -7,37 +7,58 @@
 #include "GameFramework/PlayerState.h"
 #include "HeroSystem/HeroManagerComponent.h"
 #include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
-#include "UI/ViewModel/Component/HeroClassViewModel.h"
+#include "UI/ViewModel/Component/HeroJobViewModel.h"
 
-UHeroClassViewModel* UHeroManagerViewModel::FindHeroClassViewModel(FGameplayTag HeroClassTag)
+UHeroJobViewModel* UHeroManagerViewModel::FindHeroJobViewModel(FGameplayTag HeroJobTag)
 {
-	if (HeroClassTag.IsValid())
+	if (HeroJobTag.IsValid())
 	{
-		for (const TObjectPtr<UHeroClassViewModel>& HeroClassViewModel : HeroClassViewModels)
+		for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
 		{
-			if (HeroClassViewModel->GetHeroClass()->HeroClassTag.MatchesTagExact(HeroClassTag))
+			if (HeroJobViewModel->GetHeroJob()->JobTag.MatchesTagExact(HeroJobTag))
 			{
-				return HeroClassViewModel;
+				return HeroJobViewModel;
 			}
 		}
 	}
 	return nullptr;
 }
 
-void UHeroManagerViewModel::TrySetHeroClass(FGameplayTag HeroClassTag)
+void UHeroManagerViewModel::TrySetHeroJobs(FGameplayTag MainJobTag, FGameplayTag SubJobTag)
 {
-	if (!HeroClassTag.IsValid() || !HeroManagerComponent || bSwitchingHeroClass)
+	if (!MainJobTag.IsValid() || !HeroManagerComponent || bSwitchingHeroJobs || MainJobTag == SubJobTag)
 	{
 		return;
 	}
 	
-	for (const TObjectPtr<UHeroClassViewModel>& HeroClassViewModel : HeroClassViewModels)
+	UHeroJobDefinition* NewMainJob = nullptr;
+	UHeroJobDefinition* NewSubJob = nullptr;
+
+	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
 	{
-		if (HeroClassViewModel->GetHeroClass()->HeroClassTag.MatchesTagExact(HeroClassTag))
+		if (HeroJobViewModel->GetHeroJob()->JobTag.MatchesTagExact(MainJobTag))
 		{
-			UE_MVVM_SET_PROPERTY_VALUE(bSwitchingHeroClass, true);
-			HeroManagerComponent->TrySetHeroClass(HeroClassViewModel->GetHeroClass());
+			NewMainJob = HeroJobViewModel->GetHeroJob();
+			break;
 		}
+	}
+	
+	if (SubJobTag.IsValid())
+	{
+		for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
+		{
+			if (HeroJobViewModel->GetHeroJob()->JobTag.MatchesTagExact(SubJobTag))
+			{
+				NewSubJob = HeroJobViewModel->GetHeroJob();
+				break;
+			}
+		}
+	}
+
+	if (NewMainJob)
+	{
+		UE_MVVM_SET_PROPERTY_VALUE(bSwitchingHeroJobs, true);
+		HeroManagerComponent->TrySetHeroJobs(NewMainJob, NewSubJob);
 	}
 }
 
@@ -47,106 +68,144 @@ void UHeroManagerViewModel::OnInitializeViewModel(APlayerController* PlayerContr
 
 	if (HeroManagerComponent)
 	{
-		HeroManagerComponent->OnHeroClassChangedDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnHeroClassChanged);
-		HeroManagerComponent->OnTrySetHeroClassFailedDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnTrySetHeroClassFailed);
-		HeroManagerComponent->OnHeroClassProgressUpdatedDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnHeroClassProgressUpdated);
-		CreateHeroClassViewModel(HeroManagerComponent->GetHeroClass());
-		LoadHeroClasses();
+		HeroManagerComponent->OnHeroMainJobChangedDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnHeroMainJobChanged);
+		HeroManagerComponent->OnHeroSubJobChangedDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnHeroSubJobChanged);
+		HeroManagerComponent->OnTrySetHeroJobDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnTrySetHeroJob);
+		HeroManagerComponent->OnHeroJobProgressUpdatedDelegate.AddUniqueDynamic(this, &UHeroManagerViewModel::OnHeroJobProgressUpdated);
+		CreateHeroJobViewModel(HeroManagerComponent->GetHeroMainJob());
+		CreateHeroJobViewModel(HeroManagerComponent->GetHeroSubJob());
+		LoadHeroJobs();
 	}
 }
 
-void UHeroManagerViewModel::SetIsLoadingHeroClasses(const bool InValue)
+void UHeroManagerViewModel::SetIsLoadingHeroJobs(const bool InValue)
 {
-	UE_MVVM_SET_PROPERTY_VALUE(bLoadingHeroClasses, InValue);
+	UE_MVVM_SET_PROPERTY_VALUE(bLoadingHeroJobs, InValue);
 }
 
-void UHeroManagerViewModel::SetCurrentHeroClassViewModel(UHeroClassViewModel* InValue)
+void UHeroManagerViewModel::SetHeroMainJobViewModel(UHeroJobViewModel* InValue)
 {
 	if (InValue)
 	{
-		InValue->SetIsCurrentHeroClass(true);
+		InValue->SetIsMainJob(true);
 	}
-	CurrentHeroClassViewModel = InValue;
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetCurrentHeroClassViewModel);
+	HeroMainJobViewModel = InValue;
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetHeroMainJobViewModel);
 }
 
-void UHeroManagerViewModel::LoadHeroClasses()
+void UHeroManagerViewModel::SetHeroSubJobViewModel(UHeroJobViewModel* InValue)
 {
-	FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &UHeroManagerViewModel::OnHeroClassesLoaded);
-	HeroClassStreamableHandle = UAssetManager::Get().PreloadPrimaryAssets(HeroClassesToLoad, {}, false, Delegate);
-}
-
-void UHeroManagerViewModel::OnHeroClassesLoaded()
-{
-	for (const FPrimaryAssetId& AssetId : HeroClassesToLoad)
+	if (InValue)
 	{
-		if (UHeroClassDefinition* HeroClass = Cast<UHeroClassDefinition>(UAssetManager::Get().GetPrimaryAssetObject(AssetId)))
+		InValue->SetIsSubJob(false);
+	}
+	HeroSubJobViewModel = InValue;
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetHeroSubJobViewModel);
+}
+
+void UHeroManagerViewModel::LoadHeroJobs()
+{
+	FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &UHeroManagerViewModel::OnHeroJobsLoaded);
+	HeroJobStreamableHandle = UAssetManager::Get().PreloadPrimaryAssets(HeroJobsToLoad, {}, false, Delegate);
+}
+
+void UHeroManagerViewModel::OnHeroJobsLoaded()
+{
+	for (const FPrimaryAssetId& AssetId : HeroJobsToLoad)
+	{
+		if (UHeroJobDefinition* HeroJob = Cast<UHeroJobDefinition>(UAssetManager::Get().GetPrimaryAssetObject(AssetId)))
 		{
-			CreateHeroClassViewModel(HeroClass);
+			CreateHeroJobViewModel(HeroJob);
 		}
 	}
-	UE_MVVM_SET_PROPERTY_VALUE(bLoadingHeroClasses, false);
-	HeroClassStreamableHandle.Reset();
+	UE_MVVM_SET_PROPERTY_VALUE(bLoadingHeroJobs, false);
+	HeroJobStreamableHandle.Reset();
 }
 
-void UHeroManagerViewModel::CreateHeroClassViewModel(UHeroClassDefinition* HeroClass)
+void UHeroManagerViewModel::CreateHeroJobViewModel(UHeroJobDefinition* HeroJob)
 {
-	if (HeroClass)
+	if (HeroJob)
 	{
-		UHeroClassViewModel* HeroClassViewModel = FindHeroClassViewModel(HeroClass->HeroClassTag);
-		if (!HeroClassViewModel)
+		UHeroJobViewModel* HeroJobViewModel = FindHeroJobViewModel(HeroJob->JobTag);
+		if (!HeroJobViewModel)
 		{
-			HeroClassViewModel = NewObject<UHeroClassViewModel>(this, UHeroClassViewModel::StaticClass());
-			const FHeroClassProgressItem ProgressItem = HeroManagerComponent->FindHeroClassProgressItem(HeroClass->HeroClassTag);
-			HeroClassViewModel->SetHeroClassAndProgress(HeroClass, ProgressItem);
-			if (HeroManagerComponent->GetHeroClass() == HeroClass)
+			HeroJobViewModel = NewObject<UHeroJobViewModel>(this, UHeroJobViewModel::StaticClass());
+			const FHeroJobProgressItem ProgressItem = HeroManagerComponent->FindHeroJobProgressItem(HeroJob->JobTag);
+			HeroJobViewModel->SetHeroJobAndProgress(HeroJob, ProgressItem);
+			if (HeroManagerComponent->GetHeroMainJob() == HeroJob)
 			{
-				SetCurrentHeroClassViewModel(HeroClassViewModel);
+				SetHeroMainJobViewModel(HeroJobViewModel);
 			}
-			HeroClassViewModels.Add(HeroClassViewModel);
+			if (HeroManagerComponent->GetHeroSubJob() == HeroJob)
+			{
+				SetHeroSubJobViewModel(HeroJobViewModel);
+			}
+			HeroJobViewModels.Add(HeroJobViewModel);
 		}
 	}
 }
 
-void UHeroManagerViewModel::OnHeroClassChanged(UHeroManagerComponent* InHeroManagerComponent)
+void UHeroManagerViewModel::OnHeroMainJobChanged(UHeroManagerComponent* InHeroManagerComponent)
 {
-	UHeroClassDefinition* CurrentHeroClass = InHeroManagerComponent->GetHeroClass();
+	UHeroJobDefinition* MainJob = InHeroManagerComponent->GetHeroMainJob();
 
-	bool bFoundExistingHeroClass = false;
-	for (const TObjectPtr<UHeroClassViewModel>& HeroClassViewModel : HeroClassViewModels)
+	bool bFoundExistingHeroJob = false;
+	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
 	{
-		if (HeroClassViewModel->GetHeroClass() == CurrentHeroClass)
+		if (HeroJobViewModel->GetHeroJob() == MainJob)
 		{
-			SetCurrentHeroClassViewModel(HeroClassViewModel);
-			bFoundExistingHeroClass = true;
+			SetHeroMainJobViewModel(HeroJobViewModel);
+			bFoundExistingHeroJob = true;
 		}
 		else
 		{
-			HeroClassViewModel->SetIsCurrentHeroClass(false);
+			HeroJobViewModel->SetIsMainJob(false);
 		}
 	}
 
-	if (!bFoundExistingHeroClass)
+	if (!bFoundExistingHeroJob)
 	{
-		CreateHeroClassViewModel(CurrentHeroClass);
+		CreateHeroJobViewModel(MainJob);
+	}
+}
+
+void UHeroManagerViewModel::OnHeroSubJobChanged(UHeroManagerComponent* InHeroManagerComponent)
+{
+	UHeroJobDefinition* SubJob = InHeroManagerComponent->GetHeroSubJob();
+
+	bool bFoundExistingHeroJob = false;
+	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
+	{
+		if (HeroJobViewModel->GetHeroJob() == SubJob)
+		{
+			SetHeroSubJobViewModel(HeroJobViewModel);
+			bFoundExistingHeroJob = true;
+		}
+		else
+		{
+			HeroJobViewModel->SetIsSubJob(false);
+		}
 	}
 
-	UE_MVVM_SET_PROPERTY_VALUE(bSwitchingHeroClass, false);
-}
-
-void UHeroManagerViewModel::OnTrySetHeroClassFailed(UHeroManagerComponent* InHeroManagerComponent)
-{
-	UE_MVVM_SET_PROPERTY_VALUE(bSwitchingHeroClass, false);
-}
-
-void UHeroManagerViewModel::OnHeroClassProgressUpdated(UHeroManagerComponent* InHeroManagerComponent,
-	const FHeroClassProgressItem& HeroClassProgressItem)
-{
-	for (const TObjectPtr<UHeroClassViewModel>& HeroClassViewModel : HeroClassViewModels)
+	if (!bFoundExistingHeroJob)
 	{
-		if (HeroClassViewModel->GetHeroClass()->HeroClassTag.MatchesTagExact(HeroClassProgressItem.HeroClassTag))
+		CreateHeroJobViewModel(SubJob);
+	}
+}
+
+void UHeroManagerViewModel::OnTrySetHeroJob(UHeroManagerComponent* InHeroManagerComponent, bool bSuccess)
+{
+	UE_MVVM_SET_PROPERTY_VALUE(bSwitchingHeroJobs, false);
+}
+
+void UHeroManagerViewModel::OnHeroJobProgressUpdated(UHeroManagerComponent* InHeroManagerComponent,
+	const FHeroJobProgressItem& HeroJobProgressItem)
+{
+	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
+	{
+		if (HeroJobViewModel->GetHeroJob()->JobTag.MatchesTagExact(HeroJobProgressItem.JobTag))
 		{
-			HeroClassViewModel->SetHeroClassProgressItem(HeroClassProgressItem);
+			HeroJobViewModel->SetHeroJobProgressItem(HeroJobProgressItem);
 			return;
 		}
 	}

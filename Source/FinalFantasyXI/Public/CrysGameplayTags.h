@@ -23,8 +23,10 @@ public:
 	 * Generic Root Gameplay Tags
 	 */
 	FGameplayTag Attribute;
+	FGameplayTag CharacterRace;
+	FGameplayTag DamageType;
 	FGameplayTag EquipSlot;
-	FGameplayTag Job;
+	FGameplayTag HeroJob;
 	FGameplayTag Input;
 	FGameplayTag Item;
 	FGameplayTag Message;
@@ -45,19 +47,14 @@ public:
 	FGameplayTag Attribute_Charisma;
 	
 	FGameplayTag Attribute_Attack;
-	FGameplayTag Attribute_Defense;
 	FGameplayTag Attribute_Accuracy;
+	FGameplayTag Attribute_CriticalHitChance;
+	
+	FGameplayTag Attribute_Defense;
 	FGameplayTag Attribute_Evasion;
-	FGameplayTag Attribute_CriticalHitRate;
-	FGameplayTag Attribute_CriticalHitDamage;
+	FGameplayTag Attribute_EvasionSkill;
 
-	FGameplayTag Attribute_Haste;
-	FGameplayTag Attribute_Resistance;
-
-	FGameplayTag Attribute_MoveSpeed;
-
-	FGameplayTag Attribute_Chance;
-	FGameplayTag Attribute_Bonus;
+	FGameplayTag Attribute_MoveSpeedMultiplier;
 
 	/**
 	 * EquipSlot Tags
@@ -83,13 +80,4 @@ public:
 	 * Message GameplayTags
 	 */
 	FGameplayTag Message_CharacterNameUpdated;
-	FGameplayTag Message_HeroProgressUpdated;
-
-	/**
-	 * Verb GameplayTags for messages
-	 */
-	FGameplayTag MessageVerb_Added;
-	FGameplayTag MessageVerb_LevelUp;
-	FGameplayTag MessageVerb_Removed;
-	FGameplayTag MessageVerb_Updated;
 };

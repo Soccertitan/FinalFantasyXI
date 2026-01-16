@@ -8,13 +8,13 @@
 #include "Engine/StreamableManager.h"
 #include "HeroManagerViewModel.generated.h"
 
-struct FHeroClassProgressItem;
-class UHeroClassViewModel;
-class UHeroClassDefinition;
+struct FHeroJobProgressItem;
+class UHeroJobViewModel;
+class UHeroJobDefinition;
 class UHeroManagerComponent;
 
 /**
- * Allows the switching of the HeroClass in the HeroManagerComponent and has information of the HeroClassProgressItems.
+ * Allows the switching of the HeroJob in the HeroManagerComponent and has information of the HeroJobProgressItems.
  */
 UCLASS(Abstract)
 class FINALFANTASYXI_API UHeroManagerViewModel : public UCrysViewModel
@@ -22,65 +22,75 @@ class FINALFANTASYXI_API UHeroManagerViewModel : public UCrysViewModel
 	GENERATED_BODY()
 
 public:
-	bool GetIsLoadingHeroClasses() const { return bLoadingHeroClasses; }
-	bool GetIsSwitchingHeroClass() const { return bSwitchingHeroClass; }
+	bool GetIsLoadingHeroJobs() const { return bLoadingHeroJobs; }
+	bool GetIsSwitchingHeroJobs() const { return bSwitchingHeroJobs; }
 
 	UFUNCTION(BlueprintPure, FieldNotify)
-	UHeroClassViewModel* GetCurrentHeroClassViewModel() const { return CurrentHeroClassViewModel; }
+	UHeroJobViewModel* GetHeroMainJobViewModel() const { return HeroMainJobViewModel; }
+	UFUNCTION(BlueprintPure, FieldNotify)
+	UHeroJobViewModel* GetHeroSubJobViewModel() const { return HeroSubJobViewModel; }
 
-	/** Finds a ViewModel with the specified HeroClassTag. */
-	UFUNCTION(BlueprintPure, Category = "HeroManager ViewModel", meta = (Categories = "HeroClass"))
-	UHeroClassViewModel* FindHeroClassViewModel(FGameplayTag HeroClassTag);
+	/** Finds a ViewModel with the specified HeroJobTag. */
+	UFUNCTION(BlueprintPure, Category = "HeroManager ViewModel")
+	UHeroJobViewModel* FindHeroJobViewModel(UPARAM(meta = (Categories = "HeroJob")) FGameplayTag HeroJobTag);
 
-	/** Tries to switch to specified HeroClass. */
-	UFUNCTION(BlueprintCallable, Category = "HeroManager ViewModel", meta = (Categories = "HeroClass"))
-	void TrySetHeroClass(FGameplayTag HeroClassTag);
+	/** Tries to switch to specified HeroJob. */
+	UFUNCTION(BlueprintCallable, Category = "HeroManager ViewModel")
+	void TrySetHeroJobs(UPARAM(meta = (Categories = "HeroJob")) FGameplayTag MainJobTag, UPARAM(meta = (Categories = "HeroJob")) FGameplayTag SubJobTag);
 
 protected:
 	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
 
-	void SetIsLoadingHeroClasses(const bool InValue);
-	void SetCurrentHeroClassViewModel(UHeroClassViewModel* InValue);
+	void SetIsLoadingHeroJobs(const bool InValue);
+	void SetHeroMainJobViewModel(UHeroJobViewModel* InValue);
+	void SetHeroSubJobViewModel(UHeroJobViewModel* InValue);
 
 private:
-	/** The HeroClassDefinition to load. */
-	UPROPERTY(EditAnywhere, Category = "HeroManagerViewModel", meta = (AllowedTypes = "HeroClassDefinition"))
-	TArray<FPrimaryAssetId> HeroClassesToLoad;
+	/** The HeroJobDefinition to load. */
+	UPROPERTY(EditAnywhere, Category = "HeroManagerViewModel", meta = (AllowedTypes = "HeroJobDefinition"))
+	TArray<FPrimaryAssetId> HeroJobsToLoad;
 
 	/** Cached pointer to the HeroManagerComponent from the PlayerState. */
 	UPROPERTY()
 	TObjectPtr<UHeroManagerComponent> HeroManagerComponent;
 
-	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter = "GetIsLoadingHeroClasses", meta = (AllowPrivateAccess = "true"))
-	bool bLoadingHeroClasses = true;
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter = "GetIsLoadingHeroJobs", meta = (AllowPrivateAccess = "true"))
+	bool bLoadingHeroJobs = true;
 
-	/** True if waiting to switch HeroClasses. */
-	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter = "GetIsSwitchingHeroClass", meta = (AllowPrivateAccess = "true"))
-	bool bSwitchingHeroClass = false;
+	/** True if waiting to switch HeroJobs. */
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter = "GetIsSwitchingHeroJobs", meta = (AllowPrivateAccess = "true"))
+	bool bSwitchingHeroJobs = false;
 
-	/** Cached handle for the HeroClassDefinition. */
-	TSharedPtr<FStreamableHandle> HeroClassStreamableHandle;
+	/** Cached handle for the HeroJobDefinition. */
+	TSharedPtr<FStreamableHandle> HeroJobStreamableHandle;
 
-	/** The current HeroClass the player is. */
+	/** The current HeroMainJob the player is. */
 	UPROPERTY()
-	TObjectPtr<UHeroClassViewModel> CurrentHeroClassViewModel;
-
-	/** All the HeroClass ViewModels created from the HeroClassesToLoad. */
-	UPROPERTY()
-	TArray<TObjectPtr<UHeroClassViewModel>> HeroClassViewModels;
+	TObjectPtr<UHeroJobViewModel> HeroMainJobViewModel;
 	
-	void LoadHeroClasses();
+	/** The current HeroSubJob the player is. */
+	UPROPERTY()
+	TObjectPtr<UHeroJobViewModel> HeroSubJobViewModel;
+
+	/** All the HeroJob ViewModels created from the HeroJobsToLoad. */
+	UPROPERTY()
+	TArray<TObjectPtr<UHeroJobViewModel>> HeroJobViewModels;
+	
+	void LoadHeroJobs();
 	/** Creates ViewModels for each loaded hero class.*/
-	void OnHeroClassesLoaded();
+	void OnHeroJobsLoaded();
 
-	void CreateHeroClassViewModel(UHeroClassDefinition* HeroClass);
-
-	UFUNCTION()
-	void OnHeroClassChanged(UHeroManagerComponent* InHeroManagerComponent);
+	void CreateHeroJobViewModel(UHeroJobDefinition* HeroJob);
 
 	UFUNCTION()
-	void OnTrySetHeroClassFailed(UHeroManagerComponent* InHeroManagerComponent);
+	void OnHeroMainJobChanged(UHeroManagerComponent* InHeroManagerComponent);
+	
+	UFUNCTION()
+	void OnHeroSubJobChanged(UHeroManagerComponent* InHeroManagerComponent);
 
 	UFUNCTION()
-	void OnHeroClassProgressUpdated(UHeroManagerComponent* InHeroManagerComponent, const FHeroClassProgressItem& HeroClassProgressItem);
+	void OnTrySetHeroJob(UHeroManagerComponent* InHeroManagerComponent, bool bSuccess);
+
+	UFUNCTION()
+	void OnHeroJobProgressUpdated(UHeroManagerComponent* InHeroManagerComponent, const FHeroJobProgressItem& HeroJobProgressItem);
 };

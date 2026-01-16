@@ -27,21 +27,25 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Asset")
 	FPrimaryAssetType AssetType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RaceDefinition")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Race")
 	FText HeroRaceName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RaceDefinition", meta = (MultiLine))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Race", meta = (MultiLine))
 	FText Description;
 
 	/** The HeroCharacter to spawn as. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RaceDefinition")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Race")
 	TSoftClassPtr<AHeroCharacter> HeroCharacter;
+	
+	/** The amount of experience required to level up. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Race")
+	FScalableFloat ExperienceRequirement;
+	
+	/** Base attributes of the race scaled at level. Multiplied by the equipped Main/Sub Jobs. */
+	UPROPERTY(EditDefaultsOnly, Category = "Race")
+	FHeroPrimaryAttributes BaseAttributes;
 
-	/** The attributes will be applied as the base value scaled with character level. */
-	UPROPERTY(EditDefaultsOnly, Category = "RaceDefinition")
-	FHeroBaseAttributes BaseAttributes;
-
-	/** AbilitySet to grant unique traits for the Race. */
-	UPROPERTY(EditDefaultsOnly, Category = "RaceDefinition")
+	/** AbilitySet to grant. */
+	UPROPERTY(EditDefaultsOnly, Category = "Race")
 	TSoftObjectPtr<UAbilitySet> Traits;
 };

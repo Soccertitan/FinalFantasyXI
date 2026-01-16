@@ -5,27 +5,16 @@
 
 #include "CrimAbilitySystemComponent.h"
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
-#include "HeroSystem/HeroManagerComponent.h"
-#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
 #include "Player/CrysPlayerState.h"
 #include "UI/ViewModel/Component/AttributeFractionViewModel.h"
 #include "UI/ViewModel/Component/AttributeViewModel.h"
-#include "UI/ViewModel/Component/HeroClassViewModel.h"
+#include "UI/ViewModel/Component/HeroJobViewModel.h"
 
 void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerController)
 {
 	Super::OnInitializeViewModel(PlayerController);
 
 	AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(PlayerController->GetPlayerState<ACrysPlayerState>());
-	
-	HeroManagerComponent = UHeroSystemBlueprintFunctionLibrary::GetHeroManagerComponent(PlayerController->GetPlayerState<ACrysPlayerState>());
-	if (HeroManagerComponent)
-	{
-		OnHeroClassChanged(HeroManagerComponent);
-		
-		HeroManagerComponent->OnHeroClassProgressUpdatedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::OnHeroClassProgressUpdated);
-		HeroManagerComponent->OnHeroClassChangedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::OnHeroClassChanged);
-	}
 }
 
 UAttributeFractionViewModel* UOverlayViewModel::CreateAttributeFractionViewModel(const FGameplayTag NumeratorAttributeTag,
@@ -41,24 +30,4 @@ UAttributeViewModel* UOverlayViewModel::CreateAttributeViewModel(const FGameplay
 	UAttributeViewModel* NewVM = NewObject<UAttributeViewModel>(this, UAttributeViewModel::StaticClass());
 	NewVM->SetAttribute(AttributeTag, AbilitySystemComponent);
 	return NewVM;
-}
-
-void UOverlayViewModel::OnHeroClassProgressUpdated(UHeroManagerComponent* InHeroManagerComponent, const FHeroClassProgressItem& HeroClassProgressItem)
-{
-	if (HeroClassViewModel && HeroClassViewModel->GetHeroClass()->HeroClassTag.MatchesTagExact(HeroClassProgressItem.HeroClassTag))
-	{
-		HeroClassViewModel->SetHeroClassProgressItem(HeroClassProgressItem);
-	}
-}
-
-void UOverlayViewModel::OnHeroClassChanged(UHeroManagerComponent* InHeroManagerComponent)
-{
-	if (UHeroClassDefinition* HeroClass = InHeroManagerComponent->GetHeroClass())
-	{
-		HeroClassViewModel = NewObject<UHeroClassViewModel>(this, UHeroClassViewModel::StaticClass());
-		const FHeroClassProgressItem ProgressItem = HeroManagerComponent->FindHeroClassProgressItem(HeroClass->HeroClassTag);
-		HeroClassViewModel->SetHeroClassAndProgress(HeroClass, ProgressItem);
-		HeroClassViewModel->SetIsCurrentHeroClass(true);
-		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(HeroClassViewModel);
-	}
 }

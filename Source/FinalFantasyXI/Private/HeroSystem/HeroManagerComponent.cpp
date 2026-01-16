@@ -4,12 +4,15 @@
 #include "HeroSystem/HeroManagerComponent.h"
 
 #include "AbilitySet.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "CrimAbilitySystemComponent.h"
 #include "CrysLogChannels.h"
+#include "AbilitySystem/AttributeSet/HeroJobAttributeSet.h"
+#include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "Attribute/HitPointsAttributeSet.h"
-#include "Attribute/ResourcePointsAttributeSet.h"
 #include "HeroSystem/HeroRaceDefinition.h"
+#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "System/CrysAssetManager.h"
 
@@ -24,21 +27,22 @@ void UHeroManagerComponent::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ThisClass, HeroClassProgressContainer);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, HeroClass, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME(ThisClass, HeroJobProgressContainer);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, HeroRace, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MainJob, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, SubJob, COND_None, REPNOTIFY_Always);
 
 	FDoRepLifetimeParams Params;
 	Params.bIsPushBased = true;
-	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, MaxLevel, Params);
+	Params.Condition = COND_OwnerOnly;
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, HeroProgress, Params);
 }
 
 void UHeroManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbilitySystemComponent* NewAbilitySystemComponent)
 {
 	if (IsValid(AbilitySystemComponent))
 	{
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-			UPrimaryAttributeSet::GetLevelAttribute()).RemoveAll(this);
+		RemoveBindToAttributeDelegates();
 	}
 
 	if (NewAbilitySystemComponent)
@@ -47,194 +51,194 @@ void UHeroManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbil
 
 		if (HasAuthority())
 		{
-			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-				UPrimaryAttributeSet::GetLevelAttribute()).AddUObject(this, &UHeroManagerComponent::OnLevelAttributeChanged);
-
+			OverrideAttribute(HeroProgress.Level, UPrimaryAttributeSet::GetLevelAttribute());
+			OverrideAttribute(HeroProgress.SubJobEfficiency, UHeroJobAttributeSet::GetSubJobEffectivenessAttribute());
 			if (HeroRace)
 			{
 				ApplyHeroRaceTraits();
 			}
-			if (HeroClass)
+			if (MainJob)
 			{
-				ApplyHeroClassTraits();
-				FHeroClassProgressItem HeroClassProgressItem = FindHeroClassProgressItem(HeroClass->HeroClassTag);
-				if (!HeroClassProgressItem.IsValid())
-				{
-					// Don't have a valid HeroClassProgress item. Create a new one and initialize it at level 1.
-					HeroClassProgressItem.Level = 1;
-					HeroClassProgressItem.Experience = 0;
-					HeroClassProgressItem.HeroClassTag = HeroClass->HeroClassTag;
-					HeroClassProgressContainer.AddHeroClassProgressItem(HeroClassProgressItem);
-				}
-				SetHeroClassLevel(HeroClassProgressItem.Level);
+				OverrideAttribute(FindHeroJobProgressItem(MainJob->JobTag).Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
+				ApplyHeroMainJobTraits();
 			}
+			if (SubJob)
+			{
+				OverrideAttribute(FindHeroJobProgressItem(SubJob->JobTag).Level, UHeroJobAttributeSet::GetSubJobLevelAttribute());
+				ApplyHeroSubJobTraits();
+			}
+			
+			BindToAttributeDelegates();
+			ApplyBaseAttributes();
 		}
 	}
 }
 
-TArray<FHeroClassProgressItem> UHeroManagerComponent::GetHeroClassProgressItems() const
+TArray<FHeroJobProgressItem> UHeroManagerComponent::GetHeroJobProgressItems() const
 {
-	return HeroClassProgressContainer.Items;
+	return HeroJobProgressContainer.Items;
 }
 
-FHeroClassProgressItem UHeroManagerComponent::FindHeroClassProgressItem(const FGameplayTag HeroClassTag) const
+FHeroJobProgressItem UHeroManagerComponent::FindHeroJobProgressItem(const FGameplayTag HeroJobTag) const
 {
-	return HeroClassProgressContainer.GetHeroClassProgressItem(HeroClassTag);
+	return HeroJobProgressContainer.GetHeroJobProgressItem(HeroJobTag);
 }
 
-void UHeroManagerComponent::AddOrSetHeroClassProgress(const FHeroClassProgressItem& InHeroClassProgressItem)
+void UHeroManagerComponent::AddOrSetHeroJobProgressItem(const FHeroJobProgressItem& InHeroJobProgressItem)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
 
-	if (!InHeroClassProgressItem.IsValid())
+	if (!InHeroJobProgressItem.IsValid())
 	{
 		return;
 	}
 
-	if (FHeroClassProgressItem* ProgressItem = HeroClassProgressContainer.Items.FindByKey(InHeroClassProgressItem.HeroClassTag))
+	if (FHeroJobProgressItem* ProgressItem = HeroJobProgressContainer.Items.FindByKey(InHeroJobProgressItem.JobTag))
 	{
-		ProgressItem->Experience = InHeroClassProgressItem.Experience;
-		ProgressItem->Level = InHeroClassProgressItem.Level;
-		HeroClassProgressContainer.MarkItemDirty(*ProgressItem);
-		OnHeroClassProgressUpdatedDelegate.Broadcast(this, *ProgressItem);
+		ProgressItem->Level = InHeroJobProgressItem.Level;
+		ProgressItem->Experience = InHeroJobProgressItem.Experience;
+		HeroJobProgressContainer.MarkItemDirty(*ProgressItem);
+		OnHeroJobProgressUpdatedDelegate.Broadcast(this, *ProgressItem);
 	}
 	else
 	{
-		HeroClassProgressContainer.AddHeroClassProgressItem(InHeroClassProgressItem);
+		HeroJobProgressContainer.AddHeroJobProgressItem(InHeroJobProgressItem);
 	}
 
-	if (HeroClass && HeroClass->HeroClassTag == InHeroClassProgressItem.HeroClassTag)
+	if (MainJob && MainJob->JobTag == InHeroJobProgressItem.JobTag)
 	{
-		SetHeroClassLevel(InHeroClassProgressItem.Level);
+		OverrideAttribute(InHeroJobProgressItem.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
+	}
+	if (SubJob && SubJob->JobTag == InHeroJobProgressItem.JobTag)
+	{
+		OverrideAttribute(InHeroJobProgressItem.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
 	}
 }
 
-void UHeroManagerComponent::AddExperience(const int32 Experience)
-{
-	AddExperienceForHeroClass(HeroClass, Experience);
-}
-
-void UHeroManagerComponent::AddExperienceForHeroClass(const UHeroClassDefinition* InHeroClass, const int32 Experience)
+void UHeroManagerComponent::AddExperienceForHeroJob(const UHeroJobDefinition* HeroJob, const int32 Experience)
 {
 	if (!HasAuthority() || Experience <= 0)
 	{
 		return;
 	}
 
-	if (!InHeroClass || !InHeroClass->HeroClassTag.IsValid())
+	if (!HeroJob || !HeroJob->JobTag.IsValid())
 	{
-		UE_LOG(LogCrys, Error, TEXT("The InHeroClass does not have a valid HeroClassTag [%s]"), *GetNameSafe(InHeroClass));
+		UE_LOG(LogCrys, Error, TEXT("The HeroClass does not have a valid JobTag [%s]"), *GetNameSafe(HeroJob));
 		return;
 	}
 
-	HeroClassProgressContainer.AddExperience(InHeroClass->HeroClassTag, InHeroClass->ExperienceRequirement, Experience);
+	HeroJobProgressContainer.AddExperience(HeroJob->JobTag, HeroJob->ExperienceRequirement, Experience);
 }
 
-void UHeroManagerComponent::RestoreHeroClassProgressItems(const TArray<FHeroClassProgressItem>& InHeroClassProgressItems)
+void UHeroManagerComponent::RestoreHeroJobProgressItems(const TArray<FHeroJobProgressItem>& InHeroJobProgressItems)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
 
-	HeroClassProgressContainer.Reset();
+	HeroJobProgressContainer.Reset();
 	
-	for (const FHeroClassProgressItem& Item : InHeroClassProgressItems)
+	for (const FHeroJobProgressItem& Item : InHeroJobProgressItems)
 	{
 		if (Item.IsValid())
 		{
-			HeroClassProgressContainer.AddHeroClassProgressItem(Item);
+			HeroJobProgressContainer.AddHeroJobProgressItem(Item);
 		}
 	}
-
-	SetHeroClass(GetHeroClass());
+	
+	if (AbilitySystemComponent)
+	{
+		bSkipApplyingBaseStats = true;
+		if (MainJob)
+		{
+			OverrideAttribute(FindHeroJobProgressItem(MainJob->JobTag).Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
+		}
+		if (SubJob)
+		{
+			OverrideAttribute(FindHeroJobProgressItem(SubJob->JobTag).Level, UHeroJobAttributeSet::GetSubJobLevelAttribute());
+		}
+		bSkipApplyingBaseStats = false;
+		ApplyBaseAttributes();
+	}
 }
 
-void UHeroManagerComponent::TrySetHeroClass(UHeroClassDefinition* InHeroClass)
+void UHeroManagerComponent::TrySetHeroJobs(UHeroJobDefinition* InMainJob, UHeroJobDefinition* InSubJob)
 {
 	if (!HasAuthority())
 	{
-		Server_TrySetHeroClass(InHeroClass);
+		Server_TrySetHeroJobs(InMainJob, InSubJob);
 		return;
 	}
 	
-	if (!InHeroClass)
+	if (!InMainJob || InMainJob == InSubJob)
 	{
-		Client_TrySetHeroClassFailed();
+		Client_OnTrySetHeroJobs(false);
 		return;
 	}
-
-	if (HeroClass == InHeroClass)
+	
+	bSkipApplyingBaseStats = true;
+	
+	if (MainJob != InMainJob)
 	{
-		Client_TrySetHeroClassFailed();
-		return;
-	}
-
-	FHeroClassProgressItem HeroProgress = HeroClassProgressContainer.GetHeroClassProgressItem(InHeroClass->HeroClassTag);
-	if (!HeroProgress.IsValid())
-	{
-		Client_TrySetHeroClassFailed();
-		return;
-	}
-
-	HeroClass = InHeroClass;
-	if (AbilitySystemComponent)
-	{
-		ApplyHeroClassTraits();
-		SetHeroClassLevel(HeroProgress.Level);
-	}
-	OnRep_HeroClass();
-}
-
-void UHeroManagerComponent::SetHeroClass(UHeroClassDefinition* InHeroClass)
-{
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	if (!InHeroClass)
-	{
-		return;
-	}
-
-	HeroClass = InHeroClass;
-	if (AbilitySystemComponent)
-	{
-		FHeroClassProgressItem Item = FindHeroClassProgressItem(HeroClass->HeroClassTag);
-		if (!Item.IsValid())
+		const FHeroJobProgressItem Item = FindHeroJobProgressItem(InMainJob->JobTag);
+		if (Item.IsValid())
 		{
-			// Don't have a valid HeroClassProgress item. Create a new one and initialize it at level 1.
-			Item.Level = 1;
-			Item.Experience = 0;
-			Item.HeroClassTag = HeroClass->HeroClassTag;
-			HeroClassProgressContainer.AddHeroClassProgressItem(Item);
+			MainJob = InMainJob;
+			OnHeroMainJobChangedDelegate.Broadcast(this);
+			MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, MainJob, this);
+			if (AbilitySystemComponent)
+			{
+				OverrideAttribute(Item.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
+				ApplyHeroMainJobTraits();
+			}
 		}
-		ApplyHeroClassTraits();
-		SetHeroClassLevel(Item.Level);
+		else
+		{
+			bSkipApplyingBaseStats = false;
+			Client_OnTrySetHeroJobs(false);
+			return;
+		}
 	}
-	OnRep_HeroClass();
-}
-
-void UHeroManagerComponent::SetHeroClassLevel(const int32 Level)
-{
-	if (AbilitySystemComponent && HasAuthority())
+	
+	if (HeroProgress.bSubJobUnlocked && SubJob != InSubJob)
 	{
-		UGameplayEffect* SetLevel = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("SetLevel")));
-		SetLevel->DurationPolicy = EGameplayEffectDurationType::Instant;
-
-		int32 Idx = SetLevel->Modifiers.Num();
-		SetLevel->Modifiers.SetNum(Idx + 1);
-
-		FGameplayModifierInfo& InfoLevel = SetLevel->Modifiers[Idx];
-		InfoLevel.ModifierMagnitude = FScalableFloat(Level);
-		InfoLevel.ModifierOp = EGameplayModOp::Override;
-		InfoLevel.Attribute = UPrimaryAttributeSet::GetLevelAttribute();
-		AbilitySystemComponent->ApplyGameplayEffectToSelf(SetLevel, 1.0f, AbilitySystemComponent->MakeEffectContext());
+		if (InSubJob)
+		{
+			const FHeroJobProgressItem Item = FindHeroJobProgressItem(InSubJob->JobTag);
+			if (Item.IsValid())
+			{
+				SubJob = InSubJob;
+				if (AbilitySystemComponent)
+				{
+					OverrideAttribute(Item.Level, UHeroJobAttributeSet::GetSubJobLevelAttribute());
+					ApplyHeroSubJobTraits();
+				}
+			}
+		}
+		else
+		{
+			SubJob = nullptr;
+			if (AbilitySystemComponent)
+			{
+				OverrideAttribute(0, UHeroJobAttributeSet::GetSubJobLevelAttribute());
+				AbilitySet_GrantedHandles_SubJobTraits.TakeFromAbilitySystem(AbilitySystemComponent);
+			}
+		}
+		OnHeroSubJobChangedDelegate.Broadcast(this);
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, SubJob, this);
 	}
+	
+	bSkipApplyingBaseStats = false;
+	if (AbilitySystemComponent)
+	{
+		ApplyBaseAttributes();
+	}
+	Client_OnTrySetHeroJobs(true);
 }
 
 void UHeroManagerComponent::SetHeroRace(UHeroRaceDefinition* InHeroRace)
@@ -253,20 +257,71 @@ void UHeroManagerComponent::SetHeroRace(UHeroRaceDefinition* InHeroRace)
 	if (AbilitySystemComponent)
 	{
 		ApplyHeroRaceTraits();
-		ApplyBaseAttributes(AbilitySystemComponent->GetNumericAttribute(UPrimaryAttributeSet::GetLevelAttribute()));
+		ApplyBaseAttributes();
 	}
 	OnRep_HeroRace();
 }
 
-void UHeroManagerComponent::SetMaxLevel(const int32 InMaxLevel)
+const FHeroProgress& UHeroManagerComponent::GetHeroProgress() const
+{
+	return HeroProgress;
+}
+
+void UHeroManagerComponent::SetHeroProgress(const FHeroProgress& InHeroProgress)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
+	
+	int32 OldLevel = HeroProgress.Level;
+	HeroProgress = InHeroProgress;
+	if (OldLevel != HeroProgress.Level)
+	{
+		OverrideAttribute(HeroProgress.Level, UPrimaryAttributeSet::GetLevelAttribute());
+	}
 
-	MaxLevel = InMaxLevel;
-	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, MaxLevel, this);
+	OnHeroProgressUpdatedDelegate.Broadcast(this);
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, HeroProgress, this);
+}
+
+bool UHeroManagerComponent::AddExperience(const int32 Experience)
+{
+	if (!HasAuthority() || Experience == 0 || !HeroRace)
+	{
+		return false;
+	}
+
+	bool bLevelUpdated = false;
+	int32 OldLevel = HeroProgress.Level;
+
+	if (Experience > 0)
+	{
+		bLevelUpdated = UHeroSystemBlueprintFunctionLibrary::AddExperience(HeroProgress.Level, HeroProgress.Experience, 
+			Experience, HeroRace->ExperienceRequirement, HeroProgress.MaxLevel);
+	}
+	else
+	{
+		bLevelUpdated = UHeroSystemBlueprintFunctionLibrary::SubtractExperience(HeroProgress.Level, HeroProgress.Experience, 
+			FMath::Abs(Experience), HeroRace->ExperienceRequirement);
+	}
+	
+	if (bLevelUpdated)
+	{
+		if (HeroProgress.Level > OldLevel)
+		{
+			Multi_OnHeroLevelUp(OldLevel);
+		}
+		else
+		{
+			Multi_OnHeroLevelDown(OldLevel);
+		}
+		OverrideAttribute(HeroProgress.Level, UPrimaryAttributeSet::GetLevelAttribute());
+	}
+
+	OnHeroProgressUpdatedDelegate.Broadcast(this);
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, HeroProgress, this);
+	return bLevelUpdated;
 }
 
 bool UHeroManagerComponent::HasAuthority() const
@@ -279,6 +334,11 @@ void UHeroManagerComponent::BeginPlay()
 	Super::BeginPlay();
 
 	CacheIsNetSimulated();
+	
+	if (HeroJobProgressContainer.Items.IsEmpty())
+	{
+		RestoreHeroJobProgressItems(StartingJobProgress);
+	}
 }
 
 void UHeroManagerComponent::PreNetReceive()
@@ -293,17 +353,7 @@ void UHeroManagerComponent::OnRegister()
 	Super::OnRegister();
 
 	CacheIsNetSimulated();
-	HeroClassProgressContainer.Owner = this;
-}
-
-void UHeroManagerComponent::OnLevelAttributeChanged(const FOnAttributeChangeData& Data)
-{
-	ApplyBaseAttributes(Data.NewValue);
-}
-
-void UHeroManagerComponent::OnRep_HeroClass()
-{
-	OnHeroClassChangedDelegate.Broadcast(this);
+	HeroJobProgressContainer.Owner = this;
 }
 
 void UHeroManagerComponent::OnRep_HeroRace()
@@ -311,67 +361,103 @@ void UHeroManagerComponent::OnRep_HeroRace()
 	OnHeroRaceChangedDelegate.Broadcast(this);
 }
 
+void UHeroManagerComponent::OnRep_HeroProgress()
+{
+	OnHeroProgressUpdatedDelegate.Broadcast(this);
+}
+
+void UHeroManagerComponent::OnRep_MainJob()
+{
+	OnHeroMainJobChangedDelegate.Broadcast(this);
+}
+
+void UHeroManagerComponent::OnRep_SubJob()
+{
+	OnHeroSubJobChangedDelegate.Broadcast(this);
+}
+
 void UHeroManagerComponent::CacheIsNetSimulated()
 {
 	bCachedIsNetSimulated = IsNetSimulating();
 }
 
-void UHeroManagerComponent::ApplyBaseAttributes(const float Level)
+void UHeroManagerComponent::OverrideAttribute(const float Value, const FGameplayAttribute& Attribute)
+{
+	if (AbilitySystemComponent && HasAuthority())
+	{
+		UGameplayEffect* InstantGE = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("InstantGE")));
+		InstantGE->DurationPolicy = EGameplayEffectDurationType::Instant;
+	
+		int32 Idx = InstantGE->Modifiers.Num();
+		InstantGE->Modifiers.SetNum(Idx + 1);
+	
+		FGameplayModifierInfo& ModifierInfo = InstantGE->Modifiers[Idx];
+		ModifierInfo.ModifierMagnitude = FScalableFloat(Value);
+		ModifierInfo.ModifierOp = EGameplayModOp::Override;
+		ModifierInfo.Attribute = Attribute;
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(InstantGE, 1.0f, AbilitySystemComponent->MakeEffectContext());
+	}
+}
+
+void UHeroManagerComponent::ApplyBaseAttributes()
 {
 	UGameplayEffect* BaseStats = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("BaseStats")));
 	BaseStats->DurationPolicy = EGameplayEffectDurationType::Instant;
-	FHeroBaseAttributesCalculated CalculatedAttributes(HeroClass, HeroRace, Level);
-
+	FHeroPrimaryAttributesCalculated CalculatedAttributes(
+		HeroRace, AbilitySystemComponent->GetNumericAttribute(UPrimaryAttributeSet::GetLevelAttribute()), 
+		MainJob, AbilitySystemComponent->GetNumericAttribute(UHeroJobAttributeSet::GetMainJobLevelAttribute()),
+		SubJob, AbilitySystemComponent->GetNumericAttribute(UHeroJobAttributeSet::GetSubJobLevelAttribute()),
+		AbilitySystemComponent->GetNumericAttribute(UHeroJobAttributeSet::GetSubJobEffectivenessAttribute()));
+	
 	int32 Idx = BaseStats->Modifiers.Num();
 	BaseStats->Modifiers.SetNum(Idx + 9);
-
+	
 	FGameplayModifierInfo& InfoMaxHP = BaseStats->Modifiers[Idx];
 	InfoMaxHP.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MaxHitPoints);
 	InfoMaxHP.ModifierOp = EGameplayModOp::Override;
 	InfoMaxHP.Attribute = UHitPointsAttributeSet::GetMaxPointsAttribute();
-
-	FGameplayModifierInfo& InfoMaxTP = BaseStats->Modifiers[Idx + 1];
-	InfoMaxTP.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MaxTacticalPoints);
-	InfoMaxTP.ModifierOp = EGameplayModOp::Override;
-	InfoMaxTP.Attribute = UResourcePointsAttributeSet::GetMaxPointsAttribute();
-
-	FGameplayModifierInfo& InfoMeleeAttack = BaseStats->Modifiers[Idx + 2];
-	InfoMeleeAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MeleeAttack);
-	InfoMeleeAttack.ModifierOp = EGameplayModOp::Override;
-	// InfoMeleeAttack.Attribute = UCrysAttributeSet::GetMeleeAttackAttribute();
-
-	FGameplayModifierInfo& InfoMeleeDefense = BaseStats->Modifiers[Idx + 3];
-	InfoMeleeDefense.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MeleeDefense);
-	InfoMeleeDefense.ModifierOp = EGameplayModOp::Override;
-	// InfoMeleeDefense.Attribute = UCrysAttributeSet::GetMeleeDefenseAttribute();
-
-	FGameplayModifierInfo& InfoRangeAttack = BaseStats->Modifiers[Idx +4 ];
-	InfoRangeAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.RangeAttack);
-	InfoRangeAttack.ModifierOp = EGameplayModOp::Override;
-	// InfoRangeAttack.Attribute = UCrysAttributeSet::GetRangeAttackAttribute();
-
-	FGameplayModifierInfo& InfoRangeDefense = BaseStats->Modifiers[Idx + 5];
-	InfoRangeDefense.ModifierMagnitude = FScalableFloat(CalculatedAttributes.RangeDefense);
-	InfoRangeDefense.ModifierOp = EGameplayModOp::Override;
-	// InfoRangeDefense.Attribute = UCrysAttributeSet::GetRangeDefenseAttribute();
-
-	FGameplayModifierInfo& InfoTechniqueAttack = BaseStats->Modifiers[Idx + 6];
-	InfoTechniqueAttack.ModifierMagnitude = FScalableFloat(CalculatedAttributes.TechniqueAttack);
-	InfoTechniqueAttack.ModifierOp = EGameplayModOp::Override;
-	// InfoTechniqueAttack.Attribute = UCrysAttributeSet::GetTechniqueAttackAttribute();
-
-	FGameplayModifierInfo& InfoTechniqueDefense = BaseStats->Modifiers[Idx + 7];
-	InfoTechniqueDefense.ModifierMagnitude = FScalableFloat(CalculatedAttributes.TechniqueDefense);
-	InfoTechniqueDefense.ModifierOp = EGameplayModOp::Override;
-	// InfoTechniqueDefense.Attribute = UCrysAttributeSet::GetTechniqueDefenseAttribute();
-
-	FGameplayModifierInfo& InfoDexterity = BaseStats->Modifiers[Idx + 8];
+	
+	FGameplayModifierInfo& InfoMaxMP = BaseStats->Modifiers[Idx + 1];
+	InfoMaxMP.ModifierMagnitude = FScalableFloat(CalculatedAttributes.MaxMagicPoints);
+	InfoMaxMP.ModifierOp = EGameplayModOp::Override;
+	InfoMaxMP.Attribute = UManaPointsAttributeSet::GetMaxPointsAttribute();
+	
+	FGameplayModifierInfo& InfoStrength = BaseStats->Modifiers[Idx + 2];
+	InfoStrength.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Strength);
+	InfoStrength.ModifierOp = EGameplayModOp::Override;
+	InfoStrength.Attribute = UPrimaryAttributeSet::GetStrengthAttribute();
+	
+	FGameplayModifierInfo& InfoVitality = BaseStats->Modifiers[Idx + 3];
+	InfoVitality.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Vitality);
+	InfoVitality.ModifierOp = EGameplayModOp::Override;
+	InfoVitality.Attribute = UPrimaryAttributeSet::GetVitalityAttribute();
+	
+	FGameplayModifierInfo& InfoDexterity = BaseStats->Modifiers[Idx +4 ];
 	InfoDexterity.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Dexterity);
 	InfoDexterity.ModifierOp = EGameplayModOp::Override;
-	// InfoDexterity.Attribute = UCrysAttributeSet::GetDexterityAttribute();
+	InfoDexterity.Attribute = UPrimaryAttributeSet::GetDexterityAttribute();
+	
+	FGameplayModifierInfo& InfoAgility = BaseStats->Modifiers[Idx + 5];
+	InfoAgility.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Agility);
+	InfoAgility.ModifierOp = EGameplayModOp::Override;
+	InfoAgility.Attribute = UPrimaryAttributeSet::GetAgilityAttribute();
+	
+	FGameplayModifierInfo& InfoIntelligence = BaseStats->Modifiers[Idx + 6];
+	InfoIntelligence.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Intelligence);
+	InfoIntelligence.ModifierOp = EGameplayModOp::Override;
+	InfoIntelligence.Attribute = UPrimaryAttributeSet::GetIntelligenceAttribute();
+	
+	FGameplayModifierInfo& InfoMind = BaseStats->Modifiers[Idx + 7];
+	InfoMind.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Mind);
+	InfoMind.ModifierOp = EGameplayModOp::Override;
+	InfoMind.Attribute = UPrimaryAttributeSet::GetMindAttribute();
+	
+	FGameplayModifierInfo& InfoCharisma = BaseStats->Modifiers[Idx + 8];
+	InfoCharisma.ModifierMagnitude = FScalableFloat(CalculatedAttributes.Charisma);
+	InfoCharisma.ModifierOp = EGameplayModOp::Override;
+	InfoCharisma.Attribute = UPrimaryAttributeSet::GetCharismaAttribute();
 
 	AbilitySystemComponent->ApplyGameplayEffectToSelf(BaseStats, 1.0f, AbilitySystemComponent->MakeEffectContext());
-	OnHeroBaseStatsChangedDelegate.Broadcast(this);
 }
 
 void UHeroManagerComponent::ApplyHeroRaceTraits()
@@ -390,43 +476,106 @@ void UHeroManagerComponent::ApplyHeroRaceTraits()
 	}
 }
 
-void UHeroManagerComponent::ApplyHeroClassTraits()
+void UHeroManagerComponent::ApplyHeroMainJobTraits()
 {
-	AbilitySet_GrantedHandles_ClassTraits.TakeFromAbilitySystem(AbilitySystemComponent);
+	AbilitySet_GrantedHandles_MainJobTraits.TakeFromAbilitySystem(AbilitySystemComponent);
 
-	const UAbilitySet* AbilitySet = HeroClass->Traits.Get();
+	const UAbilitySet* AbilitySet = MainJob->MainJobAbilitySet.Get();
 	if (!AbilitySet)
 	{
-		AbilitySet = UCrysAssetManager::Get().GetAsset(HeroClass->Traits, false);
+		AbilitySet = UCrysAssetManager::Get().GetAsset(MainJob->MainJobAbilitySet, false);
 	}
 
 	if (AbilitySet)
 	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_ClassTraits);
+		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_MainJobTraits);
 	}
 }
 
-void UHeroManagerComponent::Client_TrySetHeroClassFailed_Implementation()
+void UHeroManagerComponent::ApplyHeroSubJobTraits()
 {
-	OnTrySetHeroClassFailedDelegate.Broadcast(this);
+	AbilitySet_GrantedHandles_SubJobTraits.TakeFromAbilitySystem(AbilitySystemComponent);
+
+	const UAbilitySet* AbilitySet = SubJob->SubJobAbilitySet.Get();
+	if (!AbilitySet)
+	{
+		AbilitySet = UCrysAssetManager::Get().GetAsset(SubJob->SubJobAbilitySet, false);
+	}
+
+	if (AbilitySet)
+	{
+		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_SubJobTraits);
+	}
 }
 
-void UHeroManagerComponent::Internal_OnLevelUp(const FHeroClassProgressItem& HeroClassProgressItem, const int32 OldLevel)
+void UHeroManagerComponent::BindToAttributeDelegates()
 {
-	if (HeroClass && HeroClass->HeroClassTag.MatchesTagExact(HeroClassProgressItem.HeroClassTag))
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UPrimaryAttributeSet::GetLevelAttribute()).AddUObject(this, &UHeroManagerComponent::OnAttributeChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UHeroJobAttributeSet::GetMainJobLevelAttribute()).AddUObject(this, &UHeroManagerComponent::OnAttributeChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UHeroJobAttributeSet::GetSubJobLevelAttribute()).AddUObject(this, &UHeroManagerComponent::OnAttributeChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UHeroJobAttributeSet::GetSubJobEffectivenessAttribute()).AddUObject(this, &UHeroManagerComponent::OnAttributeChanged);
+}
+
+void UHeroManagerComponent::RemoveBindToAttributeDelegates()
+{
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UPrimaryAttributeSet::GetLevelAttribute()).RemoveAll(this);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UHeroJobAttributeSet::GetMainJobLevelAttribute()).RemoveAll(this);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UHeroJobAttributeSet::GetSubJobLevelAttribute()).RemoveAll(this);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		UHeroJobAttributeSet::GetSubJobEffectivenessAttribute()).RemoveAll(this);
+}
+
+void UHeroManagerComponent::OnAttributeChanged(const FOnAttributeChangeData& Data)
+{
+	if (!bSkipApplyingBaseStats)
 	{
-		SetHeroClassLevel(HeroClassProgressItem.Level);
+		ApplyBaseAttributes();
+	}
+}
+
+void UHeroManagerComponent::Multi_OnHeroLevelUp_Implementation(const int32 OldLevel)
+{
+	OnHeroLevelUpDelegate.Broadcast(this, OldLevel);
+}
+
+void UHeroManagerComponent::Multi_OnHeroLevelDown_Implementation(const int32 OldLevel)
+{
+	OnHeroLevelDownDelegate.Broadcast(this, OldLevel);
+}
+
+void UHeroManagerComponent::Internal_OnJobLevelUp(const FHeroJobProgressItem& HeroJobProgressItem, const int32 OldLevel)
+{
+	if (MainJob && MainJob->JobTag.MatchesTagExact(HeroJobProgressItem.JobTag))
+	{
+		OverrideAttribute(HeroJobProgressItem.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
 	}
 	
-	Multi_OnLevelUp(HeroClassProgressItem, OldLevel);
+	if (SubJob && SubJob->JobTag.MatchesTagExact(HeroJobProgressItem.JobTag))
+	{
+		OverrideAttribute(HeroJobProgressItem.Level, UHeroJobAttributeSet::GetSubJobLevelAttribute());
+	}
+
+	Multi_OnJobLevelUp(HeroJobProgressItem, OldLevel);
 }
 
-void UHeroManagerComponent::Multi_OnLevelUp_Implementation(const FHeroClassProgressItem& HeroClassProgressItem, const int32 OldLevel)
+void UHeroManagerComponent::Multi_OnJobLevelUp_Implementation(const FHeroJobProgressItem& HeroJobProgressItem, const int32 OldLevel)
 {
-	OnHeroClassLevelUpDelegate.Broadcast(this, HeroClassProgressItem, OldLevel);
+	OnHeroJobLevelUpDelegate.Broadcast(this, HeroJobProgressItem, OldLevel);
 }
 
-void UHeroManagerComponent::Server_TrySetHeroClass_Implementation(const UHeroClassDefinition* InHeroClass)
+void UHeroManagerComponent::Server_TrySetHeroJobs_Implementation(const UHeroJobDefinition* InMainJob, const UHeroJobDefinition* InSubJob)
 {
-	TrySetHeroClass(const_cast<UHeroClassDefinition*>(InHeroClass));
+	TrySetHeroJobs(const_cast<UHeroJobDefinition*>(InMainJob), const_cast<UHeroJobDefinition*>(InSubJob));
+}
+
+void UHeroManagerComponent::Client_OnTrySetHeroJobs_Implementation(bool bSuccess)
+{
+	OnTrySetHeroJobDelegate.Broadcast(this, bSuccess);
 }

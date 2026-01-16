@@ -6,31 +6,22 @@
 #include "CrysGameplayTags.h"
 #include "HeroSystem/HeroManagerComponent.h"
 #include "HeroSystem/HeroRaceDefinition.h"
+#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
 
 
-void FHeroClassProgressItem::PostReplicatedAdd(const FHeroClassProgressContainer& InSerializer)
+void FHeroJobProgressItem::PostReplicatedAdd(const FHeroJobProgressContainer& InSerializer)
 {
-	InSerializer.Owner->OnHeroClassProgressUpdatedDelegate.Broadcast(InSerializer.Owner, *this);
+	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(InSerializer.Owner, *this);
 }
 
-void FHeroClassProgressItem::PostReplicatedChange(const FHeroClassProgressContainer& InSerializer)
+void FHeroJobProgressItem::PostReplicatedChange(const FHeroJobProgressContainer& InSerializer)
 {
-	InSerializer.Owner->OnHeroClassProgressUpdatedDelegate.Broadcast(InSerializer.Owner, *this);
+	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(InSerializer.Owner, *this);
 }
 
-bool FHeroClassProgressItem::IsValid() const
+bool FHeroJobProgressItem::IsValid() const
 {
-	if (!HeroClassTag.IsValid())
-	{
-		return false;
-	}
-
-	if (Level < 1)
-	{
-		return false;
-	}
-
-	if (Experience < 0)
+	if (!JobTag.IsValid())
 	{
 		return false;
 	}
@@ -38,106 +29,121 @@ bool FHeroClassProgressItem::IsValid() const
 	return true;
 }
 
-void FHeroClassProgressContainer::AddHeroClassProgressItem(const FHeroClassProgressItem& NewItem)
+void FHeroJobProgressContainer::AddHeroJobProgressItem(const FHeroJobProgressItem& NewItem)
 {
-	FHeroClassProgressItem& Item = Items.AddDefaulted_GetRef();
-	Item.HeroClassTag = NewItem.HeroClassTag;
+	FHeroJobProgressItem& Item = Items.AddDefaulted_GetRef();
+	Item.JobTag = NewItem.JobTag;
 	Item.Level = NewItem.Level;
 	Item.Experience = NewItem.Experience;
 
 	MarkItemDirty(Item);
-	Owner->OnHeroClassProgressUpdatedDelegate.Broadcast(Owner, NewItem);
+	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(Owner, NewItem);
 }
 
-void FHeroClassProgressContainer::AddExperience(const FGameplayTag& HeroClassTag,
+void FHeroJobProgressContainer::AddExperience(const FGameplayTag& JobTag,
 	const FScalableFloat& ExperienceRequirement, int32 Experience)
 {
-	for (FHeroClassProgressItem& Item : Items)
+	for (FHeroJobProgressItem& Item : Items)
 	{
-		if (Item.HeroClassTag.MatchesTagExact(HeroClassTag))
+		if (Item.JobTag.MatchesTagExact(JobTag))
 		{
-			bool bAddingExp = true;
-			const int32 NewExp = Item.Experience + Experience;
-			int32 NewLevel = Item.Level;
-			const int32 OldLevel = Item.Level;
-			bool bLeveledUp = false;
-
-			while (bAddingExp)
-			{
-				const int32 ExpRequired = ExperienceRequirement.GetValueAtLevel(NewLevel);
-
-				if (NewExp >= ExpRequired && NewLevel < Owner->GetMaxLevel())
-				{
-					NewLevel++;
-					bLeveledUp = true;
-				}
-				else
-				{
-					bAddingExp = false;
-				}
-			}
-
-			Item.Experience = FMath::Min(NewExp, ExperienceRequirement.GetValueAtLevel(NewLevel));
-			Item.Level = NewLevel;
-			MarkItemDirty(Item);
-			Owner->OnHeroClassProgressUpdatedDelegate.Broadcast(Owner, Item);
-			if (bLeveledUp)
-			{
-				Owner->Internal_OnLevelUp(Item, OldLevel);
-			}
+			Internal_AddExperience(Item, ExperienceRequirement, Experience);
 			return;
 		}
 	}
+
+	FHeroJobProgressItem& NewItem = Items.AddDefaulted_GetRef();
+	NewItem.JobTag = JobTag;
+	NewItem.Level = 1;
+	Internal_AddExperience(NewItem, ExperienceRequirement, Experience);
 }
 
-FHeroClassProgressItem FHeroClassProgressContainer::GetHeroClassProgressItem(const FGameplayTag& HeroClassTag) const
+FHeroJobProgressItem FHeroJobProgressContainer::GetHeroJobProgressItem(const FGameplayTag& JobTag) const
 {
-	for (const FHeroClassProgressItem& Item : Items)
+	for (const FHeroJobProgressItem& Item : Items)
 	{
-		if (Item.HeroClassTag.MatchesTagExact(HeroClassTag))
+		if (Item.JobTag.MatchesTagExact(JobTag))
 		{
 			return Item;
 		}
 	}
-	return FHeroClassProgressItem();
+	return FHeroJobProgressItem();
 }
 
-void FHeroClassProgressContainer::Reset()
+void FHeroJobProgressContainer::Reset()
 {
 	Items.Empty();
 	MarkArrayDirty();
 }
 
-FHeroBaseAttributesCalculated::FHeroBaseAttributesCalculated(const UHeroClassDefinition* HeroClass,
-	const UHeroRaceDefinition* HeroRace, int32 Level)
+void FHeroJobProgressContainer::Internal_AddExperience(FHeroJobProgressItem& Item, const FScalableFloat& ExperienceRequirement, int32 Experience)
 {
-	const bool bHeroClassValid = HeroClass ? true : false;
-	const bool bHeroRaceValid = HeroRace ? true : false;
+	const int32 OldLevel = Item.Level;
+	const bool bLeveledUp = UHeroSystemBlueprintFunctionLibrary::AddExperience(
+		Item.Level, Item.Experience, Experience, ExperienceRequirement, Owner->GetHeroProgress().MaxJobLevel);
+	MarkItemDirty(Item);
+	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(Owner, Item);
+	if (bLeveledUp)
+	{
+		Owner->Internal_OnJobLevelUp(Item, OldLevel);
+	}
+}
 
-	MaxHitPoints = (bHeroClassValid ? HeroClass->BaseAttributes.MaxHitPoints.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.MaxHitPoints.GetValueAtLevel(Level) : 0);
+FHeroPrimaryAttributesCalculated::FHeroPrimaryAttributesCalculated(const UHeroRaceDefinition* RaceDefinition,
+                                                                   int32 Level, const UHeroJobDefinition* MainJob, int32 MainJobRank, const UHeroJobDefinition* SubJob,
+                                                                   int32 SubJobRank, float SubJobEfficiency)
+{
+	const bool bRaceValid = RaceDefinition ? true : false;
+	const bool bMainJobValid = MainJob ? true : false;
+	const bool bSubJobValid = SubJob ? true : false;
+	
+	MaxHitPoints = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.MaxHitPoints.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.MaxHitPoints.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.MaxHitPoints.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	MaxMagicPoints = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.MaxMagicPoints.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.MaxMagicPoints.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.MaxMagicPoints.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Strength = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Strength.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Strength.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Strength.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Vitality = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Vitality.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Vitality.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Vitality.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Dexterity = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Dexterity.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Dexterity.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Dexterity.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Agility = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Agility.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Agility.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Agility.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Intelligence = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Intelligence.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Intelligence.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Intelligence.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Mind = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Mind.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Mind.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Mind.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+	
+	Charisma = CalculateValue(bRaceValid ? RaceDefinition->BaseAttributes.Charisma.GetValueAtLevel(Level) : 1,
+		bMainJobValid ? MainJob->BaseAttributesMultiplier.Charisma.GetValueAtLevel(MainJobRank) : 1,
+		bSubJobValid ? SubJob->BaseAttributesMultiplier.Charisma.GetValueAtLevel(SubJobRank) : 0,
+		SubJobEfficiency);
+}
 
-	MaxTacticalPoints = (bHeroClassValid ? HeroClass->BaseAttributes.MaxTacticalPoints.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.MaxTacticalPoints.GetValueAtLevel(Level) : 0);
-
-	MeleeAttack = (bHeroClassValid ? HeroClass->BaseAttributes.MeleeAttack.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.MeleeAttack.GetValueAtLevel(Level) : 0);
-
-	MeleeDefense = (bHeroClassValid ? HeroClass->BaseAttributes.MeleeDefense.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.MeleeDefense.GetValueAtLevel(Level) : 0);
-
-	RangeAttack = (bHeroClassValid ? HeroClass->BaseAttributes.RangeAttack.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.RangeAttack.GetValueAtLevel(Level) : 0);
-
-	RangeDefense = (bHeroClassValid ? HeroClass->BaseAttributes.RangeDefense.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.RangeDefense.GetValueAtLevel(Level) : 0);
-
-	TechniqueAttack = (bHeroClassValid ? HeroClass->BaseAttributes.TechniqueAttack.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.TechniqueAttack.GetValueAtLevel(Level) : 0);
-
-	TechniqueDefense = (bHeroClassValid ? HeroClass->BaseAttributes.TechniqueDefense.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.TechniqueDefense.GetValueAtLevel(Level) : 0);
-
-	Dexterity = (bHeroClassValid ? HeroClass->BaseAttributes.Dexterity.GetValueAtLevel(Level) : 1) +
-		(bHeroRaceValid ? HeroRace->BaseAttributes.Dexterity.GetValueAtLevel(Level) : 0);
+int32 FHeroPrimaryAttributesCalculated::CalculateValue(int32 RaceValue, float MainJobMultiplier, float SubJobMultiplier, float SubJobEfficiency)
+{
+	return FMath::Floor(RaceValue * (MainJobMultiplier + (SubJobMultiplier * SubJobEfficiency)));
 }
