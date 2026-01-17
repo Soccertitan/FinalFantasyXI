@@ -40,8 +40,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UTexture2D> Icon;
 
-	UPROPERTY()
-	TObjectPtr<UGameplayAbilityDefinition> GameplayAbilityDefinition;
+	// UPROPERTY()
+	// TObjectPtr<UGameplayAbilityDefinition> GameplayAbilityDefinition;
 
 	TSharedPtr<FStreamableHandle> StreamableHandleAbilityDefinition;
 	void Internal_LoadAbilityDefinition(FPrimaryAssetId PrimaryAssetId);

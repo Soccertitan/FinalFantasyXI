@@ -47,8 +47,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "WeaponSetViewModel")
 	void ClearWeaponItem(const int32 Index);
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponSetViewModel")
-	void SetAbilityInput(UPARAM(ref) const FGameplayTag& InputTag, UGameplayAbilityDefinition* AbilityDefinition, const int32 Index);
+	// UFUNCTION(BlueprintCallable, Category = "WeaponSetViewModel")
+	// void SetAbilityInput(UPARAM(ref) const FGameplayTag& InputTag, UGameplayAbilityDefinition* AbilityDefinition, const int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = "WeaponSetViewModel")
 	void ClearAbilityInput(UPARAM(ref) const FGameplayTag& InputTag, const int32 Index);

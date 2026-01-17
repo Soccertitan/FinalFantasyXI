@@ -27,7 +27,7 @@ UActionBarItemViewModel* UActionBarViewModel::FindOrCreateActionBarItemViewModel
 	NewVM->SetInputTag(InputTag);
 	if (AbilityInputManagerComponent)
 	{
-		NewVM->SetAbilityDefinition(AbilityInputManagerComponent->GetAbilityInputItem(InputTag).AbilityDefinition);
+		// NewVM->SetAbilityDefinition(AbilityInputManagerComponent->GetAbilityInputItem(InputTag).GameplayAbilityClass);
 	}
 	ActionBarItemViewModels.Add(NewVM);
 	return NewVM;
@@ -65,7 +65,7 @@ void UActionBarViewModel::OnAbilityInputAdded(UAbilityInputManagerComponent* Inp
 	{
 		if (VM->GetInputTag() == AbilityInputItem.InputTag)
 		{
-			VM->SetAbilityDefinition(AbilityInputItem.AbilityDefinition);
+			// VM->SetAbilityDefinition(AbilityInputItem.GameplayAbilityClass);
 			return;
 		}
 	}
@@ -77,7 +77,7 @@ void UActionBarViewModel::OnAbilityInputChanged(UAbilityInputManagerComponent* I
 	{
 		if (VM->GetInputTag() == AbilityInputItem.InputTag)
 		{
-			VM->SetAbilityDefinition(AbilityInputItem.AbilityDefinition);
+			// VM->SetAbilityDefinition(AbilityInputItem.GameplayAbilityClass);
 			return;
 		}
 	}

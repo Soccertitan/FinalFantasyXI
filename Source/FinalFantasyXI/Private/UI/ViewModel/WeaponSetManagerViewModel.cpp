@@ -71,26 +71,26 @@ void UWeaponSetManagerViewModel::ClearWeaponItem(const int32 Index)
 	SetWeaponItem(FGuid(), Index);
 }
 
-void UWeaponSetManagerViewModel::SetAbilityInput(const FGameplayTag& InputTag, UGameplayAbilityDefinition* AbilityDefinition, const int32 Index)
-{
-	if (WeaponSetManagerComponent)
-	{
-		FWeaponSet WeaponSet = WeaponSetManagerComponent->GetWeaponSetAt(Index);
-		if (FAbilityInputItem* InputItem = WeaponSet.InputItems.FindByKey(InputTag))
-		{
-			InputItem->AbilityDefinition = AbilityDefinition;
-		}
-		else
-		{
-			WeaponSet.InputItems.Add(FAbilityInputItem(InputTag, AbilityDefinition));
-		}
-		WeaponSetManagerComponent->AddWeaponSet(WeaponSet, Index);
-	}
-}
+// void UWeaponSetManagerViewModel::SetAbilityInput(const FGameplayTag& InputTag, UGameplayAbilityDefinition* AbilityDefinition, const int32 Index)
+// {
+// 	if (WeaponSetManagerComponent)
+// 	{
+// 		FWeaponSet WeaponSet = WeaponSetManagerComponent->GetWeaponSetAt(Index);
+// 		if (FAbilityInputItem* InputItem = WeaponSet.InputItems.FindByKey(InputTag))
+// 		{
+// 			InputItem->AbilityDefinition = AbilityDefinition;
+// 		}
+// 		else
+// 		{
+// 			WeaponSet.InputItems.Add(FAbilityInputItem(InputTag, AbilityDefinition));
+// 		}
+// 		WeaponSetManagerComponent->AddWeaponSet(WeaponSet, Index);
+// 	}
+// }
 
 void UWeaponSetManagerViewModel::ClearAbilityInput(const FGameplayTag& InputTag, const int32 Index)
 {
-	SetAbilityInput(InputTag, nullptr, Index);
+	// SetAbilityInput(InputTag, nullptr, Index);
 }
 
 void UWeaponSetManagerViewModel::ResetWeaponSet(const int32 Index)

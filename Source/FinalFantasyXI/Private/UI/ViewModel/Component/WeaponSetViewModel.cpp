@@ -16,7 +16,7 @@ void UWeaponSetViewModel::SetWeaponSet(const FWeaponSet& InWeaponSet)
 	{
 		if (const FAbilityInputItem* FoundInputItem = InWeaponSet.InputItems.FindByKey(Pair.Key))
 		{
-			Pair.Value->SetAbilityDefinition(FoundInputItem->AbilityDefinition);
+			// Pair.Value->SetAbilityDefinition(FoundInputItem->AbilityDefinition);
 		}
 		else
 		{
@@ -39,7 +39,7 @@ UGameplayAbilityDefinitionViewModel* UWeaponSetViewModel::FindOrCreateGameplayAb
 		UGameplayAbilityDefinitionViewModel* NewVM = NewObject<UGameplayAbilityDefinitionViewModel>(this, UGameplayAbilityDefinitionViewModel::StaticClass());
 		if (const FAbilityInputItem* FoundInputItem = WeaponSet.InputItems.FindByKey(InputTag))
 		{
-			NewVM->SetAbilityDefinition(FoundInputItem->AbilityDefinition);
+			// NewVM->SetAbilityDefinition(FoundInputItem->AbilityDefinition);
 		}
 		GameplayAbilityDefinitionInputMapViewModels.Add(InputTag, NewVM);
 		return NewVM;

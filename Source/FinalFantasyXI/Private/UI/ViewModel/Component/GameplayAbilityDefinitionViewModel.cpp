@@ -3,7 +3,6 @@
 
 #include "UI/ViewModel/Component/GameplayAbilityDefinitionViewModel.h"
 
-#include "AbilitySystem/CrysGameplayAbilityDefinition.h"
 #include "Engine/AssetManager.h"
 
 
@@ -13,11 +12,11 @@ void UGameplayAbilityDefinitionViewModel::LoadAbilityDefinition(TSoftObjectPtr<U
 	{
 		ResetData();
 	}
-	else if (GameplayAbilityDefinition != InGameplayAbilityDefinition)
-	{
-		FPrimaryAssetId PrimaryAssetId = InGameplayAbilityDefinition->GetPrimaryAssetId();
-		Internal_LoadAbilityDefinition(PrimaryAssetId);
-	}
+	// else if (GameplayAbilityDefinition != InGameplayAbilityDefinition)
+	// {
+	// 	FPrimaryAssetId PrimaryAssetId = InGameplayAbilityDefinition->GetPrimaryAssetId();
+	// 	Internal_LoadAbilityDefinition(PrimaryAssetId);
+	// }
 }
 
 void UGameplayAbilityDefinitionViewModel::SetAbilityDefinition(UGameplayAbilityDefinition* InGameplayAbilityDefinition)
@@ -26,11 +25,11 @@ void UGameplayAbilityDefinitionViewModel::SetAbilityDefinition(UGameplayAbilityD
 	{
 		ResetData();
 	}
-	else if (GameplayAbilityDefinition != InGameplayAbilityDefinition)
-	{
-		GameplayAbilityDefinition = InGameplayAbilityDefinition;
-		Internal_LoadAbilityDefinition(GameplayAbilityDefinition->GetPrimaryAssetId());
-	}
+	// else if (GameplayAbilityDefinition != InGameplayAbilityDefinition)
+	// {
+	// 	GameplayAbilityDefinition = InGameplayAbilityDefinition;
+	// 	Internal_LoadAbilityDefinition(GameplayAbilityDefinition->GetPrimaryAssetId());
+	// }
 }
 
 void UGameplayAbilityDefinitionViewModel::SetAbilityName(const FText InValue)
@@ -47,7 +46,7 @@ void UGameplayAbilityDefinitionViewModel::ResetData()
 {
 	SetAbilityName(FText());
 	SetIcon(nullptr);
-	GameplayAbilityDefinition = nullptr;
+	// GameplayAbilityDefinition = nullptr;
 }
 
 void UGameplayAbilityDefinitionViewModel::Internal_LoadAbilityDefinition(FPrimaryAssetId PrimaryAssetId)
@@ -63,10 +62,10 @@ void UGameplayAbilityDefinitionViewModel::Internal_LoadAbilityDefinition(FPrimar
 
 void UGameplayAbilityDefinitionViewModel::OnAbilityDefinitionLoaded(FPrimaryAssetId LoadedAssetId)
 {
-	GameplayAbilityDefinition = Cast<UGameplayAbilityDefinition>(UAssetManager::Get().GetPrimaryAssetObject(LoadedAssetId));
-	if (GameplayAbilityDefinition)
-	{
-		SetAbilityName(GameplayAbilityDefinition->AbilityName);
-		SetIcon(GameplayAbilityDefinition->Icon.Get());
-	}
+	// GameplayAbilityDefinition = Cast<UGameplayAbilityDefinition>(UAssetManager::Get().GetPrimaryAssetObject(LoadedAssetId));
+	// if (GameplayAbilityDefinition)
+	// {
+	// 	SetAbilityName(GameplayAbilityDefinition->AbilityName);
+	// 	SetIcon(GameplayAbilityDefinition->Icon.Get());
+	// }
 }

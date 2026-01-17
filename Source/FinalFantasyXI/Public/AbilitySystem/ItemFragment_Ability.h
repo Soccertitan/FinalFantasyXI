@@ -27,8 +27,8 @@ struct FItemFragment_Ability : public FItemFragment
 	GENERATED_BODY()
 
 	/** The GameplayAbilityDefinition to grant. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AssetBundles = "Ability,UI"))
-	TSoftObjectPtr<UCrysGameplayAbilityDefinition> AbilityDefinition;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AssetBundles = "Ability,UI"))
+	// TSoftObjectPtr<UCrysGameplayAbilityDefinition> AbilityDefinition;
 
 	virtual void SetDefaultValues(TInstancedStruct<FItem>& Item) const override;
 };
