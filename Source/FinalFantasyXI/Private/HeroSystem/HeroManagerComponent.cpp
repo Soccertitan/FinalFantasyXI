@@ -53,10 +53,7 @@ void UHeroManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbil
 		{
 			OverrideAttribute(HeroProgress.Level, UPrimaryAttributeSet::GetLevelAttribute());
 			OverrideAttribute(HeroProgress.SubJobEfficiency, UHeroJobAttributeSet::GetSubJobEffectivenessAttribute());
-			if (HeroRace)
-			{
-				ApplyHeroRaceTraits();
-			}
+			ApplyHeroRaceTraits();
 			if (MainJob)
 			{
 				OverrideAttribute(FindHeroJobProgressItem(MainJob->JobTag).Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
@@ -112,7 +109,7 @@ void UHeroManagerComponent::AddOrSetHeroJobProgressItem(const FHeroJobProgressIt
 	{
 		OverrideAttribute(InHeroJobProgressItem.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
 	}
-	if (SubJob && SubJob->JobTag == InHeroJobProgressItem.JobTag)
+	else if (SubJob && SubJob->JobTag == InHeroJobProgressItem.JobTag)
 	{
 		OverrideAttribute(InHeroJobProgressItem.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
 	}
@@ -175,62 +172,56 @@ void UHeroManagerComponent::TrySetHeroJobs(UHeroJobDefinition* InMainJob, UHeroJ
 		return;
 	}
 	
+	OnBeginTrySetHeroJobDelegate.Broadcast(this);
 	if (!InMainJob || InMainJob == InSubJob)
 	{
+		OnEndTrySetHeroJobDelegate.Broadcast(this);
 		Client_OnTrySetHeroJobs(false);
 		return;
 	}
 	
 	bSkipApplyingBaseStats = true;
 	
-	if (MainJob != InMainJob)
+	// Don't allow changing to a MainJob that doesn't have existing progress.
+	const FHeroJobProgressItem MainJobProgress = FindHeroJobProgressItem(InMainJob->JobTag);
+	if (!MainJobProgress.IsValid())
 	{
-		const FHeroJobProgressItem Item = FindHeroJobProgressItem(InMainJob->JobTag);
-		if (Item.IsValid())
-		{
-			MainJob = InMainJob;
-			OnHeroMainJobChangedDelegate.Broadcast(this);
-			MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, MainJob, this);
-			if (AbilitySystemComponent)
-			{
-				OverrideAttribute(Item.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
-				ApplyHeroMainJobTraits();
-			}
-		}
-		else
-		{
-			bSkipApplyingBaseStats = false;
-			Client_OnTrySetHeroJobs(false);
-			return;
-		}
+		bSkipApplyingBaseStats = false;
+		OnEndTrySetHeroJobDelegate.Broadcast(this);
+		Client_OnTrySetHeroJobs(false);
+		return;
 	}
 	
-	if (HeroProgress.bSubJobUnlocked && SubJob != InSubJob)
+	if (MainJob != InMainJob)
 	{
-		if (InSubJob)
+		MainJob = InMainJob;
+		OnHeroMainJobChangedDelegate.Broadcast(this);
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, MainJob, this);
+	}
+	
+	FHeroJobProgressItem SubJobProgress = InSubJob ? FindHeroJobProgressItem(InSubJob->JobTag) : FHeroJobProgressItem();
+	if (HeroProgress.bSubJobUnlocked)
+	{
+		if (SubJob != InSubJob)
 		{
-			const FHeroJobProgressItem Item = FindHeroJobProgressItem(InSubJob->JobTag);
-			if (Item.IsValid())
-			{
-				SubJob = InSubJob;
-				if (AbilitySystemComponent)
-				{
-					OverrideAttribute(Item.Level, UHeroJobAttributeSet::GetSubJobLevelAttribute());
-					ApplyHeroSubJobTraits();
-				}
-			}
+			SubJob = InSubJob;
+			OnHeroSubJobChangedDelegate.Broadcast(this);
+			MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, SubJob, this);
 		}
-		else
-		{
-			SubJob = nullptr;
-			if (AbilitySystemComponent)
-			{
-				OverrideAttribute(0, UHeroJobAttributeSet::GetSubJobLevelAttribute());
-				AbilitySet_GrantedHandles_SubJobTraits.TakeFromAbilitySystem(AbilitySystemComponent);
-			}
-		}
+	}
+	else
+	{
+		SubJob = nullptr;
 		OnHeroSubJobChangedDelegate.Broadcast(this);
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, SubJob, this);
+	}
+	
+	if (AbilitySystemComponent)
+	{
+		OverrideAttribute(MainJobProgress.Level, UHeroJobAttributeSet::GetMainJobLevelAttribute());
+		ApplyHeroMainJobTraits();
+		OverrideAttribute(SubJobProgress.Level, UHeroJobAttributeSet::GetSubJobLevelAttribute());
+		ApplyHeroSubJobTraits();
 	}
 	
 	bSkipApplyingBaseStats = false;
@@ -238,6 +229,8 @@ void UHeroManagerComponent::TrySetHeroJobs(UHeroJobDefinition* InMainJob, UHeroJ
 	{
 		ApplyBaseAttributes();
 	}
+	
+	OnEndTrySetHeroJobDelegate.Broadcast(this);
 	Client_OnTrySetHeroJobs(true);
 }
 
@@ -464,15 +457,18 @@ void UHeroManagerComponent::ApplyHeroRaceTraits()
 {
 	AbilitySet_GrantedHandles_RaceTraits.TakeFromAbilitySystem(AbilitySystemComponent);
 
-	const UAbilitySet* AbilitySet = HeroRace->Traits.Get();
-	if (!AbilitySet)
+	if (HeroRace)
 	{
-		AbilitySet = UCrysAssetManager::Get().GetAsset(HeroRace->Traits, false);
-	}
+		const UAbilitySet* AbilitySet = HeroRace->Traits.Get();
+		if (!AbilitySet)
+		{
+			AbilitySet = UCrysAssetManager::Get().GetAsset(HeroRace->Traits, false);
+		}
 
-	if (AbilitySet)
-	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_RaceTraits);
+		if (AbilitySet)
+		{
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_RaceTraits);
+		}
 	}
 }
 
@@ -480,15 +476,18 @@ void UHeroManagerComponent::ApplyHeroMainJobTraits()
 {
 	AbilitySet_GrantedHandles_MainJobTraits.TakeFromAbilitySystem(AbilitySystemComponent);
 
-	const UAbilitySet* AbilitySet = MainJob->MainJobAbilitySet.Get();
-	if (!AbilitySet)
+	if (MainJob)
 	{
-		AbilitySet = UCrysAssetManager::Get().GetAsset(MainJob->MainJobAbilitySet, false);
-	}
+		const UAbilitySet* AbilitySet = MainJob->MainJobAbilitySet.Get();
+		if (!AbilitySet)
+		{
+			AbilitySet = UCrysAssetManager::Get().GetAsset(MainJob->MainJobAbilitySet, false);
+		}
 
-	if (AbilitySet)
-	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_MainJobTraits);
+		if (AbilitySet)
+		{
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_MainJobTraits);
+		}
 	}
 }
 
@@ -496,15 +495,18 @@ void UHeroManagerComponent::ApplyHeroSubJobTraits()
 {
 	AbilitySet_GrantedHandles_SubJobTraits.TakeFromAbilitySystem(AbilitySystemComponent);
 
-	const UAbilitySet* AbilitySet = SubJob->SubJobAbilitySet.Get();
-	if (!AbilitySet)
+	if (SubJob)
 	{
-		AbilitySet = UCrysAssetManager::Get().GetAsset(SubJob->SubJobAbilitySet, false);
-	}
+		const UAbilitySet* AbilitySet = SubJob->SubJobAbilitySet.Get();
+		if (!AbilitySet)
+		{
+			AbilitySet = UCrysAssetManager::Get().GetAsset(SubJob->SubJobAbilitySet, false);
+		}
 
-	if (AbilitySet)
-	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_SubJobTraits);
+		if (AbilitySet)
+		{
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySet_GrantedHandles_SubJobTraits);
+		}
 	}
 }
 

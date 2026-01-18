@@ -52,18 +52,25 @@ public:
 	/** [Client + Server] whenever a HeroJobProgressItem is updated. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnHeroJobProgressUpdated")
 	FHeroJobProgressSignature OnHeroJobProgressUpdatedDelegate;
-	/** Called on Client + Server when the MainJob changes. */
+	/** [Client + Server] When the MainJob changes. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnHeroMainJobChanged")
 	FHeroManagerGenericSignature OnHeroMainJobChangedDelegate;
-	/** Called on Client + Server when the SubJob changes. */
+	/** [Client + Server] When the SubJob changes. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnHeroSubJobChanged")
 	FHeroManagerGenericSignature OnHeroSubJobChangedDelegate;
 	
-	/** Called on Client + Server when the HeroClass changes. */
+	/** [Client + Server] When the HeroRace changes. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnHeroRaceChanged")
 	FHeroManagerGenericSignature OnHeroRaceChangedDelegate;
 
-	/** Called on the owning client if setting the HeroJob succeeds or fails. */
+	/** [Server] When the TrySetHeroJobs have begun on the server. */
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnBeginTrySetHeroJob")
+	FHeroManagerGenericSignature OnBeginTrySetHeroJobDelegate;
+	/** [Server] When the TrySetHeroJobs function has exited. */
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnEndTrySetHeroJob")
+	FHeroManagerGenericSignature OnEndTrySetHeroJobDelegate;
+	/** [Owning Client] When setting the HeroJobs succeeds or fails. */
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnTrySetHeroJob")
 	FHeroManagerBoolSignature OnTrySetHeroJobDelegate;
 	
 	/** @return A copy of all the HeroClassProgressItems. */

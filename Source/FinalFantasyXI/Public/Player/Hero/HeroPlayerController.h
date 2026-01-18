@@ -6,7 +6,6 @@
 #include "../CrysPlayerController.h"
 #include "HeroPlayerController.generated.h"
 
-class UWeaponSetManagerComponent;
 struct FInputActionValue;
 struct FGameplayTag;
 class UHeroInputSet;
@@ -29,9 +28,6 @@ class FINALFANTASYXI_API AHeroPlayerController : public ACrysPlayerController
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilityInputManager, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAbilityInputManagerComponent> AbilityInputManagerComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = WeaponSetManager, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UWeaponSetManagerComponent> WeaponSetManagerComponent;
 
 public:
 	AHeroPlayerController();
@@ -96,9 +92,6 @@ private:
 
 	/** Retrieves the TargetSystemComponent from the pawn. */
 	void InitializeTargetSystemComponent();
-
-	/** Calls the Init function for the WeaponSetComponent. */
-	void InitializeWeaponSetComponent();
 
 //-------------------------------------------------------------------
 // Enhanced Input Functionality

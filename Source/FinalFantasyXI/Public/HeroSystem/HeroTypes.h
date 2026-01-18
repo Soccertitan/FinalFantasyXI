@@ -54,7 +54,7 @@ struct FHeroJobProgressItem : public FFastArraySerializerItem
 	FGameplayTag JobTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 1))
-	int32 Level = 1;
+	int32 Level = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0))
 	int32 Experience = 0;

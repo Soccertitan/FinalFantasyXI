@@ -52,7 +52,7 @@ public:
 	// When pressed enables the input actions in InputConfigSubAbility.
 	UPROPERTY(EditDefaultsOnly, Category = "Ability|Action")
 	TObjectPtr<UInputAction> InputActionSubAbilityToggle;
-	// These InputActions can activate independent of the Primary and Sub Abilities.
+	// These InputActions can activate if both PrimaryAbilityToggle and SubAbilityToggle are not pressed.
 	UPROPERTY(EditDefaultsOnly, Category = "Ability|Action")
 	TObjectPtr<UInputActionTagMap> InputConfigGenericAbility;
 };

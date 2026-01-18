@@ -7,21 +7,16 @@
 #include "TargetingSystemComponent.h"
 #include "CrysLogChannels.h"
 #include "EnhancedInputSubsystems.h"
-#include "EquipmentSystem/EquipmentSystemBlueprintFunctionLibrary.h"
-#include "Filter/TargetPointFilter_Cone.h"
 #include "Input/AbilityInputManagerComponent.h"
 #include "Input/CrysEnhancedInputComponent.h"
 #include "Input/HeroInputSet.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/Hero/HeroPlayerState.h"
-#include "Player/Hero/WeaponSetManagerComponent.h"
 
 AHeroPlayerController::AHeroPlayerController()
 {
 	AbilityInputManagerComponent = CreateDefaultSubobject<UAbilityInputManagerComponent>(TEXT("AbilityInputManagerComponent"));
 	AbilityInputManagerComponent->SetIsReplicated(false);
-
-	WeaponSetManagerComponent = CreateDefaultSubobject<UWeaponSetManagerComponent>(TEXT("WeaponSetManagerComponent"));
 }
 
 void AHeroPlayerController::BeginPlay()
@@ -50,7 +45,6 @@ void AHeroPlayerController::AcknowledgePossession(class APawn* P)
 
 	InitializeAbilitySystemComponent();
 	InitializeTargetSystemComponent();
-	InitializeWeaponSetComponent();
 	TryInitOverlay();
 }
 
@@ -59,7 +53,6 @@ void AHeroPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	InitializeAbilitySystemComponent();
-	InitializeWeaponSetComponent();
 	TryInitOverlay();
 }
 
@@ -162,12 +155,6 @@ void AHeroPlayerController::InitializeTargetSystemComponent()
 	TargetSystemComponent = nullptr;
 }
 
-void AHeroPlayerController::InitializeWeaponSetComponent()
-{
-	WeaponSetManagerComponent->InitializeWeaponSetManager(AbilityInputManagerComponent,
-		UEquipmentSystemBlueprintFunctionLibrary::GetEquipmentManagerComponent(GetPlayerState<AHeroPlayerState>()));
-}
-
 void AHeroPlayerController::SetupHeroInputSet()
 {
 	UCrysEnhancedInputComponent* EnhancedInputComponent = CastChecked<UCrysEnhancedInputComponent>(InputComponent);
@@ -256,7 +243,7 @@ void AHeroPlayerController::InputActionSubAbility(const FInputActionValue& Value
 {
 	if (Value.Get<bool>())
 	{
-		if (bSubAbilityTogglePressed == true && bPrimaryAbilityTogglePressed == false)
+		if (bPrimaryAbilityTogglePressed == false && bSubAbilityTogglePressed == true)
 		{
 			OnAbilityInputPressed(InputTag);
 		}
@@ -271,7 +258,10 @@ void AHeroPlayerController::InputActionGenericAbility(const FInputActionValue& V
 {
 	if (Value.Get<bool>())
 	{
-		OnAbilityInputPressed(InputTag);
+		if (bPrimaryAbilityTogglePressed == false && bSubAbilityTogglePressed == false)
+		{
+			OnAbilityInputPressed(InputTag);
+		}
 	}
 	else
 	{
