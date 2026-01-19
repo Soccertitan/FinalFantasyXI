@@ -35,7 +35,7 @@ public:
 	UCrysViewModel* FindOrCreateViewModel(const TSubclassOf<UCrysViewModel> ViewModelClass);
 
 	/**
-	 * Creates a new ViewModel from the ViewModelClass, initializes it, then creates the HUDWidget and adds it to the viewport.
+	 * Creates the HUDWidget and adds it to the viewport.
 	 */
 	virtual void InitializeHUD();
 	
@@ -44,13 +44,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<UUserWidget> HUDWidget;
 
-	// The default widget to spawn when InitializeHUD is called.
+	// The widget to spawn when InitializeHUD is called.
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> HUDWidgetClass;
-
-	// The default ViewModel to spawn when InitializeHUD is called.
-	UPROPERTY(EditDefaultsOnly, DisplayName = ViewModelClass)
-	TSubclassOf<UCrysViewModel> ViewModelClassDefault;
 
 	/**
 	 * Stores a collection of CrysViewModels. Each view model in the array is unique. 

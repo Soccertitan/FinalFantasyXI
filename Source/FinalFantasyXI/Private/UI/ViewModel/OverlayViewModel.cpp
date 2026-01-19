@@ -8,7 +8,6 @@
 #include "Player/CrysPlayerState.h"
 #include "UI/ViewModel/Component/AttributeFractionViewModel.h"
 #include "UI/ViewModel/Component/AttributeViewModel.h"
-#include "UI/ViewModel/Component/HeroJobViewModel.h"
 
 void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerController)
 {

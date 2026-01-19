@@ -31,10 +31,6 @@ UCrysViewModel* ACrysHUD::FindOrCreateViewModel(const TSubclassOf<UCrysViewModel
 
 void ACrysHUD::InitializeHUD()
 {
-	if (ViewModelClassDefault)
-	{
-		FindOrCreateViewModel(ViewModelClassDefault);
-	}
 	if (HUDWidgetClass)
 	{
 		HUDWidget = CreateWidget<UUserWidget>(GetOwningPlayerController(), HUDWidgetClass);

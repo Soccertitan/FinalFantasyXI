@@ -47,10 +47,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Overlay View Model")
 	UCrimAbilitySystemComponent* GetAbilitySystemComponent() const {return AbilitySystemComponent;}
 
-	/** Called after the CrimAbilitySystemComponent has been set to a valid pointer. */
-	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnAbilitySystemComponentSet")
-	void K2_OnAbilitySystemComponentSet(UCrimAbilitySystemComponent* NewAbilitySystemComponent, UCrimAbilitySystemComponent* OldAbilitySystemComponent);
-
 private:
 
 	/** The AbilitySystemComponent of the controlled pawn. */

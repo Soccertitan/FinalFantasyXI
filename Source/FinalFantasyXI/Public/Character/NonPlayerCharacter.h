@@ -6,7 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "CrysCharacter.h"
 #include "GameplayTagAssetInterface.h"
-#include "EnemyCharacter.generated.h"
+#include "NonPlayerCharacter.generated.h"
 
 class UDefenderAttributeSet;
 class UAbilityAttributeSet;
@@ -22,7 +22,7 @@ class UResourcePointsAttributeSet;
 class UCrysHitPointsAttributeSet;
 
 UCLASS(Blueprintable)
-class FINALFANTASYXI_API AEnemyCharacter : public ACrysCharacter, public IGameplayTagAssetInterface,
+class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGameplayTagAssetInterface,
 	public IAbilitySystemInterface
 {
 	GENERATED_BODY()
@@ -53,7 +53,7 @@ class FINALFANTASYXI_API AEnemyCharacter : public ACrysCharacter, public IGamepl
 	TObjectPtr<UHitPointsComponent> HitPointsComponent;
 
 public:
-	AEnemyCharacter(const FObjectInitializer& ObjectInitializer);
+	ANonPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void PostInitializeComponents() override;
 	

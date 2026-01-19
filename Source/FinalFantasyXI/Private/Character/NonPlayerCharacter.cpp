@@ -1,7 +1,7 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "Character/EnemyCharacter.h"
+#include "Character/NonPlayerCharacter.h"
 
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
@@ -19,7 +19,7 @@
 #include "Character/CrysSkeletalMeshComponent.h"
 
 
-AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& ObjectInitializer)
+ANonPlayerCharacter::ANonPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCrysCharacterMovementComponent>(CharacterMovementComponentName).
 		SetDefaultSubobjectClass<UCrysSkeletalMeshComponent>(MeshComponentName))
 {
@@ -42,7 +42,7 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& ObjectInitializer)
 	SetNetUpdateFrequency(100.f);
 }
 
-void AEnemyCharacter::PostInitializeComponents()
+void ANonPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
@@ -52,49 +52,49 @@ void AEnemyCharacter::PostInitializeComponents()
 	HitPointsComponent->OnReviveFinishedDelegate.AddDynamic(this, &ThisClass::OnResurrectionFinished);
 }
 
-void AEnemyCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+void ANonPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	AbilitySystemComponent->GetOwnedGameplayTags(TagContainer);
 }
 
-bool AEnemyCharacter::HasMatchingGameplayTag(FGameplayTag TagToCheck) const
+bool ANonPlayerCharacter::HasMatchingGameplayTag(FGameplayTag TagToCheck) const
 {
 	return AbilitySystemComponent->HasMatchingGameplayTag(TagToCheck);
 }
 
-bool AEnemyCharacter::HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
+bool ANonPlayerCharacter::HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
 {
 	return AbilitySystemComponent->HasAllMatchingGameplayTags(TagContainer);
 }
 
-bool AEnemyCharacter::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
+bool ANonPlayerCharacter::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
 {
 	return AbilitySystemComponent->HasAnyMatchingGameplayTags(TagContainer);
 }
 
-UAbilitySystemComponent* AEnemyCharacter::GetAbilitySystemComponent() const
+UAbilitySystemComponent* ANonPlayerCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
 
-void AEnemyCharacter::OnDeathStarted(AActor* OwningActor)
+void ANonPlayerCharacter::OnDeathStarted(AActor* OwningActor)
 {
 	DisableMovement();
 }
 
-void AEnemyCharacter::OnResurrectionFinished(AActor* OwningActor)
+void ANonPlayerCharacter::OnResurrectionFinished(AActor* OwningActor)
 {
 	EnableMovement();
 }
 
-void AEnemyCharacter::BeginPlay()
+void ANonPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	InitAbilitySystem();
 }
 
-void AEnemyCharacter::InitAbilitySystem()
+void ANonPlayerCharacter::InitAbilitySystem()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	
