@@ -8,7 +8,7 @@
 #include "AttackerAttributeSet.generated.h"
 
 /**
- * Attributes used for offensive and supportive abilities
+ * Attributes used for causing abilities/effects to occur. For example, offensive and supportive abilities.
  */
 UCLASS()
 class FINALFANTASYXI_API UAttackerAttributeSet : public UCrimAttributeSet
@@ -24,14 +24,6 @@ public:
 
 	ATTRIBUTE_ACCESSORS(ThisClass, DefensePierce);
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalHitChance);
-
-	ATTRIBUTE_ACCESSORS(ThisClass, Probability);
-	ATTRIBUTE_ACCESSORS(ThisClass, PotencyMultiplier);
-
-	ATTRIBUTE_ACCESSORS(ThisClass, AbilityCooldownMultiplier);
-	ATTRIBUTE_ACCESSORS(ThisClass, AbilityCostMultiplier);
-
-	ATTRIBUTE_ACCESSORS(ThisClass, EnmityMultiplier);
 	
 protected:
 
@@ -39,7 +31,6 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_Attack(const FGameplayAttributeData& OldValue);
-	
 	
 private:
 	
@@ -50,33 +41,12 @@ private:
 	/** Increases chance to land abilities boosted by Dexterity and Charisma. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Accuracy;
-
 	
 	/** Defense * (1 - DefensePierce). Ignores a percentage of the defenders defense. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData DefensePierce;
-	
+
 	/** Chance to critically hit */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData CriticalHitChance;
-	
-	//TODO Consider Critical Damage Attribute.
-	
-	/** A generic attribute for getting the base probability to do something. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData Probability;
-	/** BasePotency * (PotencyMultiplier). A generic attribute for boosting the effectiveness of abilities. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData PotencyMultiplier;
-	
-	/** Affects the cooldown of abilities. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData AbilityCooldownMultiplier;
-	/** Affects the cost of abilities. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData AbilityCostMultiplier;
-	
-	/** Adjust the amount of threat generated towards enemies. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData EnmityMultiplier;
 };
