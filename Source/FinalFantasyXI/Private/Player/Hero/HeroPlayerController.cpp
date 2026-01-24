@@ -4,17 +4,19 @@
 #include "Player/Hero/HeroPlayerController.h"
 
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
+#include "CrimActionManagerComponent.h"
 #include "TargetingSystemComponent.h"
 #include "CrysLogChannels.h"
 #include "EnhancedInputSubsystems.h"
 #include "Input/AbilityInputManagerComponent.h"
 #include "Input/CrysEnhancedInputComponent.h"
-#include "Input/HeroInputSet.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/Hero/HeroPlayerState.h"
 
 AHeroPlayerController::AHeroPlayerController()
 {
+	ActionManagerComponent = CreateDefaultSubobject<UCrimActionManagerComponent>(TEXT("ActionManagerComponent"));
+	
 	AbilityInputManagerComponent = CreateDefaultSubobject<UAbilityInputManagerComponent>(TEXT("AbilityInputManagerComponent"));
 	AbilityInputManagerComponent->SetIsReplicated(false);
 }
@@ -27,8 +29,8 @@ void AHeroPlayerController::BeginPlay()
 
 	if (EnhancedInputSubsystem && HeroInputSet)
 	{
-		EnhancedInputSubsystem->AddMappingContext(HeroInputSet->ContextLocomotion, HeroInputSet->ContextLocomotionPriority);
-		EnhancedInputSubsystem->AddMappingContext(HeroInputSet->ContextAbility, HeroInputSet->ContextAbilityPriority);
+		// EnhancedInputSubsystem->AddMappingContext(HeroInputSet->ContextLocomotion, HeroInputSet->ContextLocomotionPriority);
+		// EnhancedInputSubsystem->AddMappingContext(HeroInputSet->ContextAbility, HeroInputSet->ContextAbilityPriority);
 	}
 }
 
@@ -66,6 +68,7 @@ void AHeroPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	SetupHeroInputSet();
+	ActionManagerComponent->InitActionManagerComponent();
 }
 
 void AHeroPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused)
@@ -88,7 +91,7 @@ void AHeroPlayerController::OnRootWidgetRemoved_Implementation()
 
 	if (EnhancedInputSubsystem && HeroInputSet)
 	{
-		EnhancedInputSubsystem->AddMappingContext(HeroInputSet->ContextAbility, HeroInputSet->ContextAbilityPriority);
+		// EnhancedInputSubsystem->AddMappingContext(HeroInputSet->ContextAbility, HeroInputSet->ContextAbilityPriority);
 	}
 }
 
@@ -96,34 +99,32 @@ void AHeroPlayerController::RemoveAbilityMappingContextAndReleaseAbilityInputs()
 {
 	if (EnhancedInputSubsystem && HeroInputSet)
 	{
-		EnhancedInputSubsystem->RemoveMappingContext(HeroInputSet->ContextAbility);
+		// EnhancedInputSubsystem->RemoveMappingContext(HeroInputSet->ContextAbility);
 
 		FInputActionValue FalseActionValue(false);
 		InputActionPrimaryAbilityToggle(FalseActionValue);
 
-		if (HeroInputSet->InputConfigGenericAbility)
-		{
-			for (const FInputMap& Input : HeroInputSet->InputConfigGenericAbility->Inputs)
-			{
-				InputActionGenericAbility(FalseActionValue, Input.Tag);
-			}
-		}
+		// if (HeroInputSet->InputConfigGenericAbility)
+		// {
+			// for (const FCrimInputAction& Input : HeroInputSet->InputConfigGenericAbility->InputActions)
+			// {
+			// 	InputActionGenericAbility(FalseActionValue, Input.Tag);
+			// }
+		// }
+		
+			// for (const FCrimInputAction& Input : HeroInputSet->InputConfigPrimaryAbility->InputActions)
+			// {
+			// 	InputActionGenericAbility(FalseActionValue, Input.Tag);
+			// }
+		// }
 
-		if (HeroInputSet->InputConfigPrimaryAbility)
-		{
-			for (const FInputMap& Input : HeroInputSet->InputConfigPrimaryAbility->Inputs)
-			{
-				InputActionGenericAbility(FalseActionValue, Input.Tag);
-			}
-		}
-
-		if (HeroInputSet->InputConfigSubAbility)
-		{
-			for (const FInputMap& Input : HeroInputSet->InputConfigSubAbility->Inputs)
-			{
-				InputActionGenericAbility(FalseActionValue, Input.Tag);
-			}
-		}
+		// if (HeroInputSet->InputConfigSubAbility)
+		// {
+			// for (const FCrimInputAction& Input : HeroInputSet->InputConfigSubAbility->InputActions)
+			// {
+			// 	InputActionGenericAbility(FalseActionValue, Input.Tag);
+			// }
+		// }
 	}
 }
 
@@ -168,29 +169,29 @@ void AHeroPlayerController::SetupHeroInputSet()
 	//-----------------------------------------------------------------
 	// Locomotion Input Actions
 	//-----------------------------------------------------------------
-	if (HeroInputSet->InputActionMovement) EnhancedInputComponent->BindAction(HeroInputSet->InputActionMovement, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionMovement);
-	if (HeroInputSet->InputActionCamera) EnhancedInputComponent->BindAction(HeroInputSet->InputActionCamera, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionCamera);
-	if (HeroInputSet->InputActionCameraZoomIn) EnhancedInputComponent->BindAction(HeroInputSet->InputActionCameraZoomIn, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionCameraZoomIn);
-	if (HeroInputSet->InputActionCameraZoomOut) EnhancedInputComponent->BindAction(HeroInputSet->InputActionCameraZoomOut, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionCameraZoomOut);
+	// if (HeroInputSet->InputActionMovement) EnhancedInputComponent->BindAction(HeroInputSet->InputActionMovement, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionMovement);
+	// if (HeroInputSet->InputActionCamera) EnhancedInputComponent->BindAction(HeroInputSet->InputActionCamera, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionCamera);
+	// if (HeroInputSet->InputActionCameraZoomIn) EnhancedInputComponent->BindAction(HeroInputSet->InputActionCameraZoomIn, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionCameraZoomIn);
+	// if (HeroInputSet->InputActionCameraZoomOut) EnhancedInputComponent->BindAction(HeroInputSet->InputActionCameraZoomOut, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionCameraZoomOut);
 
 	//-----------------------------------------------------------------
 	// Ability Input Actions
 	//-----------------------------------------------------------------
-	if (HeroInputSet->InputActionPrimaryAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionPrimaryAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionPrimaryAbilityToggle);
-	if (HeroInputSet->InputActionSubAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionSubAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionSubAbilityToggle);
+	// if (HeroInputSet->InputActionPrimaryAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionPrimaryAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionPrimaryAbilityToggle);
+	// if (HeroInputSet->InputActionSubAbilityToggle) EnhancedInputComponent->BindAction(HeroInputSet->InputActionSubAbilityToggle, ETriggerEvent::Triggered, this, &AHeroPlayerController::InputActionSubAbilityToggle);
 	
-	EnhancedInputComponent->BindInputActions(
-			HeroInputSet->InputConfigPrimaryAbility,
-			this,
-			&AHeroPlayerController::InputActionPrimaryAbility);
-	EnhancedInputComponent->BindInputActions(
-			HeroInputSet->InputConfigSubAbility,
-			this,
-			&AHeroPlayerController::InputActionSubAbility);
-	EnhancedInputComponent->BindInputActions(
-		HeroInputSet->InputConfigGenericAbility,
-		this,
-		&AHeroPlayerController::InputActionGenericAbility);
+	// EnhancedInputComponent->BindInputActions(
+	// 		HeroInputSet->InputConfigPrimaryAbility,
+	// 		this,
+	// 		&AHeroPlayerController::InputActionPrimaryAbility);
+	// EnhancedInputComponent->BindInputActions(
+	// 		HeroInputSet->InputConfigSubAbility,
+	// 		this,
+	// 		&AHeroPlayerController::InputActionSubAbility);
+	// EnhancedInputComponent->BindInputActions(
+	// 	HeroInputSet->InputConfigGenericAbility,
+	// 	this,
+	// 	&AHeroPlayerController::InputActionGenericAbility);
 }
 
 void AHeroPlayerController::InputActionMovement(const FInputActionValue& Value)

@@ -6,6 +6,7 @@
 #include "../CrysPlayerController.h"
 #include "HeroPlayerController.generated.h"
 
+class UCrimActionManagerComponent;
 struct FInputActionValue;
 struct FGameplayTag;
 class UHeroInputSet;
@@ -26,6 +27,8 @@ class FINALFANTASYXI_API AHeroPlayerController : public ACrysPlayerController
 {
 	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrimActionManager", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCrimActionManagerComponent> ActionManagerComponent; 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilityInputManager, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAbilityInputManagerComponent> AbilityInputManagerComponent;
 

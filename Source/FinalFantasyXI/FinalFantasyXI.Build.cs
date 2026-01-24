@@ -45,7 +45,8 @@ public class FinalFantasyXI : ModuleRules
 			"CrimBlueprintStatics", 
 			"InteractionSystem", 
 			"CrimAbilitySystem", 
-			"InventorySystem"
+			"InventorySystem",
+			"CrimActionSystem"
 		});
 
 		// Uncomment if you are using Slate UI
