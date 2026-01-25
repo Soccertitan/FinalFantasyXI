@@ -25,7 +25,8 @@ public class FinalFantasyXI : ModuleRules
 			"InventorySystem",
 			"TargetingSystem",
 			"InteractionSystem", 
-			"CrimBlueprintStatics",
+			"CrimBlueprintStatics", 
+			"CrimActionSystem",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

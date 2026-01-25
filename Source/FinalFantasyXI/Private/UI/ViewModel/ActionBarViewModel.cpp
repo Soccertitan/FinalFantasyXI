@@ -39,10 +39,10 @@ void UActionBarViewModel::OnInitializeViewModel(APlayerController* PlayerControl
 
 	if (AHeroPlayerController* HeroPC = Cast<AHeroPlayerController>(PlayerController))
 	{
-		OnAbilityToggleStateChanged(HeroPC->IsPrimaryAbilityTogglePressed());
-		HeroPC->OnPrimaryAbilityToggleStateChangedDelegate.AddUObject(this, &UActionBarViewModel::OnAbilityToggleStateChanged);
-		HeroPC->OnInputPressedDelegate.AddUObject(this, &UActionBarViewModel::OnInputPressed);
-		HeroPC->OnInputReleasedDelegate.AddUObject(this, &UActionBarViewModel::OnInputReleased);
+		// OnAbilityToggleStateChanged(HeroPC->IsPrimaryAbilityTogglePressed());
+		// HeroPC->OnPrimaryAbilityToggleStateChangedDelegate.AddUObject(this, &UActionBarViewModel::OnAbilityToggleStateChanged);
+		// HeroPC->OnInputPressedDelegate.AddUObject(this, &UActionBarViewModel::OnInputPressed);
+		// HeroPC->OnInputReleasedDelegate.AddUObject(this, &UActionBarViewModel::OnInputReleased);
 	}
 
 	AbilityInputManagerComponent = PlayerController->GetComponentByClass<UAbilityInputManagerComponent>();

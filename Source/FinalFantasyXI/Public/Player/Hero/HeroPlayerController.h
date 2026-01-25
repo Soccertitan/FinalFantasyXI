@@ -6,6 +6,7 @@
 #include "../CrysPlayerController.h"
 #include "HeroPlayerController.generated.h"
 
+class UCrimInputActionSet;
 class UCrimActionManagerComponent;
 struct FInputActionValue;
 struct FGameplayTag;
@@ -15,9 +16,6 @@ class UTargetingSystemComponent;
 class UEnhancedInputLocalPlayerSubsystem;
 class UTargetPointFilterBase;
 class UAbilityInputManagerComponent;
-
-DECLARE_MULTICAST_DELEGATE_OneParam(FHeroPlayerControllerBoolSignature, bool);
-DECLARE_MULTICAST_DELEGATE_OneParam(FHeroPlayerControllerInputSignature, const FGameplayTag& /*InputTag*/);
 
 /**
  * 
@@ -29,26 +27,11 @@ class FINALFANTASYXI_API AHeroPlayerController : public ACrysPlayerController
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrimActionManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCrimActionManagerComponent> ActionManagerComponent; 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilityInputManager, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilityInputManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAbilityInputManagerComponent> AbilityInputManagerComponent;
 
 public:
 	AHeroPlayerController();
-
-	/** Called when an InputTag is pressed. */
-	FHeroPlayerControllerInputSignature OnInputPressedDelegate;
-	/** Called when an InputTag is released. */
-	FHeroPlayerControllerInputSignature OnInputReleasedDelegate;
-	
-	/** Called when the InputAction PrimaryAbilityToggle is pressed or released. */
-	FHeroPlayerControllerBoolSignature OnPrimaryAbilityToggleStateChangedDelegate;
-	/** Called when the InputAction SubAbilityToggle is pressed or released. */
-	FHeroPlayerControllerBoolSignature OnSubAbilityToggleStateChangedDelegate;
-	
-	UFUNCTION(BlueprintPure, Category = "PlayerController|Hero")
-	bool IsPrimaryAbilityTogglePressed() const { return bPrimaryAbilityTogglePressed; }
-	UFUNCTION(BlueprintPure, Category = "PlayerController|Hero")
-	bool IsSubAbilityTogglePressed() const { return bSubAbilityTogglePressed; }
 
 	//-----------------------------------------------------------------------------------------
 	// Class overrides
@@ -101,30 +84,7 @@ private:
 //-------------------------------------------------------------------
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Hero")
-	TObjectPtr<UHeroInputSet> HeroInputSet;
+	TObjectPtr<UCrimInputActionSet> AbilityActionSet;
 	UPROPERTY()
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem;
-
-	UPROPERTY()
-	bool bPrimaryAbilityTogglePressed = false;
-	UPROPERTY()
-	bool bSubAbilityTogglePressed = false;
-
-	/** Binds the input in the HeroInputSet to the EnhancedInputSubsystem. */
-	void SetupHeroInputSet();
-
-	void InputActionMovement(const FInputActionValue& Value);
-	void InputActionCamera(const FInputActionValue& Value);
-	void InputActionCameraZoomIn(const FInputActionValue& Value);
-	void InputActionCameraZoomOut(const FInputActionValue& Value);
-
-	void InputActionPrimaryAbility(const FInputActionValue& Value, FGameplayTag InputTag);
-	void InputActionSubAbility(const FInputActionValue& Value, FGameplayTag InputTag);
-	void InputActionGenericAbility(const FInputActionValue& Value, FGameplayTag InputTag);
-
-	void InputActionPrimaryAbilityToggle(const FInputActionValue& Value);
-	void InputActionSubAbilityToggle(const FInputActionValue& Value);
-
-	void OnAbilityInputPressed(FGameplayTag InputTag);
-	void OnAbilityInputReleased(FGameplayTag InputTag);
 };
