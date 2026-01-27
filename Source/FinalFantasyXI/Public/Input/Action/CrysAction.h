@@ -24,4 +24,6 @@ public:
 
 protected:
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
+	virtual void OnInputActionCanceled(const FInputActionValue& Value) override;
+	virtual void OnInputActionCompleted(const FInputActionValue& Value) override;
 };

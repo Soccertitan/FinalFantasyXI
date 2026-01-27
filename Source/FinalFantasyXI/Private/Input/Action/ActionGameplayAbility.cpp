@@ -12,32 +12,6 @@ void UActionGameplayAbility::OnInitializeAction()
 	Super::OnInitializeAction();
 	
 	AbilityInputManagerComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilityInputManagerComponent(GetPlayerController());
-	if (AbilityInputManagerComponent)
-	{
-		if (!AbilityClass.IsNull())
-		{
-			FAbilityInputItem InputItem;
-			InputItem.InputTag = GetInputTag();
-			InputItem.GameplayAbilityClass = AbilityClass;
-			bValidAbility = true;
-			AbilityInputManagerComponent->AddAbilityInputItem(InputItem);
-		}
-		else
-		{
-			AbilityInputManagerComponent->RemoveAbilityInputItem(GetInputTag());
-		}
-	}
-}
-
-void UActionGameplayAbility::OnResetAction()
-{
-	Super::OnResetAction();
-	
-	AbilityInputManagerComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilityInputManagerComponent(GetPlayerController());
-	if (AbilityInputManagerComponent)
-	{
-		AbilityInputManagerComponent->RemoveAbilityInputItem(GetInputTag());
-	}
 }
 
 void UActionGameplayAbility::OnInputActionTriggered(const FInputActionValue& Value)
@@ -48,11 +22,62 @@ void UActionGameplayAbility::OnInputActionTriggered(const FInputActionValue& Val
 	{
 		if (Value.Get<bool>())
 		{
-			AbilityInputManagerComponent->InputTagPressed(GetInputTag());
+			AbilityInputManagerComponent->InputTagPressed(GetInputTagContainer().First());
 		}
 		else
 		{
-			AbilityInputManagerComponent->InputTagReleased(GetInputTag());
+			AbilityInputManagerComponent->InputTagReleased(GetInputTagContainer().First());
 		}
+	}
+}
+
+void UActionGameplayAbility::OnInputActionCanceled(const FInputActionValue& Value)
+{
+	Super::OnInputActionCanceled(Value);
+	
+	if (AbilityInputManagerComponent && bValidAbility)
+	{
+		AbilityInputManagerComponent->InputTagReleased(GetInputTagContainer().First());
+	}
+}
+
+void UActionGameplayAbility::OnInputActionCompleted(const FInputActionValue& Value)
+{
+	Super::OnInputActionCompleted(Value);
+	
+	if (AbilityInputManagerComponent && bValidAbility)
+	{
+		AbilityInputManagerComponent->InputTagReleased(GetInputTagContainer().First());
+	}
+}
+
+void UActionGameplayAbility::OnInputTagAdded(const FGameplayTag& InputTag)
+{
+	Super::OnInputTagAdded(InputTag);
+	
+	if (AbilityInputManagerComponent)
+	{
+		if (!AbilityClass.IsNull())
+		{
+			FAbilityInputItem InputItem;
+			InputItem.InputTag = InputTag;
+			InputItem.GameplayAbilityClass = AbilityClass;
+			bValidAbility = true;
+			AbilityInputManagerComponent->AddAbilityInputItem(InputItem);
+		}
+		else
+		{
+			AbilityInputManagerComponent->RemoveAbilityInputItem(InputTag);
+		}
+	}
+}
+
+void UActionGameplayAbility::OnInputTagRemoved(const FGameplayTag& InputTag)
+{
+	Super::OnInputTagRemoved(InputTag);
+	
+	if (AbilityInputManagerComponent)
+	{
+		AbilityInputManagerComponent->RemoveAbilityInputItem(InputTag);
 	}
 }

@@ -18,3 +18,15 @@ void UCrysAction::OnInputActionTriggered(const FInputActionValue& Value)
 		OnInputReleased.Broadcast(this);
 	}
 }
+
+void UCrysAction::OnInputActionCanceled(const FInputActionValue& Value)
+{
+	Super::OnInputActionCanceled(Value);
+	OnInputReleased.Broadcast(this);
+}
+
+void UCrysAction::OnInputActionCompleted(const FInputActionValue& Value)
+{
+	Super::OnInputActionCompleted(Value);
+	OnInputReleased.Broadcast(this);
+}

@@ -21,8 +21,12 @@ public:
 	
 protected:
 	virtual void OnInitializeAction() override;
-	virtual void OnResetAction() override;
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
+	virtual void OnInputActionCanceled(const FInputActionValue& Value) override;
+	virtual void OnInputActionCompleted(const FInputActionValue& Value) override;
+	
+	virtual void OnInputTagAdded(const FGameplayTag& InputTag) override;
+	virtual void OnInputTagRemoved(const FGameplayTag& InputTag) override;
 	
 private:
 	UPROPERTY()
