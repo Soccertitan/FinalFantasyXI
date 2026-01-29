@@ -19,6 +19,6 @@
 [submodule "Plugins/RandomDistributionSystem"]
 	path = Plugins/RandomDistributionSystem
 	url = https://github.com/Soccertitan/RandomDistributionSystem
-[submodule "Plugins/CrimActionSystem"]
-	path = Plugins/CrimActionSystem
-	url = https://github.com/Soccertitan/CrimActionSystem
+[submodule "Plugins/CrimEnhancedInputSystem"]
+	path = Plugins/CrimEnhancedInputSystem
+	url = https://github.com/Soccertitan/CrimEnhancedInputSystem

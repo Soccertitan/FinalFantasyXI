@@ -26,7 +26,7 @@ public class FinalFantasyXI : ModuleRules
 			"TargetingSystem",
 			"InteractionSystem", 
 			"CrimBlueprintStatics", 
-			"CrimActionSystem",
+			"CrimEnhancedInputSystem",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -47,7 +47,7 @@ public class FinalFantasyXI : ModuleRules
 			"InteractionSystem", 
 			"CrimAbilitySystem", 
 			"InventorySystem",
-			"CrimActionSystem"
+			"CrimEnhancedInputSystem"
 		});
 
 		// Uncomment if you are using Slate UI

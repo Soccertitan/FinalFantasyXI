@@ -3,8 +3,8 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Plugins/CrimAbilitySystem" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Plugins/CrimActionSystem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Plugins/CrimBlueprintStatics" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Plugins/CrimEnhancedInputSystem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Plugins/GameplayMessageRouter" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Plugins/InteractionSystem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Plugins/InventorySystem" vcs="Git" />
