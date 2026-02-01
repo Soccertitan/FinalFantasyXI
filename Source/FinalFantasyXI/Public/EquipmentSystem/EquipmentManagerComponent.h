@@ -107,10 +107,6 @@ private:
 	UPROPERTY(Replicated)
 	FEquippedItemsContainer EquippedItemsContainer;
 
-	/** Only equipment with matching tags can be equipped. */
-	UPROPERTY(EditDefaultsOnly, Category = "EquipmentManager", meta = (Categories = "EquipSlot"))
-	FGameplayTagContainer AllowedEquipSlots;
-
 	/** Cached ASC from the owner. */
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;

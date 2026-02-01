@@ -6,6 +6,7 @@
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
+#include "CrysGameplayTags.h"
 #include "CrysLogChannels.h"
 #include "InventoryBlueprintFunctionLibrary.h"
 #include "InventoryManagerComponent.h"
@@ -162,18 +163,13 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 		return false;
 	}
 
-	if (!Item.IsValid())
+	if (!Item.IsValid() || !EquipSlot.MatchesTag(FCrysGameplayTags::Get().EquipSlot))
 	{
 		return false;
 	}
 
 	const UItemDefinition* ItemDefinition = UInventoryBlueprintFunctionLibrary::GetItemDefinition(Item);
 	if (!ItemDefinition)
-	{
-		return false;
-	}
-
-	if (!AllowedEquipSlots.HasTagExact(EquipSlot))
 	{
 		return false;
 	}
