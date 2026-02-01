@@ -25,12 +25,21 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, DefensePierce);
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalHitChance);
 	
+	ATTRIBUTE_ACCESSORS(ThisClass, AutoAttackDelay);
+	ATTRIBUTE_ACCESSORS(ThisClass, CastSpeedMultiplier);
+	
 protected:
 
 	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	
 	UFUNCTION()
 	void OnRep_Attack(const FGameplayAttributeData& OldValue);
+	
+	UFUNCTION()
+	void OnRep_AutoAttackDelay(const FGameplayAttributeData& OldValue);
+	
+	UFUNCTION()
+	void OnRep_CastSpeedMultiplier(const FGameplayAttributeData& OldValue);
 	
 private:
 	
@@ -49,4 +58,12 @@ private:
 	/** Chance to critically hit */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData CriticalHitChance;
+	
+	/** The amount of time between auto attacks in seconds. */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_AutoAttackDelay, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData AutoAttackDelay;
+	
+	/** The multiplier for casting abilities. */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CastSpeedMultiplier, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData CastSpeedMultiplier;
 };
