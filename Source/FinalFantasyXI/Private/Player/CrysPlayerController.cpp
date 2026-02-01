@@ -3,9 +3,13 @@
 
 #include "Player/CrysPlayerController.h"
 
+#include "CrimEnhancedInputComponent.h"
+#include "CrysGameplayTags.h"
+#include "EnhancedInputSubsystems.h"
 #include "UINavPCComponent.h"
 #include "UINavWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Input/InputActionListenerMap.h"
 #include "UI/HUD/CrysHUD.h"
 
 ACrysPlayerController::ACrysPlayerController()
@@ -14,6 +18,22 @@ ACrysPlayerController::ACrysPlayerController()
 	UINavPCComponent->AutoHideMouse = EAutoHideMouse::Gamepad;
 
 	bReplicates = true;
+}
+
+void ACrysPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	
+	ApplyDefaultInputActionMap();
+	EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	
+	for (const auto& Pair : InputMappingContextMap)
+	{
+		if (Pair.Key)
+		{
+			EnhancedInputSubsystem->AddMappingContext(Pair.Key, Pair.Value);
+		}
+	}
 }
 
 void ACrysPlayerController::CreateUINavWidgetAndAddToViewport(TSubclassOf<UUINavWidget> WidgetClass, bool bInRestrictMovement)
@@ -36,7 +56,7 @@ void ACrysPlayerController::AddUINavWidgetToViewport(UUINavWidget* InWidget, UWi
 	
 	if (UINavPCComponent->GetActiveWidget())
 	{
-		UINavPCComponent->GetActiveWidget()->RemoveSelfAndAllParents();
+		UINavPCComponent->GetActiveWidget()->ReturnToParent(true);
 	}
 	
 	if (IsValid(InWidget))
@@ -51,6 +71,7 @@ void ACrysPlayerController::OnRootWidgetAdded_Implementation()
 	IUINavPCReceiver::OnRootWidgetAdded_Implementation();
 
 	SetShowMouseCursor(true);
+	EnhancedInputSubsystem->AddTagToInputMode(FCrysGameplayTags::Get().EnhancedInput_Modes_UI);
 
 	if (bRestrictMovement)
 	{
@@ -62,10 +83,32 @@ void ACrysPlayerController::OnRootWidgetAdded_Implementation()
 void ACrysPlayerController::OnRootWidgetRemoved_Implementation()
 {
 	IUINavPCReceiver::OnRootWidgetRemoved_Implementation();
+	
+	EnhancedInputSubsystem->RemoveTagFromInputMode(FCrysGameplayTags::Get().EnhancedInput_Modes_UI);
 
 	SetShowMouseCursor(false);
 	SetIgnoreLookInput(false);
 	SetIgnoreMoveInput(false);
+	
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+}
+
+void ACrysPlayerController::ApplyDefaultInputActionMap()
+{
+	UCrimEnhancedInputComponent* EnhancedInputComponent = Cast<UCrimEnhancedInputComponent>(InputComponent);
+	if (EnhancedInputComponent)
+	{
+		for (const TObjectPtr<UInputActionListenerMap>& InputActionListenerMap : DefaultInputActionListeners)
+		{
+			if (InputActionListenerMap)
+			{
+				for (const TTuple<TObjectPtr<UInputAction>, TSubclassOf<UInputActionListener>>& Pair : InputActionListenerMap->InputActionMap)
+				{
+					EnhancedInputComponent->SetListener(Pair.Key, Pair.Value);
+				}
+			}
+		}
+	}
 }
 
 void ACrysPlayerController::InitializeHUD()

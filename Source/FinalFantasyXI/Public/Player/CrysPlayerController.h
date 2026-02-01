@@ -7,6 +7,9 @@
 #include "GameFramework/PlayerController.h"
 #include "CrysPlayerController.generated.h"
 
+class UInputMappingContext;
+class UEnhancedInputLocalPlayerSubsystem;
+class UInputActionListenerMap;
 class UWidget;
 class UUINavPCComponent;
 
@@ -20,6 +23,7 @@ class FINALFANTASYXI_API ACrysPlayerController : public APlayerController, publi
 
 public:
 	ACrysPlayerController();
+	virtual void SetupInputComponent() override;
 
 	/**
 	 * Creates a widget and then adds it to the Viewport. If a UINavWidget already exists, removes it and all parents
@@ -45,9 +49,14 @@ public:
 	virtual void OnRootWidgetRemoved_Implementation() override;
 	// ~UINavPCReceiver Interface
 
+	/** Adds the Inputs in the DefaultInputActionListeners to the CrimEnhancedInputComponent. */
+	void ApplyDefaultInputActionMap();
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UINavPCComponent);
 	TObjectPtr<UUINavPCComponent> UINavPCComponent;
+	UPROPERTY()
+	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem;
 
 	/**
 	 * Calls InitializeHUD() from the DreamHUD class. This will only call it once, setting up the widget and ViewModel.
@@ -62,6 +71,13 @@ private:
 	 */
 	UPROPERTY()
 	bool bRestrictMovement = true;
+	
+	/** The InputMappingContexts to apply at startup with the integer as the priority. */
+	UPROPERTY(EditAnywhere, Category = "CrysPlayerController", meta = (NoResetToDefault))
+	TMap<TObjectPtr<UInputMappingContext>, int32> InputMappingContextMap;
+	/** Binds the Listeners to the InputActions during InputComponent Setup. */
+	UPROPERTY(EditAnywhere, Category = "CrysPlayerController", meta = (NoResetToDefault))
+	TArray<TObjectPtr<UInputActionListenerMap>> DefaultInputActionListeners;
 
 	UPROPERTY()
 	bool bHudInitialized = false;

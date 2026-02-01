@@ -47,6 +47,11 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attribute_MoveSpeedMultiplier = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.MoveSpeed"), FString("Character move speed."));
 
 	/**
+	 * Enhanced Input Modes
+	 */
+	GameplayTags.EnhancedInput_Modes_UI = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EnhancedInput.Modes.UI"), FString("When the UI is added to the screen. This input mode is added."));
+	
+	/**
 	 * EquipSlot Tags
 	 */
 	GameplayTags.EquipSlot_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Weapon"), FString("Weapon equipment slot."));

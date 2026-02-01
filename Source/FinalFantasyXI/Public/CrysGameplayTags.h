@@ -60,6 +60,11 @@ public:
 	 * EquipSlot Tags
 	 */
 	FGameplayTag EquipSlot_Weapon;
+	
+	/**
+	 * Enhanced Input Modes
+	 */
+	FGameplayTag EnhancedInput_Modes_UI;
 
 	/**
 	 * Gameplay State Tags

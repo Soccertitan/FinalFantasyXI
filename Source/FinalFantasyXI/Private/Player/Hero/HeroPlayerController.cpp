@@ -4,7 +4,7 @@
 #include "Player/Hero/HeroPlayerController.h"
 
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
-#include "CrimActionManagerComponent.h"
+#include "CrimEnhancedInputComponent.h"
 #include "TargetingSystemComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Input/AbilityInputManagerComponent.h"
@@ -12,8 +12,6 @@
 
 AHeroPlayerController::AHeroPlayerController()
 {
-	ActionManagerComponent = CreateDefaultSubobject<UCrimActionManagerComponent>(TEXT("ActionManagerComponent"));
-	
 	AbilityInputManagerComponent = CreateDefaultSubobject<UAbilityInputManagerComponent>(TEXT("AbilityInputManagerComponent"));
 	AbilityInputManagerComponent->SetIsReplicated(false);
 }
@@ -21,8 +19,6 @@ AHeroPlayerController::AHeroPlayerController()
 void AHeroPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 }
 
 void AHeroPlayerController::OnPossess(APawn* InPawn)
@@ -57,8 +53,6 @@ void AHeroPlayerController::Tick(float DeltaSeconds)
 void AHeroPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
-	ActionManagerComponent->InitActionManagerComponent();
 }
 
 void AHeroPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused)
@@ -79,20 +73,20 @@ void AHeroPlayerController::OnRootWidgetRemoved_Implementation()
 {
 	Super::OnRootWidgetRemoved_Implementation();
 
-	if (EnhancedInputSubsystem && AbilityActionSet)
-	{
-		EnhancedInputSubsystem->AddMappingContext(AbilityActionSet->InputMappingContext, AbilityActionSet->InputMappingContextPriority);
-	}
+	// if (EnhancedInputSubsystem && AbilityActionSet)
+	// {
+	// 	EnhancedInputSubsystem->AddMappingContext(AbilityActionSet->InputMappingContext, AbilityActionSet->InputMappingContextPriority);
+	// }
 }
 
 void AHeroPlayerController::RemoveAbilityMappingContextAndReleaseAbilityInputs()
 {
-	if (EnhancedInputSubsystem && AbilityActionSet)
-	{
-		EnhancedInputSubsystem->RemoveMappingContext(AbilityActionSet->InputMappingContext);
-
-		AbilityInputManagerComponent->ReleaseAbilityInput();
-	}
+	// if (EnhancedInputSubsystem && AbilityActionSet)
+	// {
+	// 	EnhancedInputSubsystem->RemoveMappingContext(AbilityActionSet->InputMappingContext);
+	//
+	// 	AbilityInputManagerComponent->ReleaseAbilityInput();
+	// }
 }
 
 void AHeroPlayerController::TryInitOverlay()
