@@ -3,16 +3,190 @@
 
 #include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
 
+#include "CrimAbilitySystemComponent.h"
+#include "CrysGameplayTags.h"
+#include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
+#include "Net/UnrealNetwork.h"
+
 
 UAutoAttackManagerComponent::UAutoAttackManagerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
+}
+
+void UAutoAttackManagerComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
+	FDoRepLifetimeParams Params;
+	Params.bIsPushBased = true;
+	Params.Condition = COND_OwnerOnly;
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, bAutoAttacking, Params);
+}
+
+void UAutoAttackManagerComponent::OnRegister()
+{
+	Super::OnRegister();
+	CacheIsNetSimulated();
 }
 
 void UAutoAttackManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CacheIsNetSimulated();
 }
 
+void UAutoAttackManagerComponent::PreNetReceive()
+{
+	Super::PreNetReceive();
+	CacheIsNetSimulated();
+}
+
+void UAutoAttackManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbilitySystemComponent* NewAbilitySystemComponent)
+{
+	if (AbilitySystemComponent)
+	{
+		return;
+	}
+	
+	AbilitySystemComponent = NewAbilitySystemComponent;
+	
+	if (AbilitySystemComponent)
+	{
+		bool bFound = false;
+		const float Value = AbilitySystemComponent->GetGameplayAttributeValue(UAttackerAttributeSet::GetAutoAttackDelayAttribute(), bFound);
+		AutoAttackDelay = bFound ? Value : 1.f;
+		
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UAttackerAttributeSet::GetAutoAttackDelayAttribute()).
+			AddUObject(this, &UAutoAttackManagerComponent::OnAutoAttackDelayAttributeChanged);
+		
+		AbilitySystemComponent->RegisterGameplayTagEvent(FCrysGameplayTags::Get().Gameplay_State_PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
+			AddUObject(this, &UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged);
+	}
+}
+
+void UAutoAttackManagerComponent::StartAutoAttack()
+{
+	if (IsAutoAttacking())
+	{
+		return;
+	}
+	
+	if (!HasAuthority())
+	{
+		Server_StartAutoAttack();
+		return;
+	}
+	
+	GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
+	bAutoAttacking = true;
+	OnAutoAttackStateChangedDelegate.Broadcast(bAutoAttacking);
+	OnRep_AutoAttacking();
+}
+
+void UAutoAttackManagerComponent::StopAutoAttack()
+{
+	if (!IsAutoAttacking())
+	{
+		return;
+	}
+	
+	if (!HasAuthority())
+	{
+		Server_StopAutoAttack();
+		return;
+	}
+	
+	GetWorld()->GetTimerManager().ClearTimer(AutoAttackTimer);
+	bAutoAttacking = false;
+	OnAutoAttackStateChangedDelegate.Broadcast(bAutoAttacking);
+	OnRep_AutoAttacking();
+}
+
+void UAutoAttackManagerComponent::RestartAutoAttackTimer()
+{
+	if (IsAutoAttacking() && HasAuthority())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(AutoAttackTimer);
+		GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
+	}
+}
+
+bool UAutoAttackManagerComponent::IsAutoAttacking() const
+{
+	return bAutoAttacking;
+}
+
+bool UAutoAttackManagerComponent::HasAuthority() const
+{
+	return !bCachedIsNetSimulated;
+}
+
+void UAutoAttackManagerComponent::OnRep_AutoAttacking()
+{
+	OnAutoAttackStateChangedDelegate.Broadcast(bAutoAttacking);
+}
+
+void UAutoAttackManagerComponent::CacheIsNetSimulated()
+{
+	bCachedIsNetSimulated = IsNetSimulating();
+}
+
+void UAutoAttackManagerComponent::ActivateAutoAttackAbility()
+{
+#if WITH_SERVER_CODE
+	if (AbilitySystemComponent)
+	{
+		FGameplayEventData Payload;
+		Payload.EventTag = FCrysGameplayTags::Get().Ability_GameplayEvent_AutoAttack;
+		// Payload.Instigator = AbilitySystemComponent->GetAvatarActor();
+		// Payload.Target = //TODO: GetTarget.
+		// Payload.OptionalObject
+		// Payload.ContextHandle
+		// Payload.InstigatorTags = *EffectSpec.CapturedSourceTags.GetAggregatedTags();
+		// Payload.TargetTags = *EffectSpec.CapturedTargetTags.GetAggregatedTags();
+		// Payload.EventMagnitude = Magnitude;
+
+		FScopedPredictionWindow NewScopedWindow(AbilitySystemComponent, true);
+		AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
+	}
+#endif // #if WITH_SERVER_CODE	
+}
+
+void UAutoAttackManagerComponent::PauseAutoAttackTimer()
+{
+	GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+}
+
+void UAutoAttackManagerComponent::UnPauseAutoAttackTimer()
+{
+	GetWorld()->GetTimerManager().UnPauseTimer(AutoAttackTimer);
+}
+
+void UAutoAttackManagerComponent::OnAutoAttackDelayAttributeChanged(const FOnAttributeChangeData& Data)
+{
+	AutoAttackDelay = Data.NewValue;
+}
+
+void UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		PauseAutoAttackTimer();
+	}
+	else
+	{
+		UnPauseAutoAttackTimer();
+	}
+}
+
+void UAutoAttackManagerComponent::Server_StartAutoAttack_Implementation()
+{
+	StartAutoAttack();
+}
+
+void UAutoAttackManagerComponent::Server_StopAutoAttack_Implementation()
+{
+	StopAutoAttack();
+}

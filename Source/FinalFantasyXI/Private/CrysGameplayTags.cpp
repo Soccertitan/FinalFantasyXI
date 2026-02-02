@@ -24,6 +24,11 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.WeaponType = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponType"), FString("Root GameplayTag for weapon types."));
 
 	/**
+	 * Ability Gameplay Events
+	 */
+	GameplayTags.Ability_GameplayEvent_AutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.GameplayEvent.AutoAttack"), FString("Triggers an auto attack gameplay ability."));
+	
+	/**
 	 * Attribute Gameplay Tags
 	 */
 	GameplayTags.Attribute_Level = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attribute.Level"), FString("The level of the character."));
@@ -60,6 +65,7 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	 * Gameplay State Tags
 	 */
 	GameplayTags.Gameplay_State_MovementRooted = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.MovementRooted"), FString("The character has the movement rooted status."));
+	GameplayTags.Gameplay_State_PauseAutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.PauseAutoAttack"), FString("A character with this tag will have the auto attack timer paused. And restarted when removed."));
 
 	/**
 	 * Item Gameplay Tags

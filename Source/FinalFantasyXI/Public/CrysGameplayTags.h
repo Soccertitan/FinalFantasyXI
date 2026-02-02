@@ -32,6 +32,11 @@ public:
 	FGameplayTag Message;
 	FGameplayTag MessageVerb;
 	FGameplayTag WeaponType;
+	
+	/**
+	 * Ability Gameplay Events
+	 */
+	FGameplayTag Ability_GameplayEvent_AutoAttack;
 
 	/**
 	 * Attributes
@@ -70,6 +75,7 @@ public:
 	 * Gameplay State Tags
 	 */
 	FGameplayTag Gameplay_State_MovementRooted;
+	FGameplayTag Gameplay_State_PauseAutoAttack;
 
 	/**
 	 * Item GameplayTags
