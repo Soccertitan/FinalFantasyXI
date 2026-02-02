@@ -67,6 +67,8 @@ private:
 	/** The time in seconds between auto attacks. */
 	float AutoAttackDelay = 1.f;
 	
+	bool bAutoAttackTimerPaused = false;
+	
 	/** Cached value of whether the owner is a simulated actor. */
 	UPROPERTY()
 	bool bCachedIsNetSimulated = false;
@@ -74,9 +76,6 @@ private:
 	
 	UFUNCTION()
 	void ActivateAutoAttackAbility();
-	
-	void PauseAutoAttackTimer();
-	void UnPauseAutoAttackTimer();
 	
 	void OnAutoAttackDelayAttributeChanged(const FOnAttributeChangeData& Data);
 	void OnPauseAutoAttackTagChanged(const FGameplayTag Tag, int32 NewCount);

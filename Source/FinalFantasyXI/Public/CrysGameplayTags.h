@@ -74,6 +74,7 @@ public:
 	/**
 	 * Gameplay State Tags
 	 */
+	FGameplayTag Gameplay_State_DualWielding;
 	FGameplayTag Gameplay_State_MovementRooted;
 	FGameplayTag Gameplay_State_PauseAutoAttack;
 

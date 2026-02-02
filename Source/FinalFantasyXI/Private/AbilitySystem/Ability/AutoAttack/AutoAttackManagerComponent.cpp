@@ -6,6 +6,7 @@
 #include "CrimAbilitySystemComponent.h"
 #include "CrysGameplayTags.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -61,7 +62,9 @@ void UAutoAttackManagerComponent::InitializeWithAbilitySystem_Implementation(UCr
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UAttackerAttributeSet::GetAutoAttackDelayAttribute()).
 			AddUObject(this, &UAutoAttackManagerComponent::OnAutoAttackDelayAttributeChanged);
 		
-		AbilitySystemComponent->RegisterGameplayTagEvent(FCrysGameplayTags::Get().Gameplay_State_PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
+		const FGameplayTag& PauseAutoAttack = FCrysGameplayTags::Get().Gameplay_State_PauseAutoAttack;
+		OnPauseAutoAttackTagChanged(PauseAutoAttack, AbilitySystemComponent->GetGameplayTagCount(PauseAutoAttack));
+		AbilitySystemComponent->RegisterGameplayTagEvent(PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged);
 	}
 }
@@ -78,8 +81,12 @@ void UAutoAttackManagerComponent::StartAutoAttack()
 		Server_StartAutoAttack();
 		return;
 	}
-	
+
 	GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
+	if (bAutoAttackTimerPaused)
+	{
+		GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+	}
 	bAutoAttacking = true;
 	OnAutoAttackStateChangedDelegate.Broadcast(bAutoAttacking);
 	OnRep_AutoAttacking();
@@ -110,6 +117,10 @@ void UAutoAttackManagerComponent::RestartAutoAttackTimer()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(AutoAttackTimer);
 		GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
+		if (bAutoAttackTimerPaused)
+		{
+			GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+		}
 	}
 }
 
@@ -146,22 +157,12 @@ void UAutoAttackManagerComponent::ActivateAutoAttackAbility()
 		// Payload.ContextHandle
 		// Payload.InstigatorTags = *EffectSpec.CapturedSourceTags.GetAggregatedTags();
 		// Payload.TargetTags = *EffectSpec.CapturedTargetTags.GetAggregatedTags();
-		// Payload.EventMagnitude = Magnitude;
+		// Payload.EventMagnitude = 0.f;
 
 		FScopedPredictionWindow NewScopedWindow(AbilitySystemComponent, true);
 		AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
 	}
 #endif // #if WITH_SERVER_CODE	
-}
-
-void UAutoAttackManagerComponent::PauseAutoAttackTimer()
-{
-	GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
-}
-
-void UAutoAttackManagerComponent::UnPauseAutoAttackTimer()
-{
-	GetWorld()->GetTimerManager().UnPauseTimer(AutoAttackTimer);
 }
 
 void UAutoAttackManagerComponent::OnAutoAttackDelayAttributeChanged(const FOnAttributeChangeData& Data)
@@ -173,11 +174,13 @@ void UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged(const FGameplayTag
 {
 	if (NewCount > 0)
 	{
-		PauseAutoAttackTimer();
+		GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+		bAutoAttackTimerPaused = true;
 	}
 	else
 	{
-		UnPauseAutoAttackTimer();
+		GetWorld()->GetTimerManager().UnPauseTimer(AutoAttackTimer);
+		bAutoAttackTimerPaused = false;
 	}
 }
 
