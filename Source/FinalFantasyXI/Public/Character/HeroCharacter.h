@@ -9,6 +9,7 @@
 #include "TargetingSystemInterface.h"
 #include "CrysCharacter.h"
 #include "GameplayTagAssetInterface.h"
+#include "AbilitySystem/AbilityTargetInterface.h"
 #include "EquipmentSystem/EquipmentSystemInterface.h"
 #include "HeroSystem/HeroSystemInterface.h"
 #include "HeroCharacter.generated.h"
@@ -25,7 +26,7 @@ class USpringArmComponent;
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API AHeroCharacter : public ACrysCharacter, public IInventorySystemInterface,
 	public ITargetingSystemInterface, public IInteractorInterface, public IHeroSystemInterface, public IEquipmentSystemInterface, 
-	public IAbilitySystemInterface, public IGameplayTagAssetInterface
+	public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IAbilityTargetInterface
 {
 	GENERATED_BODY()
 
@@ -62,6 +63,10 @@ public:
 	// Implement IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	// End Implements IAbilitySystemInterface
+	
+	// Implements AbilityTargetInterface
+	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const override;
+	// End Implements AbilityTargetInterface
 	
 	// Implements IGameplayTagAssetInterface
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;

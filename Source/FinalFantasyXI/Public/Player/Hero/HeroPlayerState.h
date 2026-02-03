@@ -6,10 +6,12 @@
 #include "AbilitySystemInterface.h"
 #include "InventorySystemInterface.h"
 #include "../CrysPlayerState.h"
+#include "AbilitySystem/AbilityTargetInterface.h"
 #include "EquipmentSystem/EquipmentSystemInterface.h"
 #include "HeroSystem/HeroSystemInterface.h"
 #include "HeroPlayerState.generated.h"
 
+class UAutoAttackManagerComponent;
 class UHeroJobAttributeSet;
 class UDefenderAttributeSet;
 class UAbilityAttributeSet;
@@ -30,7 +32,7 @@ class UCrysHitPointsAttributeSet;
  */
 UCLASS()
 class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbilitySystemInterface,
-	public IInventorySystemInterface, public IHeroSystemInterface, public IEquipmentSystemInterface
+	public IInventorySystemInterface, public IHeroSystemInterface, public IEquipmentSystemInterface, public IAbilityTargetInterface
 {
 	GENERATED_BODY()
 
@@ -63,6 +65,9 @@ class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbi
 	TObjectPtr<UHeroManagerComponent> HeroManagerComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EquipmentManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AutoAttackManagerComponent", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManagerComponent;
 
 public:
 	AHeroPlayerState();
@@ -77,6 +82,8 @@ public:
 	virtual UHeroManagerComponent* GetHeroManagerComponent_Implementation() const override;
 	/** IEquipmentSystemInterface */
 	virtual UEquipmentManagerComponent* GetEquipmentManagerComponent_Implementation() const override;
+	/** Implements AbilityTargetInterface */
+	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const override;
 
 protected:
 	/** A generic function to bind to delegates. Called in PostInitializeComponents */

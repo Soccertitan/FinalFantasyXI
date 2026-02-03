@@ -9,6 +9,7 @@
 #include "InteractorComponent.h"
 #include "InventoryBlueprintFunctionLibrary.h"
 #include "TargetingSystemComponent.h"
+#include "TargetPointComponent.h"
 #include "AI/HeroAIController.h"
 #include "Attribute/HitPointsComponent.h"
 #include "Camera/CameraComponent.h"
@@ -76,6 +77,19 @@ void AHeroCharacter::OnRep_PlayerState()
 UAbilitySystemComponent* AHeroCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+AActor* AHeroCharacter::GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const
+{
+	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(ContextTags);
+	if (Result == nullptr)
+	{
+		if (const UTargetPointComponent* TargetPoint = TargetingSystemComponent->GetTarget())
+		{
+			return TargetPoint->GetAttachmentRootActor();
+		}
+	}
+	return Result;
 }
 
 void AHeroCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

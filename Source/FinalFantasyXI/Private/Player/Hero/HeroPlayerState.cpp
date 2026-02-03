@@ -4,7 +4,9 @@
 #include "Player/Hero/HeroPlayerState.h"
 
 #include "CrimAbilitySystemComponent.h"
+#include "CrysBlueprintFunctionLibrary.h"
 #include "InventoryManagerComponent.h"
+#include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CombatSkillAttributeSet.h"
@@ -46,6 +48,9 @@ AHeroPlayerState::AHeroPlayerState()
 
 	EquipmentManagerComponent = CreateDefaultSubobject<UEquipmentManagerComponent>("EquipmentManagerComponent");
 	EquipmentManagerComponent->SetIsReplicated(true);
+	
+	AutoAttackManagerComponent = CreateDefaultSubobject<UAutoAttackManagerComponent>(TEXT("AutoAttackManagerComponent"));
+	AutoAttackManagerComponent->SetIsReplicated(true);
 }
 
 void AHeroPlayerState::PostInitializeComponents()
@@ -78,6 +83,16 @@ UHeroManagerComponent* AHeroPlayerState::GetHeroManagerComponent_Implementation(
 UEquipmentManagerComponent* AHeroPlayerState::GetEquipmentManagerComponent_Implementation() const
 {
 	return EquipmentManagerComponent;
+}
+
+AActor* AHeroPlayerState::GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const
+{
+	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(ContextTags);
+	if (!Result)
+	{
+		return UCrysBlueprintFunctionLibrary::GetAbilityTarget(GetPawn(), ContextTags);
+	}
+	return Result;
 }
 
 void AHeroPlayerState::BindToDelegates()

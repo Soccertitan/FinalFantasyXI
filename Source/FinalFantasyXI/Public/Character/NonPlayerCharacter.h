@@ -8,6 +8,7 @@
 #include "GameplayTagAssetInterface.h"
 #include "NonPlayerCharacter.generated.h"
 
+class UAutoAttackManagerComponent;
 class UDefenderAttributeSet;
 class UAbilityAttributeSet;
 class UMovementAttributeSet;
@@ -27,7 +28,7 @@ class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGa
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
@@ -49,8 +50,11 @@ class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGa
 	UPROPERTY()
 	TObjectPtr<UAbilityAttributeSet> AbilityAttributeSet;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitPointsComponent, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitPointsComponent", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UHitPointsComponent> HitPointsComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AutoAttackManagerComponent", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManagerComponent;
 
 public:
 	ANonPlayerCharacter(const FObjectInitializer& ObjectInitializer);

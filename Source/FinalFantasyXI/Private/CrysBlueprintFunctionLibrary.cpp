@@ -4,6 +4,7 @@
 #include "CrysBlueprintFunctionLibrary.h"
 
 #include "CrysLogChannels.h"
+#include "AbilitySystem/AbilityTargetInterface.h"
 #include "Character/AnimationTagRelationship.h"
 #include "Character/CrysCharacter.h"
 #include "GameFramework/PlayerState.h"
@@ -77,6 +78,15 @@ ACrysCharacter* UCrysBlueprintFunctionLibrary::GetCrysCharacter(AActor* Actor)
 	}
 	
 	return Result;
+}
+
+AActor* UCrysBlueprintFunctionLibrary::GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& ContextTags)
+{
+	if (Actor && Actor->Implements<UAbilityTargetInterface>())
+	{
+		return IAbilityTargetInterface::Execute_GetAbilityTarget(Actor, ContextTags);
+	}
+	return nullptr;
 }
 
 FAnimationRelationshipItem UCrysBlueprintFunctionLibrary::FindAnimationRelationshipItem(AActor* Actor, const FGameplayTag& AnimationTag, bool bLogNotFound)

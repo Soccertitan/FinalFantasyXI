@@ -6,7 +6,6 @@
 #include "CrimAbilitySystemComponent.h"
 #include "CrysGameplayTags.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 

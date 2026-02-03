@@ -35,6 +35,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
 	static ACrysCharacter* GetCrysCharacter(AActor* Actor);
 	
+	/** Returns an Actor that implements the AbilityTargetInterface */
+	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
+	static AActor* GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& ContextTags);
+	
 	/** Gets the CrysCharacter and returns the AnimationRelationshipItem. */
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
 	static FAnimationRelationshipItem FindAnimationRelationshipItem(AActor* Actor, const FGameplayTag& AnimationTag, bool bLogNotFound = false);
