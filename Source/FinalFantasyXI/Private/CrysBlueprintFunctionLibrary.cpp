@@ -5,7 +5,6 @@
 
 #include "CrysLogChannels.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
-#include "Character/AnimationTagRelationship.h"
 #include "Character/CrysCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Player/CrysPlayerController.h"
@@ -80,35 +79,13 @@ ACrysCharacter* UCrysBlueprintFunctionLibrary::GetCrysCharacter(AActor* Actor)
 	return Result;
 }
 
-AActor* UCrysBlueprintFunctionLibrary::GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& ContextTags)
+AActor* UCrysBlueprintFunctionLibrary::GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& AbilityTags)
 {
 	if (Actor && Actor->Implements<UAbilityTargetInterface>())
 	{
-		return IAbilityTargetInterface::Execute_GetAbilityTarget(Actor, ContextTags);
+		return IAbilityTargetInterface::Execute_GetAbilityTarget(Actor, AbilityTags);
 	}
 	return nullptr;
-}
-
-FAnimationRelationshipItem UCrysBlueprintFunctionLibrary::FindAnimationRelationshipItem(AActor* Actor, const FGameplayTag& AnimationTag, bool bLogNotFound)
-{
-	if (const ACrysCharacter* Character = GetCrysCharacter(Actor))
-	{
-		if (UAnimationTagRelationship* AnimationTagRelationship = Character->GetAnimationTagRelationship())
-		{
-			return AnimationTagRelationship->FindAnimationRelationshipItem(AnimationTag, bLogNotFound);
-		}
-	}
-	
-	if (bLogNotFound)
-	{
-		UE_LOG(LogCrys, Error, TEXT("AnimationTagRelationship is invalid in [%s]"), *GetNameSafe(Actor));
-	}
-	return FAnimationRelationshipItem();
-}
-
-bool UCrysBlueprintFunctionLibrary::IsAnimationRelationshipItemValid(const FAnimationRelationshipItem& AnimationRelationshipItem)
-{
-	return AnimationRelationshipItem.IsValid();
 }
 
 FAttributeRelationshipItem UCrysBlueprintFunctionLibrary::FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound)

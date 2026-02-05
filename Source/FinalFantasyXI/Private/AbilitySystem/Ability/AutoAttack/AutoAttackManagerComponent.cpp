@@ -4,6 +4,7 @@
 #include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
 
 #include "CrimAbilitySystemComponent.h"
+#include "CrysBlueprintFunctionLibrary.h"
 #include "CrysGameplayTags.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "Net/UnrealNetwork.h"
@@ -128,6 +129,34 @@ bool UAutoAttackManagerComponent::IsAutoAttacking() const
 	return bAutoAttacking;
 }
 
+UAutoAttackAnimationData* UAutoAttackManagerComponent::GetPrimaryAutoAttackAnimationData() const
+{
+	return PrimaryAutoAttackAnimationData;
+}
+
+UAutoAttackAnimationData* UAutoAttackManagerComponent::GetSecondaryAutoAttackAnimationData() const
+{
+	return SecondaryAutoAttackAnimationData;
+}
+
+void UAutoAttackManagerComponent::SetPrimaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData)
+{
+	if (AnimationData)
+	{
+		PrimaryAutoAttackAnimationData = AnimationData;
+		OnPrimaryAutoAttackAnimationDataUpdatedDelegate.Broadcast(PrimaryAutoAttackAnimationData);
+	}
+}
+
+void UAutoAttackManagerComponent::SetSecondaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData)
+{
+	if (AnimationData)
+	{
+		SecondaryAutoAttackAnimationData = AnimationData;
+		OnSecondaryAutoAttackAnimationDataUpdatedDelegate.Broadcast(SecondaryAutoAttackAnimationData);
+	}
+}
+
 bool UAutoAttackManagerComponent::HasAuthority() const
 {
 	return !bCachedIsNetSimulated;
@@ -150,14 +179,11 @@ void UAutoAttackManagerComponent::ActivateAutoAttackAbility()
 	{
 		FGameplayEventData Payload;
 		Payload.EventTag = FCrysGameplayTags::Get().Ability_GameplayEvent_AutoAttack;
-		// Payload.Instigator = AbilitySystemComponent->GetAvatarActor();
-		// Payload.Target = //TODO: GetTarget.
-		// Payload.OptionalObject
-		// Payload.ContextHandle
-		// Payload.InstigatorTags = *EffectSpec.CapturedSourceTags.GetAggregatedTags();
-		// Payload.TargetTags = *EffectSpec.CapturedTargetTags.GetAggregatedTags();
-		// Payload.EventMagnitude = 0.f;
-
+		Payload.Instigator = AbilitySystemComponent->GetAvatarActor();
+		Payload.Target = UCrysBlueprintFunctionLibrary::GetAbilityTarget(AbilitySystemComponent->GetOwner(), FCrysGameplayTags::Get().Ability_GameplayEvent_AutoAttack.GetSingleTagContainer());
+		// The RandomStream Seed.
+		Payload.EventMagnitude = FMath::RandRange(1, MAX_int32);
+		
 		FScopedPredictionWindow NewScopedWindow(AbilitySystemComponent, true);
 		AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
 	}

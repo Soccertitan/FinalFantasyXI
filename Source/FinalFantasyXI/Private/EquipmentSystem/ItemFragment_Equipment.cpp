@@ -56,6 +56,6 @@ bool FItemShard_Weapon::IsMatching(const TInstancedStruct<FItemShard>& Shard) co
 
 FItemFragment_Weapon::FItemFragment_Weapon()
 {
-	AllowedEquipSlots.AddTag(FCrysGameplayTags::Get().EquipSlot_Weapon);
+	AllowedEquipSlots.AddTag(FCrysGameplayTags::Get().EquipSlot_MainHand);
 	EquipmentShard.InitializeAsScriptStruct(FItemShard_Weapon::StaticStruct());
 }

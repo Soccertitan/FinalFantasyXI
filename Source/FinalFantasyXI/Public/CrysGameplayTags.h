@@ -64,7 +64,10 @@ public:
 	/**
 	 * EquipSlot Tags
 	 */
-	FGameplayTag EquipSlot_Weapon;
+	FGameplayTag EquipSlot_MainHand;
+	FGameplayTag EquipSlot_SubHand;
+	FGameplayTag EquipSlot_Range;
+	FGameplayTag EquipSlot_Ammo;
 	
 	/**
 	 * Enhanced Input Modes

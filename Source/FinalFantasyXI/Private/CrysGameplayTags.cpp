@@ -59,7 +59,10 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	/**
 	 * EquipSlot Tags
 	 */
-	GameplayTags.EquipSlot_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Weapon"), FString("Weapon equipment slot."));
+	GameplayTags.EquipSlot_MainHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.MainHand"), FString("Main Hand slot (typically weapons)."));
+	GameplayTags.EquipSlot_SubHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.SubHand"), FString("Sub Hand slot (typically weapons or shields)."));
+	GameplayTags.EquipSlot_Range = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Range"), FString("Range slot (typically bows/guns, instruments)."));
+	GameplayTags.EquipSlot_Ammo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Ammo"), FString("Ammo slot (typically used for bow/gun ammo and throwing)."));
 	
 	/**
 	 * Gameplay State Tags

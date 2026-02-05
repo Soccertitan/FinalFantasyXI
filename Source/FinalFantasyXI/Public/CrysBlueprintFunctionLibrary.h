@@ -11,7 +11,6 @@ class ACrysCharacter;
 class UCrimGameplayAbility;
 class ACrysPlayerState;
 class ACrysPlayerController;
-struct FAnimationRelationshipItem;
 
 /**
  * 
@@ -37,14 +36,7 @@ public:
 	
 	/** Returns an Actor that implements the AbilityTargetInterface */
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
-	static AActor* GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& ContextTags);
-	
-	/** Gets the CrysCharacter and returns the AnimationRelationshipItem. */
-	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
-	static FAnimationRelationshipItem FindAnimationRelationshipItem(AActor* Actor, const FGameplayTag& AnimationTag, bool bLogNotFound = false);
-	
-	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (BlueprintThreadSafe, CompactNodeTitle = "IsValid"))
-	static bool IsAnimationRelationshipItemValid(const FAnimationRelationshipItem& AnimationRelationshipItem);
+	static AActor* GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& AbilityTags);
 
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary")
 	static FAttributeRelationshipItem FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound = false);

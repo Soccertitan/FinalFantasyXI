@@ -79,9 +79,9 @@ UAbilitySystemComponent* AHeroCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-AActor* AHeroCharacter::GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const
+AActor* AHeroCharacter::GetAbilityTarget_Implementation(const FGameplayTagContainer& AbilityTags) const
 {
-	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(ContextTags);
+	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(AbilityTags);
 	if (Result == nullptr)
 	{
 		if (const UTargetPointComponent* TargetPoint = TargetingSystemComponent->GetTarget())

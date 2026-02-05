@@ -5,7 +5,6 @@
 
 #include "CrysGameplayTags.h"
 #include "AI/CrysAIController.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
@@ -20,13 +19,12 @@ ACrysCharacter::ACrysCharacter(const FObjectInitializer& ObjectInitializer)
 	AIControllerClass = ACrysAIController::StaticClass();
 }
 
-void ACrysCharacter::SetCharacterName(const FText Name)
+void ACrysCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (HasAuthority())
-	{
-		CharacterName = Name;
-		OnRep_CharacterName();
-	}
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CharacterName, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, SkeletalMeshMergeParams, COND_None, REPNOTIFY_Always);
 }
 
 void ACrysCharacter::BeginPlay()
@@ -34,14 +32,6 @@ void ACrysCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MergeSkeletalMeshes();
-}
-
-void ACrysCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CharacterName, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, SkeletalMeshMergeParams, COND_None, REPNOTIFY_Always);
 }
 
 void ACrysCharacter::PossessedBy(AController* NewController)
@@ -52,9 +42,13 @@ void ACrysCharacter::PossessedBy(AController* NewController)
 	OnRep_SkeletalMeshMergeParams();
 }
 
-UAnimationTagRelationship* ACrysCharacter::GetAnimationTagRelationship() const
+void ACrysCharacter::SetCharacterName(const FText Name)
 {
-	return AnimationTagRelationship;
+	if (HasAuthority())
+	{
+		CharacterName = Name;
+		OnRep_CharacterName();
+	}
 }
 
 void ACrysCharacter::DisableMovement()

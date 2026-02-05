@@ -85,12 +85,12 @@ UEquipmentManagerComponent* AHeroPlayerState::GetEquipmentManagerComponent_Imple
 	return EquipmentManagerComponent;
 }
 
-AActor* AHeroPlayerState::GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const
+AActor* AHeroPlayerState::GetAbilityTarget_Implementation(const FGameplayTagContainer& AbilityTags) const
 {
-	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(ContextTags);
+	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(AbilityTags);
 	if (!Result)
 	{
-		return UCrysBlueprintFunctionLibrary::GetAbilityTarget(GetPawn(), ContextTags);
+		return UCrysBlueprintFunctionLibrary::GetAbilityTarget(GetPawn(), AbilityTags);
 	}
 	return Result;
 }

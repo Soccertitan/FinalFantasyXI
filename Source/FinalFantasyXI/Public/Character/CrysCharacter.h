@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "CrysCharacter.generated.h"
 
+class UAbilityAnimationData;
+class UAutoAttackAnimationData;
 class UAnimationTagRelationship;
 
 USTRUCT(BlueprintType)
@@ -28,23 +30,27 @@ class FINALFANTASYXI_API ACrysCharacter : public ACharacter
 
 public:
 	ACrysCharacter(const FObjectInitializer& ObjectInitializer);
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
+	
 	UFUNCTION(BlueprintPure, Category = "CrysCharacter")
 	FText GetCharacterName() {return CharacterName;}
 
 	UFUNCTION(BlueprintCallable, Category = "CrysCharacter")
 	virtual void SetCharacterName(const FText Name);
-
-	virtual void BeginPlay() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void PossessedBy(AController* NewController) override;
 	
-	UAnimationTagRelationship* GetAnimationTagRelationship() const;
+	UFUNCTION(BlueprintPure, Category = "CrysCharacter|Animation")
+	UAbilityAnimationData* GetAbilityAnimationData() const {return AbilityAnimationData;}
 	
 	void DisableMovement();
 	void EnableMovement();
 
 protected:
+	/** Animations that are used for non weapon related abilities. */
+	UPROPERTY(EditAnywhere, Category = "Character|Animation")
+	TObjectPtr<UAbilityAnimationData> AbilityAnimationData;
+	
 	UFUNCTION()
 	virtual void OnRep_CharacterName();
 
@@ -59,9 +65,6 @@ private:
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_SkeletalMeshMergeParams, Category = "Character|MeshMerge")
 	FSkeletalMeshMergeParams SkeletalMeshMergeParams;
-	
-	UPROPERTY(EditAnywhere, Category = "Character|Animation")
-	TObjectPtr<UAnimationTagRelationship> AnimationTagRelationship;
 
 	void BroadcastCharacterName();
 };

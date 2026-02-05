@@ -83,7 +83,7 @@ public:
 	/** IEquipmentSystemInterface */
 	virtual UEquipmentManagerComponent* GetEquipmentManagerComponent_Implementation() const override;
 	/** Implements AbilityTargetInterface */
-	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const override;
+	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& AbilityTags) const override;
 
 protected:
 	/** A generic function to bind to delegates. Called in PostInitializeComponents */

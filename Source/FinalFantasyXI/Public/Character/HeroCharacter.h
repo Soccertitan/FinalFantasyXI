@@ -65,7 +65,7 @@ public:
 	// End Implements IAbilitySystemInterface
 	
 	// Implements AbilityTargetInterface
-	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& ContextTags) const override;
+	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& AbilityTags) const override;
 	// End Implements AbilityTargetInterface
 	
 	// Implements IGameplayTagAssetInterface

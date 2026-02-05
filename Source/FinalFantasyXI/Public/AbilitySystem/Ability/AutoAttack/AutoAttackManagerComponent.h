@@ -7,10 +7,13 @@
 #include "Components/ActorComponent.h"
 #include "AutoAttackManagerComponent.generated.h"
 
+class UAutoAttackAnimationData;
 struct FGameplayTag;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerBoolSignature, bool, bAutoAttacking);
-
 struct FOnAttributeChangeData;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerBoolSignature, bool, bAutoAttacking);
+DECLARE_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerAnimationDataSignature, UAutoAttackAnimationData*);
+
 /**
  * Manages the timer for auto attacks. Notifies when the timer starts/ends. And updates timers based on specified 
  * conditions. Like equipping a new weapon.
@@ -46,6 +49,22 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
 	bool IsAutoAttacking() const;
+	
+	/** Called when the PrimaryAutoAttackAnimationData is set to a valid DataAsset. */
+	FAutoAttackManagerAnimationDataSignature OnPrimaryAutoAttackAnimationDataUpdatedDelegate;
+	/** Called when the SecondaryAutoAttackAnimationData is set to a valid DataAsset. */
+	FAutoAttackManagerAnimationDataSignature OnSecondaryAutoAttackAnimationDataUpdatedDelegate;
+	
+	UFUNCTION(BlueprintPure, Category = "AutoAttackManager|Animation")
+	UAutoAttackAnimationData* GetPrimaryAutoAttackAnimationData() const;
+	UFUNCTION(BlueprintPure, Category = "AutoAttackManager|Animation")
+	UAutoAttackAnimationData* GetSecondaryAutoAttackAnimationData() const;
+	
+		
+	UFUNCTION(BlueprintCallable, Category = "AutoAttackManager|Animation")
+	void SetPrimaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData);
+	UFUNCTION(BlueprintCallable, Category = "AutoAttackManager|Animation")
+	void SetSecondaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData);
 
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
 	bool HasAuthority() const;
@@ -56,6 +75,13 @@ protected:
 	void OnRep_AutoAttacking();
 
 private:
+	/** Attacks done from the main hand. */
+	UPROPERTY(EditAnywhere, Category = "AutoAttackManager|Animation")
+	TObjectPtr<UAutoAttackAnimationData> PrimaryAutoAttackAnimationData;
+	/** Attacks done from the offhand when dual wielding. */
+	UPROPERTY(EditAnywhere, Category = "AutoAttackManager|Animation")
+	TObjectPtr<UAutoAttackAnimationData> SecondaryAutoAttackAnimationData;
+
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
 	

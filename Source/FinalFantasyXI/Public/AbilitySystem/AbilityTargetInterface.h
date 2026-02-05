@@ -16,7 +16,7 @@ class UAbilityTargetInterface : public UInterface
 };
 
 /**
- * Called from within an Ability when an Actor is required to commit the ability.
+ * Called from an Ability when a target is required.
  */
 class FINALFANTASYXI_API IAbilityTargetInterface
 {
@@ -25,5 +25,5 @@ class FINALFANTASYXI_API IAbilityTargetInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent)
-	AActor* GetAbilityTarget(const FGameplayTagContainer& ContextTags) const;
+	AActor* GetAbilityTarget(const FGameplayTagContainer& AbilityTags) const;
 };
