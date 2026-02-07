@@ -10,7 +10,7 @@
 UCrysActionManagerComponent::UCrysActionManagerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	ActionPool.Reserve(MaxCacheSize);
+	ActionPool.SetNumUninitialized(MaxCacheSize);
 }
 
 void UCrysActionManagerComponent::OnRegister()
@@ -62,25 +62,28 @@ bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclass
 		if (!Action)
 		{
 			Action = CreateActionInstance(ActionClass);
-			if (ActionPool.Num() >= MaxCacheSize)
+			ActionPool[CurrentCacheIndex] = Action;
+			CurrentCacheIndex++;
+			if (CurrentCacheIndex >= MaxCacheSize)
 			{
-				ActionPool.RemoveAt(0);
+				CurrentCacheIndex = 0;
 			}
-			ActionPool.Add(Action);
 		}
 		return Action->TryActivateAction();
 	}
 	return false;
 }
 
-bool UCrysActionManagerComponent::TryActivateAction(FGameplayTag InputTag, int32 Index)
+bool UCrysActionManagerComponent::TryActivateAction(FGameplayTag InputTag)
 {
-	if (InputTag.IsValid() && ActionMappings.IsValidIndex(Index))
+	return TryActivateActionAtIndex(InputTag, CurrentActionSetIndex);
+}
+
+bool UCrysActionManagerComponent::TryActivateActionAtIndex(FGameplayTag InputTag, int32 Index)
+{
+	if (UCrysAction* Action = FindAction(InputTag, Index))
 	{
-		if (UCrysAction* Action = FindAction(InputTag, Index))
-		{
-			return Action->TryActivateAction();
-		}
+		return Action->TryActivateAction();
 	}
 	return false;
 }
@@ -111,6 +114,15 @@ void UCrysActionManagerComponent::ClearAction(FGameplayTag InputTag, int32 Index
 	
 	ActionMappings[Index].Add(InputTag, nullptr);
 	OnActionMapUpdatedDelegate.Broadcast(nullptr, InputTag, Index);
+}
+
+void UCrysActionManagerComponent::SetCurrentActionSetIndex(int32 Index)
+{
+	if (Index > 0 && Index != CurrentActionSetIndex)
+	{
+		CurrentActionSetIndex = Index;
+		OnActionSetSelectedDelegate.Broadcast(CurrentActionSetIndex);
+	}
 }
 
 UCrysAction* UCrysActionManagerComponent::CreateActionInstance(const TSubclassOf<UCrysAction>& ActionClass)

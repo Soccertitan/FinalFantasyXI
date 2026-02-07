@@ -7,8 +7,8 @@
 #include "CrysInputActionListener.generated.h"
 
 class ACrysPlayerController;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrysInputActionListenerGenericSignature, UCrysInputActionListener*, Action)
-;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrysInputActionListenerGenericSignature, UCrysInputActionListener*, Action);
 
 /**
  * A generic action that broadcasts when an input is pressed/released.
@@ -23,6 +23,9 @@ public:
 	FCrysInputActionListenerGenericSignature OnInputPressed;
 	UPROPERTY(BlueprintAssignable)
 	FCrysInputActionListenerGenericSignature OnInputReleased;
+	
+	UFUNCTION(BlueprintPure, Category = "InputListener")
+	bool IsPressed() const { return bPressed; }
 
 protected:
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;

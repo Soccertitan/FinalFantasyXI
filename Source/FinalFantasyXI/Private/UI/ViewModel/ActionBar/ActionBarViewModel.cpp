@@ -3,118 +3,131 @@
 
 #include "UI/ViewModel/ActionBar/ActionBarViewModel.h"
 
-#include "Input/AbilityInputManagerComponent.h"
-#include "Player/Hero/HeroPlayerController.h"
-#include "UI/ViewModel/OverlayViewModel.h"
-#include "UI/ViewModel/ActionBar//ActionBarItemViewModel.h"
+#include "CrimEnhancedInputComponent.h"
+#include "CrysLogChannels.h"
+#include "ActionSystem/CrysActionInputActionListener.h"
+#include "ActionSystem/CrysActionManagerComponent.h"
+#include "UI/ViewModel/ActionBar/ActionBarItemViewModel.h"
+#include "UI/ViewModel/ActionBar/InputActionListenerViewModel.h"
 
-UActionBarItemViewModel* UActionBarViewModel::FindOrCreateActionBarItemViewModel(FGameplayTag& InputTag)
+void UActionBarViewModel::SetCurrentActionSet(int32 Index)
 {
-	if (!InputTag.IsValid())
+	if (CurrentActionSet != Index && Index >= 0)
 	{
-		return nullptr;
+		UE_MVVM_SET_PROPERTY_VALUE(CurrentActionSet, Index);
 	}
+}
 
-	for (TObjectPtr<UActionBarItemViewModel>& VM : ActionBarItemViewModels)
+UActionBarItemViewModel* UActionBarViewModel::FindOrCreateActionBarItemViewModel(const FGameplayTag& InputTag)
+{
+	if (InputTag.IsValid())
 	{
-		if (VM->GetInputTag() == InputTag)
+		for (UActionBarItemViewModel* ViewModel : ActionBarItemViewModels)
 		{
-			return VM;
+			if (ViewModel->InputTag == InputTag)
+			{
+				return ViewModel;
+			}
 		}
+		return InternalCreateActionBarItemViewModel(InputTag);
 	}
+	return nullptr;
+}
 
-	UActionBarItemViewModel* NewVM = NewObject<UActionBarItemViewModel>(this);
-	NewVM->SetInputTag(InputTag);
-	if (AbilityInputManagerComponent)
+UInputActionListenerViewModel* UActionBarViewModel::FindOrCreateInputActionListenerViewModel(UInputAction* InputAction)
+{
+	if (InputAction)
 	{
-		// NewVM->SetAbilityDefinition(AbilityInputManagerComponent->GetAbilityInputItem(InputTag).GameplayAbilityClass);
+		for (UInputActionListenerViewModel* ViewModel : InputActionListenerViewModels)
+		{
+			if (ViewModel->GetInputAction() == InputAction)
+			{
+				return ViewModel;
+			}
+		}
+		return InternalCreateInputActionListenerViewModel(InputAction);
 	}
-	ActionBarItemViewModels.Add(NewVM);
-	return NewVM;
+	return nullptr;
 }
 
 void UActionBarViewModel::OnInitializeViewModel(APlayerController* PlayerController)
 {
 	Super::OnInitializeViewModel(PlayerController);
+	
+	InitActionManager(PlayerController);
+	InitEnhancedInput(PlayerController);
+}
 
-	if (AHeroPlayerController* HeroPC = Cast<AHeroPlayerController>(PlayerController))
+void UActionBarViewModel::InitActionManager(APlayerController* PlayerController)
+{
+	ActionManagerComponent = PlayerController->FindComponentByClass<UCrysActionManagerComponent>();
+	if (!ActionManagerComponent)
 	{
-		// OnAbilityToggleStateChanged(HeroPC->IsPrimaryAbilityTogglePressed());
-		// HeroPC->OnPrimaryAbilityToggleStateChangedDelegate.AddUObject(this, &UActionBarViewModel::OnAbilityToggleStateChanged);
-		// HeroPC->OnInputPressedDelegate.AddUObject(this, &UActionBarViewModel::OnInputPressed);
-		// HeroPC->OnInputReleasedDelegate.AddUObject(this, &UActionBarViewModel::OnInputReleased);
+		UE_LOG(LogCrys, Error, TEXT("%s does not have a CrysActionManagerComponent"), *GetNameSafe(PlayerController));
+		return;
 	}
+	
+	ActionManagerComponent->OnActionMapUpdatedDelegate.AddUniqueDynamic(this, &UActionBarViewModel::OnActionMapUpdated);
+	ActionManagerComponent->OnActionSetSelectedDelegate.AddUniqueDynamic(this, &UActionBarViewModel::OnActionSetSelected);
+}
 
-	AbilityInputManagerComponent = PlayerController->GetComponentByClass<UAbilityInputManagerComponent>();
-	if (AbilityInputManagerComponent)
+void UActionBarViewModel::InitEnhancedInput(APlayerController* PlayerController)
+{
+	EnhancedInputComponent = Cast<UCrimEnhancedInputComponent>(PlayerController->InputComponent);
+	
+	if (!EnhancedInputComponent)
 	{
-		AbilityInputManagerComponent->OnAbilityInputAddedDelegate.AddUObject(this, &UActionBarViewModel::OnAbilityInputAdded);
-		AbilityInputManagerComponent->OnAbilityInputChangedDelegate.AddUObject(this, &UActionBarViewModel::OnAbilityInputChanged);
-		AbilityInputManagerComponent->OnAbilityInputRemovedDelegate.AddUObject(this, &UActionBarViewModel::OnAbilityInputRemoved);
+		UE_LOG(LogCrys, Error, TEXT("%s does not have a CrimEnhancedInputComponent"), *GetNameSafe(PlayerController));
+		return;
 	}
 }
 
-void UActionBarViewModel::OnAbilityToggleStateChanged(bool bPressed)
+UActionBarItemViewModel* UActionBarViewModel::InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag)
 {
-	UE_MVVM_SET_PROPERTY_VALUE(bAbilityTogglePressed, bPressed);
+	UActionBarItemViewModel* NewVM = NewObject<UActionBarItemViewModel>(this);
+	NewVM->SetInputTag(InputTag);
+	if (ActionManagerComponent)
+	{
+		NewVM->SetAction(ActionManagerComponent->FindAction(InputTag, ActionManagerComponent->GetCurrentActionSetIndex()));
+	}
+	ActionBarItemViewModels.Add(NewVM);
+	return NewVM;
 }
 
-void UActionBarViewModel::OnAbilityInputAdded(UAbilityInputManagerComponent* InputManager, const FAbilityInputItem& AbilityInputItem)
+UInputActionListenerViewModel* UActionBarViewModel::InternalCreateInputActionListenerViewModel(UInputAction* InputAction)
 {
-	for (const TObjectPtr<UActionBarItemViewModel>& VM : ActionBarItemViewModels)
+	UInputActionListenerViewModel* NewVM = NewObject<UInputActionListenerViewModel>(this);
+	UCrysInputActionListener* InputActionListener = nullptr;
+	if (EnhancedInputComponent)
 	{
-		if (VM->GetInputTag() == AbilityInputItem.InputTag)
+		InputActionListener = Cast<UCrysInputActionListener>(EnhancedInputComponent->FindListener(InputAction));
+	}
+	NewVM->InitializeInputActionListener(InputAction, InputActionListener);
+	InputActionListenerViewModels.Add(NewVM);
+	return NewVM;
+}
+
+void UActionBarViewModel::OnActionMapUpdated(UCrysAction* Action, const FGameplayTag& InputTag, int32 Index)
+{
+	if (CurrentActionSet == Index)
+	{
+		for (int32 Idx = 0; Idx < ActionBarItemViewModels.Num(); Idx++)
 		{
-			// VM->SetAbilityDefinition(AbilityInputItem.GameplayAbilityClass);
-			return;
+			if (ActionBarItemViewModels[Idx]->InputTag == InputTag)
+			{
+				ActionBarItemViewModels[Idx]->SetAction(Action);
+				break;
+			}
 		}
 	}
 }
 
-void UActionBarViewModel::OnAbilityInputChanged(UAbilityInputManagerComponent* InputManager, const FAbilityInputItem& AbilityInputItem)
+void UActionBarViewModel::OnActionSetSelected(int32 Index)
 {
-	for (const TObjectPtr<UActionBarItemViewModel>& VM : ActionBarItemViewModels)
+	UE_MVVM_SET_PROPERTY_VALUE(CurrentActionSet, Index);
+	
+	for (UActionBarItemViewModel* ViewModel : ActionBarItemViewModels)
 	{
-		if (VM->GetInputTag() == AbilityInputItem.InputTag)
-		{
-			// VM->SetAbilityDefinition(AbilityInputItem.GameplayAbilityClass);
-			return;
-		}
-	}
-}
-
-void UActionBarViewModel::OnAbilityInputRemoved(UAbilityInputManagerComponent* InputManager, const FAbilityInputItem& AbilityInputItem)
-{
-	for (const TObjectPtr<UActionBarItemViewModel>& VM : ActionBarItemViewModels)
-	{
-		if (VM->GetInputTag() == AbilityInputItem.InputTag)
-		{
-			VM->SetAbilityDefinition(nullptr);
-			return;
-		}
-	}
-}
-
-void UActionBarViewModel::OnInputPressed(const FGameplayTag& InputTag)
-{
-	for (const TObjectPtr<UActionBarItemViewModel>& VM : ActionBarItemViewModels)
-	{
-		if (VM->GetInputTag() == InputTag)
-		{
-			VM->SetIsInputPressed(true);
-			return;
-		}
-	}
-}
-
-void UActionBarViewModel::OnInputReleased(const FGameplayTag& InputTag)
-{
-	for (const TObjectPtr<UActionBarItemViewModel>& VM : ActionBarItemViewModels)
-	{
-		if (VM->GetInputTag() == InputTag)
-		{
-			VM->SetIsInputPressed(false);
-			return;
-		}
+		ViewModel->SetAction(ActionManagerComponent->FindAction(ViewModel->GetInputTag(), CurrentActionSet));
 	}
 }

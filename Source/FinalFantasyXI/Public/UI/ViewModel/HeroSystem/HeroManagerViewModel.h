@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../CrysViewModel.h"
 #include "GameplayTagContainer.h"
 #include "Engine/StreamableManager.h"
+#include "UI/ViewModel/CrysViewModel.h"
 #include "HeroManagerViewModel.generated.h"
 
 struct FHeroJobProgressItem;

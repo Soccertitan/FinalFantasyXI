@@ -12,6 +12,7 @@ class ACrysPlayerController;
 class UCrysAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCrysActionManagerActionUpdateSignature, UCrysAction*, Action, const FGameplayTag&, InputTag, int32, Index);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrysActionManagerActionSetSignature, int32, Index);
 
 /**
  * A class that manages the actions that are activatable by InputTag. This component is designed to only live on the CrysPlayerController.
@@ -30,6 +31,10 @@ public:
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnActionMapUpdated")
 	FCrysActionManagerActionUpdateSignature OnActionMapUpdatedDelegate;
 	
+	/** Called when the chosen action set has changed. */
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnActionSetSelected")
+	FCrysActionManagerActionSetSignature OnActionSetSelectedDelegate;
+	
 	UFUNCTION(BlueprintPure, Category = "CrysActionManager")
 	UCrysAction* FindAction(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag, int32 Index) const;
 	
@@ -39,12 +44,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	bool CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction>& ActionClass);
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
-	bool TryActivateAction(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag, int32 Index);
+	bool TryActivateAction(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag);
+	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
+	bool TryActivateActionAtIndex(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag, int32 Index);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	void SetAction(UPARAM(meta = (Categories = "Input")) const FGameplayTag& InputTag, const int32 Index, const TSubclassOf<UCrysAction>& ActionClass);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	void ClearAction(UPARAM(meta = (Categories = "Input")) FGameplayTag InputTag, int32 Index);
+	
+	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
+	void SetCurrentActionSetIndex(int32 Index);
+	UFUNCTION(BlueprintPure, Category = "CrysActionManager")
+	int32 GetCurrentActionSetIndex() const { return CurrentActionSetIndex; }
 	
 	//SetActionMap
 	//SetActionMappings
@@ -64,6 +76,11 @@ private:
 	
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 1))
 	int32 MaxCacheSize = 10;
+	
+	/** As items are added to the ActionPool cache. Increment by 1, then reset once we reach max cache size. */
+	int32 CurrentCacheIndex = 0;
+	
+	int32 CurrentActionSetIndex = 0;
 	
 	UPROPERTY()
 	TObjectPtr<ACrysPlayerController> PlayerController;
