@@ -10,7 +10,7 @@
 UCrysActionManagerComponent::UCrysActionManagerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	ActionPool.SetNumUninitialized(MaxCacheSize);
+	ActionPool.SetNum(MaxCacheSize);
 }
 
 void UCrysActionManagerComponent::OnRegister()
