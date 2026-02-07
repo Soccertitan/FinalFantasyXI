@@ -1,10 +1,9 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "Input/Action/InputMappingContextInputActionListener.h"
+#include "Input/InputAction/InputMappingContextInputActionListener.h"
 
 #include "EnhancedInputSubsystems.h"
-#include "Player/CrysPlayerController.h"
 
 void UInputMappingContextInputActionListener::OnInitializeListener()
 {

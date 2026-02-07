@@ -1,7 +1,7 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "Input/Action/CrysInputActionListener.h"
+#include "Input/InputAction/CrysInputActionListener.h"
 
 #include "InputActionValue.h"
 

@@ -1,12 +1,11 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "Input/Action/GameplayAbilityInputActionListener.h"
+#include "Input/InputAction/GameplayAbilityInputActionListener.h"
 
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "InputActionValue.h"
 #include "Input/AbilityInputManagerComponent.h"
-#include "Player/CrysPlayerController.h"
 
 void UGameplayAbilityInputActionListener::OnInitializeListener()
 {
