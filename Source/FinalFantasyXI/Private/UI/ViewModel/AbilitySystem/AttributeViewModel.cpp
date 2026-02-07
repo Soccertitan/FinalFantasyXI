@@ -1,7 +1,7 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/Component/AttributeViewModel.h"
+#include "UI/ViewModel/AbilitySystem/AttributeViewModel.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"

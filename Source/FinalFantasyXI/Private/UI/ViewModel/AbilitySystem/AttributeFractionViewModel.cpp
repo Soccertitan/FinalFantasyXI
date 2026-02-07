@@ -1,10 +1,10 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/Component/AttributeFractionViewModel.h"
+#include "UI/ViewModel/AbilitySystem/AttributeFractionViewModel.h"
 
 #include "CrysLogChannels.h"
-#include "UI/ViewModel/Component/AttributeViewModel.h"
+#include "UI/ViewModel/AbilitySystem/AttributeViewModel.h"
 
 
 UAttributeFractionViewModel::UAttributeFractionViewModel()

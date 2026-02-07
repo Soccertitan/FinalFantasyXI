@@ -6,8 +6,8 @@
 #include "CrimAbilitySystemComponent.h"
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "Player/CrysPlayerState.h"
-#include "UI/ViewModel/Component/AttributeFractionViewModel.h"
-#include "UI/ViewModel/Component/AttributeViewModel.h"
+#include "UI/ViewModel/AbilitySystem/AttributeFractionViewModel.h"
+#include "UI/ViewModel/AbilitySystem/AttributeViewModel.h"
 
 void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerController)
 {

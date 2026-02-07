@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CrysViewModel.h"
+#include "../CrysViewModel.h"
 #include "GameplayTagContainer.h"
 #include "Engine/StreamableManager.h"
 #include "HeroManagerViewModel.generated.h"

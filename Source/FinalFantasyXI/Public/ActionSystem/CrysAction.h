@@ -21,13 +21,11 @@ class FINALFANTASYXI_API UCrysAction : public UObject
 public:
 	UCrysAction();
 	
-	/** The name of the action. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FText ActionName;
+	UFUNCTION(BlueprintPure, Category = "CrysAction")
+	FText GetActionName() const {return ActionName;}
 	
-	/** The icon to display on the ActionBar. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AssetBundles = "UI"))
-	TSoftObjectPtr<UTexture2D> Icon;
+	UFUNCTION(BlueprintPure, Category = "CrysAction")
+	TSoftObjectPtr<UTexture2D> GetIcon() const {return Icon;}
 	
 	UFUNCTION(BlueprintCallable, Category = "CrysAction")
 	bool TryActivateAction();
@@ -48,6 +46,14 @@ protected:
 	ACrysPlayerController* GetPlayerController() const { return PlayerController; }
 	
 private:
+	/** The name of the action. */
+	UPROPERTY(EditAnywhere)
+	FText ActionName;
+	
+	/** The icon to display on the ActionBar. */
+	UPROPERTY(EditAnywhere, meta = (AssetBundles = "UI"))
+	TSoftObjectPtr<UTexture2D> Icon;
+	
 	UPROPERTY()
 	TObjectPtr<ACrysPlayerController> PlayerController;
 	

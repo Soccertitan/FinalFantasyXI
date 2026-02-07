@@ -1,12 +1,12 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/ActionBarViewModel.h"
+#include "UI/ViewModel/ActionBar/ActionBarViewModel.h"
 
 #include "Input/AbilityInputManagerComponent.h"
 #include "Player/Hero/HeroPlayerController.h"
 #include "UI/ViewModel/OverlayViewModel.h"
-#include "UI/ViewModel/Component/ActionBarItemViewModel.h"
+#include "UI/ViewModel/ActionBar//ActionBarItemViewModel.h"
 
 UActionBarItemViewModel* UActionBarViewModel::FindOrCreateActionBarItemViewModel(FGameplayTag& InputTag)
 {

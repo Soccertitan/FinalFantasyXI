@@ -1,7 +1,7 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/Component/GameplayAbilityDefinitionViewModel.h"
+#include "UI/ViewModel/AbilitySystem/GameplayAbilityDefinitionViewModel.h"
 
 #include "Engine/AssetManager.h"
 

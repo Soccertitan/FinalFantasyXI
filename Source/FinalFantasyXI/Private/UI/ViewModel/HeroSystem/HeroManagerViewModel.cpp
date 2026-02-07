@@ -1,13 +1,13 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/HeroManagerViewModel.h"
+#include "UI/ViewModel/HeroSystem/HeroManagerViewModel.h"
 
 #include "Engine/AssetManager.h"
 #include "GameFramework/PlayerState.h"
 #include "HeroSystem/HeroManagerComponent.h"
 #include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
-#include "UI/ViewModel/Component/HeroJobViewModel.h"
+#include "UI/ViewModel/HeroSystem/HeroJobViewModel.h"
 
 UHeroJobViewModel* UHeroManagerViewModel::FindHeroJobViewModel(FGameplayTag HeroJobTag)
 {

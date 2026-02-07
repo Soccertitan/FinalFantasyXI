@@ -1,7 +1,7 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/Component/HeroJobViewModel.h"
+#include "UI/ViewModel/HeroSystem/HeroJobViewModel.h"
 
 #include "HeroSystem/HeroJobDefinition.h"
 

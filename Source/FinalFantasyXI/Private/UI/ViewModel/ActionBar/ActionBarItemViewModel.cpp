@@ -1,9 +1,9 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/Component/ActionBarItemViewModel.h"
+#include "UI/ViewModel/ActionBar/ActionBarItemViewModel.h"
 
-#include "UI/ViewModel/Component/GameplayAbilityDefinitionViewModel.h"
+#include "UI/ViewModel/AbilitySystem/GameplayAbilityDefinitionViewModel.h"
 
 void UActionBarItemViewModel::SetInputTag(FGameplayTag InValue)
 {
