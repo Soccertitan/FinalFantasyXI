@@ -1,18 +1,18 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/ActionBar/ActionBarItemViewModel.h"
+#include "UI/ViewModel/ActionSystem/ActionItemViewModel.h"
 
 #include "ActionSystem/CrysAction.h"
 #include "System/CrysAssetManager.h"
 
-void UActionBarItemViewModel::SetInputTag(const FGameplayTag& InInputTag)
+void UActionItemViewModel::SetInputTag(const FGameplayTag& InInputTag)
 {
 	InputTag = InInputTag;
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(InputTag);
 }
 
-void UActionBarItemViewModel::SetAction(UCrysAction* InAction)
+void UActionItemViewModel::SetAction(UCrysAction* InAction)
 {
 	Action = InAction;
 	if (Action)
@@ -22,7 +22,7 @@ void UActionBarItemViewModel::SetAction(UCrysAction* InAction)
 		{
 			ActionObjectsStreamableHandle = UCrysAssetManager::Get().GetStreamableManager().RequestAsyncLoad(
 				{Action->GetIcon().ToSoftObjectPath()}, 
-				FStreamableDelegate::CreateUObject(this, &UActionBarItemViewModel::OnActionObjectsLoaded)
+				FStreamableDelegate::CreateUObject(this, &UActionItemViewModel::OnActionObjectsLoaded)
 				);
 		}
 		else
@@ -37,7 +37,7 @@ void UActionBarItemViewModel::SetAction(UCrysAction* InAction)
 	}
 }
 
-void UActionBarItemViewModel::OnActionObjectsLoaded()
+void UActionItemViewModel::OnActionObjectsLoaded()
 {
 	if (Action)
 	{

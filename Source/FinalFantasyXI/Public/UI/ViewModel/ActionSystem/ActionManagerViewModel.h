@@ -5,21 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "UI/ViewModel/CrysViewModel.h"
-#include "ActionBarViewModel.generated.h"
+#include "ActionManagerViewModel.generated.h"
 
 
-class UActionBarItemViewModel;
-class UInputActionListenerViewModel;
-class UInputAction;
+class UActionItemViewModel;
 class UCrysAction;
-class UCrimEnhancedInputComponent;
 class UCrysActionManagerComponent;
 
 /**
- * Information of Actions that are bound to InputActions.
+ * Information of Actions that are mapped to InputTags in the ActionManagerComponent.
  */
 UCLASS()
-class FINALFANTASYXI_API UActionBarViewModel : public UCrysViewModel
+class FINALFANTASYXI_API UActionManagerViewModel : public UCrysViewModel
 {
 	GENERATED_BODY()
 
@@ -30,37 +27,25 @@ public:
 	
 	/** Finds or creates an ActionBarItem VM from InputTag. */
 	UFUNCTION(BlueprintCallable, Category = "ActionBarViewModel")
-	UActionBarItemViewModel* FindOrCreateActionBarItemViewModel(const FGameplayTag& InputTag);
-	
-	/** Finds or creates an InputActionListener VM from an InputAction. */
-	UFUNCTION(BlueprintCallable, Category = "ActionBarViewModel")
-	UInputActionListenerViewModel* FindOrCreateInputActionListenerViewModel(UInputAction* InputAction);
+	UActionItemViewModel* FindOrCreateActionBarItemViewModel(const FGameplayTag& InputTag);
 
 protected:
 	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
 	
 	void InitActionManager(APlayerController* PlayerController);
-	void InitEnhancedInput(APlayerController* PlayerController);
 
 private:
 	UPROPERTY()
 	TObjectPtr<UCrysActionManagerComponent> ActionManagerComponent;
 	
 	UPROPERTY()
-	TObjectPtr<UCrimEnhancedInputComponent> EnhancedInputComponent;
-	
-	UPROPERTY()
-	TArray<TObjectPtr<UInputActionListenerViewModel>> InputActionListenerViewModels;
-	
-	UPROPERTY()
-	TArray<TObjectPtr<UActionBarItemViewModel>> ActionBarItemViewModels;
+	TArray<TObjectPtr<UActionItemViewModel>> ActionBarItemViewModels;
 	
 	/** The current set that is mapped to the InputActions. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Setter, Category = "ActionBarViewModel", meta = (AllowPrivateAccess = true))
 	int32 CurrentActionSet = 0;
 	
-	UActionBarItemViewModel* InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag);
-	UInputActionListenerViewModel* InternalCreateInputActionListenerViewModel(UInputAction* InputAction);
+	UActionItemViewModel* InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag);
 	
 	UFUNCTION()
 	void OnActionMapUpdated(UCrysAction* Action, const FGameplayTag& InputTag, int32 Index);

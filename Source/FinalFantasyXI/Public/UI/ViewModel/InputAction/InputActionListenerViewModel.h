@@ -6,7 +6,7 @@
 #include "MVVMViewModelBase.h"
 #include "InputActionListenerViewModel.generated.h"
 
-class UActionBarViewModel;
+class UActionManagerViewModel;
 class UCrysInputActionListener;
 class UInputAction;
 

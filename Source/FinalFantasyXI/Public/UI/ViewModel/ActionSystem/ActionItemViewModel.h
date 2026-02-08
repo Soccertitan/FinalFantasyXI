@@ -6,16 +6,16 @@
 #include "GameplayTagContainer.h"
 #include "MVVMViewModelBase.h"
 #include "Engine/StreamableManager.h"
-#include "ActionBarItemViewModel.generated.h"
+#include "ActionItemViewModel.generated.h"
 
-class UActionBarViewModel;
+class UActionManagerViewModel;
 class UCrysAction;
 
 /**
- * Contains information of the action assigned for the ability at the given InputTag and Index.
+ * Contains information of an action.
  */
 UCLASS()
-class FINALFANTASYXI_API UActionBarItemViewModel : public UMVVMViewModelBase
+class FINALFANTASYXI_API UActionItemViewModel : public UMVVMViewModelBase
 {
 	GENERATED_BODY()
 
@@ -45,5 +45,5 @@ private:
 	void OnActionObjectsLoaded();
 	TSharedPtr<FStreamableHandle> ActionObjectsStreamableHandle;
 	
-	friend UActionBarViewModel;
+	friend UActionManagerViewModel;
 };
