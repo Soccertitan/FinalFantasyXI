@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CrysActionTypes.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "CrysActionManagerComponent.generated.h"
@@ -42,6 +43,8 @@ public:
 	UCrysAction* FindActionByClass(const TSubclassOf<UCrysAction> ActionClass) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
+	UCrysAction* CreateAction(const TSubclassOf<UCrysAction> ActionClass);
+	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	bool CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction> ActionClass);
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	bool TryActivateAction(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag);
@@ -68,7 +71,8 @@ private:
 	 * The active mappings. 
 	 * The Array Index is an "ActionSet" and the TMap is the InputTag to Action Map.
 	 */
-	TArray<TMap<FGameplayTag, TObjectPtr<UCrysAction>>> ActionMappings;
+	UPROPERTY()
+	TArray<FCrysActionMap> ActionMappings;
 	
 	/** A cache of actions that were created to be activated once. */
 	UPROPERTY()
@@ -85,7 +89,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<ACrysPlayerController> PlayerController;
 	
-	// CreateActionInstance
-	UCrysAction* CreateActionInstance(const TSubclassOf<UCrysAction>& ActionClass);
+	UCrysAction* InternalCreateAction(const TSubclassOf<UCrysAction>& ActionClass);
 };
 

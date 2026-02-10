@@ -23,9 +23,9 @@ UCrysAction* UCrysActionManagerComponent::FindAction(FGameplayTag InputTag, int3
 {
 	if (InputTag.IsValid() && ActionMappings.IsValidIndex(Index))
 	{
-		if (const TObjectPtr<UCrysAction>* ActionPointer = ActionMappings[Index].Find(InputTag))
+		if (ActionMappings[Index].ActionMap.Contains(InputTag))
 		{
-			return *ActionMappings[Index].Find(InputTag);
+			return *ActionMappings[Index].ActionMap.Find(InputTag);
 		}
 	}
 	return nullptr;
@@ -43,9 +43,9 @@ UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UC
 			}
 		}
 
-		for (const TMap<FGameplayTag, TObjectPtr<UCrysAction>>& Map : ActionMappings)
+		for (const FCrysActionMap& Map : ActionMappings)
 		{
-			for (const TTuple<FGameplayTag, TObjectPtr<UCrysAction>>& Pair : Map)
+			for (const TTuple<FGameplayTag, TObjectPtr<UCrysAction>>& Pair : Map.ActionMap)
 			{
 				if (Pair.Value->GetClass() == ActionClass)
 				{
@@ -57,6 +57,15 @@ UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UC
 	return nullptr;
 }
 
+UCrysAction* UCrysActionManagerComponent::CreateAction(const TSubclassOf<UCrysAction> ActionClass)
+{
+	if (ActionClass)
+	{
+		return InternalCreateAction(ActionClass);
+	}
+	return nullptr;
+}
+
 bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction> ActionClass)
 {
 	if (ActionClass)
@@ -64,7 +73,7 @@ bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclass
 		UCrysAction* Action = FindActionByClass(ActionClass);
 		if (!Action)
 		{
-			Action = CreateActionInstance(ActionClass);
+			Action = InternalCreateAction(ActionClass);
 			ActionPool[CurrentCacheIndex] = Action;
 			CurrentCacheIndex++;
 			if (CurrentCacheIndex >= MaxCacheSize)
@@ -106,10 +115,10 @@ void UCrysActionManagerComponent::SetAction(const FGameplayTag InputTag, const i
 	UCrysAction* NewAction = FindActionByClass(ActionClass);
 	if (!NewAction)
 	{
-		NewAction = CreateActionInstance(ActionClass);
+		NewAction = InternalCreateAction(ActionClass);
 	}
 
-	ActionMappings[Index].Add(InputTag, NewAction);
+	ActionMappings[Index].ActionMap.Add(InputTag, NewAction);
 	OnActionMapUpdatedDelegate.Broadcast(NewAction, InputTag, Index);
 }
 
@@ -119,10 +128,10 @@ void UCrysActionManagerComponent::ClearAction(FGameplayTag InputTag, int32 Index
 	{
 		return;
 	}
-	
-	if (ActionMappings[Index].Contains(InputTag))
+
+	if (ActionMappings[Index].ActionMap.Contains(InputTag))
 	{
-		ActionMappings[Index].Remove(InputTag);
+		ActionMappings[Index].ActionMap.Remove(InputTag);
 		OnActionMapUpdatedDelegate.Broadcast(nullptr, InputTag, Index);
 	}
 }
@@ -136,7 +145,7 @@ void UCrysActionManagerComponent::SetCurrentActionSetIndex(int32 Index)
 	}
 }
 
-UCrysAction* UCrysActionManagerComponent::CreateActionInstance(const TSubclassOf<UCrysAction>& ActionClass)
+UCrysAction* UCrysActionManagerComponent::InternalCreateAction(const TSubclassOf<UCrysAction>& ActionClass)
 {
 	UCrysAction* NewAction = NewObject<UCrysAction>(this, ActionClass);
 	NewAction->PlayerController = PlayerController;

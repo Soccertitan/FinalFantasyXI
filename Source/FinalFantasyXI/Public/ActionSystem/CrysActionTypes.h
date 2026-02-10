@@ -25,3 +25,13 @@ struct FCrysActionContainerSaveData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (NoResetToDefault))
 	TArray<FCrysActionMapSaveData> CrysActionMappings;
 };
+
+/** Runtime data for action mappings in the CrysActionManagerComponent */
+USTRUCT()
+struct FCrysActionMap
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	TMap<FGameplayTag, TObjectPtr<UCrysAction>> ActionMap;
+};

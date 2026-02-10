@@ -84,10 +84,20 @@ void AHeroPlayerController::InitializeAbilitySystemComponent()
 
 void AHeroPlayerController::InitializeTargetSystemComponent()
 {
+	if (TargetSystemComponent)
+	{
+		// Clear bindings.
+	}
+
+	TargetSystemComponent = nullptr;
 	if (GetPawn())
 	{
 		TargetSystemComponent = GetPawn()->FindComponentByClass<UTargetingSystemComponent>();
-		return;
 	}
-	TargetSystemComponent = nullptr;
+	
+	if (TargetSystemComponent)
+	{
+		//TODO: Bindings to add/remove IMCs based on if a target is selected.
+		// TargetSystemComponent->OnTargetPointSelected
+	}
 }
