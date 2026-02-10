@@ -31,7 +31,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 Priority = 1;
 	UPROPERTY(EditAnywhere)
-	FModifyContextOptions ContextOptions;
+	FModifyContextOptions ContextOptionsOnAdd;
+	UPROPERTY(EditAnywhere)
+	FModifyContextOptions ContextOptionsOnRemove;
 
 	UPROPERTY()
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem;

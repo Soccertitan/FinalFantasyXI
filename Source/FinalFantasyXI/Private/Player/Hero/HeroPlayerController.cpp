@@ -4,9 +4,8 @@
 #include "Player/Hero/HeroPlayerController.h"
 
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
-#include "CrimEnhancedInputComponent.h"
 #include "TargetingSystemComponent.h"
-#include "EnhancedInputSubsystems.h"
+#include "ActionSystem/CrysActionManagerComponent.h"
 #include "Input/AbilityInputManagerComponent.h"
 #include "Player/Hero/HeroPlayerState.h"
 
@@ -14,6 +13,9 @@ AHeroPlayerController::AHeroPlayerController()
 {
 	AbilityInputManagerComponent = CreateDefaultSubobject<UAbilityInputManagerComponent>(TEXT("AbilityInputManagerComponent"));
 	AbilityInputManagerComponent->SetIsReplicated(false);
+	
+	ActionManagerComponent = CreateDefaultSubobject<UCrysActionManagerComponent>(TEXT("ActionManagerComponent"));
+	ActionManagerComponent->SetIsReplicated(false);
 }
 
 void AHeroPlayerController::BeginPlay()
@@ -60,33 +62,6 @@ void AHeroPlayerController::PostProcessInput(const float DeltaTime, const bool b
 	AbilityInputManagerComponent->ProcessAbilityInput(DeltaTime, bGamePaused);
 
 	Super::PostProcessInput(DeltaTime, bGamePaused);
-}
-
-void AHeroPlayerController::OnRootWidgetAdded_Implementation()
-{
-	Super::OnRootWidgetAdded_Implementation();
-
-	RemoveAbilityMappingContextAndReleaseAbilityInputs();
-}
-
-void AHeroPlayerController::OnRootWidgetRemoved_Implementation()
-{
-	Super::OnRootWidgetRemoved_Implementation();
-
-	// if (EnhancedInputSubsystem && AbilityActionSet)
-	// {
-	// 	EnhancedInputSubsystem->AddMappingContext(AbilityActionSet->InputMappingContext, AbilityActionSet->InputMappingContextPriority);
-	// }
-}
-
-void AHeroPlayerController::RemoveAbilityMappingContextAndReleaseAbilityInputs()
-{
-	// if (EnhancedInputSubsystem && AbilityActionSet)
-	// {
-	// 	EnhancedInputSubsystem->RemoveMappingContext(AbilityActionSet->InputMappingContext);
-	//
-	// 	AbilityInputManagerComponent->ReleaseAbilityInput();
-	// }
 }
 
 void AHeroPlayerController::TryInitOverlay()

@@ -23,18 +23,21 @@ UCrysAction* UCrysActionManagerComponent::FindAction(FGameplayTag InputTag, int3
 {
 	if (InputTag.IsValid() && ActionMappings.IsValidIndex(Index))
 	{
-		return *ActionMappings[Index].Find(InputTag);
+		if (const TObjectPtr<UCrysAction>* ActionPointer = ActionMappings[Index].Find(InputTag))
+		{
+			return *ActionMappings[Index].Find(InputTag);
+		}
 	}
 	return nullptr;
 }
 
-UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UCrysAction>& ActionClass) const
+UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UCrysAction> ActionClass) const
 {
 	if (ActionClass)
 	{
 		for (const TObjectPtr<UCrysAction>& Action : ActionPool)
 		{
-			if (Action->GetClass() == ActionClass)
+			if (Action && Action->GetClass() == ActionClass)
 			{
 				return Action;
 			}
@@ -54,7 +57,7 @@ UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UC
 	return nullptr;
 }
 
-bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction>& ActionClass)
+bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction> ActionClass)
 {
 	if (ActionClass)
 	{
@@ -88,7 +91,7 @@ bool UCrysActionManagerComponent::TryActivateActionAtIndex(FGameplayTag InputTag
 	return false;
 }
 
-void UCrysActionManagerComponent::SetAction(const FGameplayTag& InputTag, const int32 Index, const TSubclassOf<UCrysAction>& ActionClass)
+void UCrysActionManagerComponent::SetAction(const FGameplayTag InputTag, const int32 Index, const TSubclassOf<UCrysAction> ActionClass)
 {
 	if (!InputTag.IsValid() || Index < 0 || !ActionClass)
 	{
@@ -99,8 +102,13 @@ void UCrysActionManagerComponent::SetAction(const FGameplayTag& InputTag, const 
 	{
 		ActionMappings.SetNum(Index + 1, EAllowShrinking::No);
 	}
-	
-	UCrysAction* NewAction = CreateActionInstance(ActionClass);
+
+	UCrysAction* NewAction = FindActionByClass(ActionClass);
+	if (!NewAction)
+	{
+		NewAction = CreateActionInstance(ActionClass);
+	}
+
 	ActionMappings[Index].Add(InputTag, NewAction);
 	OnActionMapUpdatedDelegate.Broadcast(NewAction, InputTag, Index);
 }
@@ -112,8 +120,11 @@ void UCrysActionManagerComponent::ClearAction(FGameplayTag InputTag, int32 Index
 		return;
 	}
 	
-	ActionMappings[Index].Add(InputTag, nullptr);
-	OnActionMapUpdatedDelegate.Broadcast(nullptr, InputTag, Index);
+	if (ActionMappings[Index].Contains(InputTag))
+	{
+		ActionMappings[Index].Remove(InputTag);
+		OnActionMapUpdatedDelegate.Broadcast(nullptr, InputTag, Index);
+	}
 }
 
 void UCrysActionManagerComponent::SetCurrentActionSetIndex(int32 Index)

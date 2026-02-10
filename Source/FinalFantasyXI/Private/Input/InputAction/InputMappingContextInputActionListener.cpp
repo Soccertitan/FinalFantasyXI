@@ -19,7 +19,7 @@ void UInputMappingContextInputActionListener::OnInputActionTriggered(const FInpu
 	
 	if (InputMappingContext && bAppliedContext == false)
 	{
-		EnhancedInputSubsystem->AddMappingContext(InputMappingContext, Priority, ContextOptions);
+		EnhancedInputSubsystem->AddMappingContext(InputMappingContext, Priority, ContextOptionsOnAdd);
 		bAppliedContext = true;
 	}
 }
@@ -28,7 +28,7 @@ void UInputMappingContextInputActionListener::OnInputActionCompleted(const FInpu
 {
 	Super::OnInputActionCompleted(Value);
 
-	EnhancedInputSubsystem->RemoveMappingContext(InputMappingContext, ContextOptions);
+	EnhancedInputSubsystem->RemoveMappingContext(InputMappingContext, ContextOptionsOnRemove);
 	bAppliedContext = false;
 }
 
@@ -36,6 +36,6 @@ void UInputMappingContextInputActionListener::OnInputActionCanceled(const FInput
 {
 	Super::OnInputActionCanceled(Value);
 	
-	EnhancedInputSubsystem->RemoveMappingContext(InputMappingContext, ContextOptions);
+	EnhancedInputSubsystem->RemoveMappingContext(InputMappingContext, ContextOptionsOnRemove);
 	bAppliedContext = false;
 }

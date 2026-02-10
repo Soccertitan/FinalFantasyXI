@@ -15,7 +15,7 @@
 ACrysPlayerController::ACrysPlayerController()
 {
 	UINavPCComponent = CreateDefaultSubobject<UUINavPCComponent>(TEXT("UINav PC Component"));
-	UINavPCComponent->AutoHideMouse = EAutoHideMouse::Gamepad;
+	UINavPCComponent->AutoHideMouse = EAutoHideMouse::Never;
 
 	bReplicates = true;
 }
@@ -70,7 +70,6 @@ void ACrysPlayerController::OnRootWidgetAdded_Implementation()
 {
 	IUINavPCReceiver::OnRootWidgetAdded_Implementation();
 
-	SetShowMouseCursor(true);
 	EnhancedInputSubsystem->AddTagToInputMode(FCrysGameplayTags::Get().EnhancedInput_Modes_UI);
 
 	if (bRestrictMovement)
@@ -86,7 +85,6 @@ void ACrysPlayerController::OnRootWidgetRemoved_Implementation()
 	
 	EnhancedInputSubsystem->RemoveTagFromInputMode(FCrysGameplayTags::Get().EnhancedInput_Modes_UI);
 
-	SetShowMouseCursor(false);
 	SetIgnoreLookInput(false);
 	SetIgnoreMoveInput(false);
 	

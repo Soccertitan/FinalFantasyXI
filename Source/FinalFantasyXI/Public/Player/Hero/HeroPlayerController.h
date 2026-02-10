@@ -6,6 +6,7 @@
 #include "../CrysPlayerController.h"
 #include "HeroPlayerController.generated.h"
 
+class UCrysActionManagerComponent;
 class UCrimInputActionSet;
 class UCrimEnhancedInputComponent;
 struct FInputActionValue;
@@ -27,6 +28,9 @@ class FINALFANTASYXI_API AHeroPlayerController : public ACrysPlayerController
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilityInputManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAbilityInputManagerComponent> AbilityInputManagerComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActionManagerComponent", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCrysActionManagerComponent> ActionManagerComponent;
 
 public:
 	AHeroPlayerController();
@@ -43,19 +47,13 @@ public:
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 
 	// UINavPCReceiver Interface
-	virtual void OnRootWidgetAdded_Implementation() override;
-	virtual void OnRootWidgetRemoved_Implementation() override;
+	// virtual void OnRootWidgetAdded_Implementation() override;
+	// virtual void OnRootWidgetRemoved_Implementation() override;
 	// ~UINavPCReceiver Interface
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Hero")
 	TArray<TObjectPtr<UTargetPointFilterBase>> TargetFilters;
-
-	/**
-	 * Removes the Ability Input Context and iterates through the HeroInputConfig sending a release input command
-	 * for every ability input.
-	 */
-	void RemoveAbilityMappingContextAndReleaseAbilityInputs();
 
 private:
 	/** Cached reference to the PlayerStates ASC. */

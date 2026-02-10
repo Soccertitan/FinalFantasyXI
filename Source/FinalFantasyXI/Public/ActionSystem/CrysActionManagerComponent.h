@@ -39,17 +39,17 @@ public:
 	UCrysAction* FindAction(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag, int32 Index) const;
 	
 	UFUNCTION(BlueprintPure, Category = "CrysActionManager")
-	UCrysAction* FindActionByClass(const TSubclassOf<UCrysAction>& ActionClass) const;
+	UCrysAction* FindActionByClass(const TSubclassOf<UCrysAction> ActionClass) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
-	bool CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction>& ActionClass);
+	bool CreateActionAndTryActivateOnce(const TSubclassOf<UCrysAction> ActionClass);
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	bool TryActivateAction(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag);
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	bool TryActivateActionAtIndex(UPARAM(meta = (Categories="Input")) FGameplayTag InputTag, int32 Index);
 	
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
-	void SetAction(UPARAM(meta = (Categories = "Input")) const FGameplayTag& InputTag, const int32 Index, const TSubclassOf<UCrysAction>& ActionClass);
+	void SetAction(UPARAM(meta = (Categories = "Input")) const FGameplayTag InputTag, const int32 Index, const TSubclassOf<UCrysAction> ActionClass);
 	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
 	void ClearAction(UPARAM(meta = (Categories = "Input")) FGameplayTag InputTag, int32 Index);
 	
