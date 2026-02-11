@@ -3,26 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../CrysPlayerController.h"
+#include "TargetingSystemInterface.h"
+#include "Player/CrysPlayerController.h"
 #include "HeroPlayerController.generated.h"
 
-class UCrysActionManagerComponent;
-class UCrimInputActionSet;
-class UCrimEnhancedInputComponent;
-struct FInputActionValue;
-struct FGameplayTag;
-class UHeroInputSet;
+class UTargetPointComponent;
 class UCrimAbilitySystemComponent;
-class UTargetingSystemComponent;
-class UEnhancedInputLocalPlayerSubsystem;
-class UTargetPointFilterBase;
+class UCrysActionManagerComponent;
 class UAbilityInputManagerComponent;
 
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API AHeroPlayerController : public ACrysPlayerController
+class FINALFANTASYXI_API AHeroPlayerController : public ACrysPlayerController, public ITargetingSystemInterface
 {
 	GENERATED_BODY()
 
@@ -50,12 +44,20 @@ public:
 	// virtual void OnRootWidgetAdded_Implementation() override;
 	// virtual void OnRootWidgetRemoved_Implementation() override;
 	// ~UINavPCReceiver Interface
-
+	
+	// ITargetingSystemInterface
+	virtual UTargetingSystemComponent* GetTargetingSystemComponent_Implementation() const override;
+	
 protected:
-	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Hero")
-	TArray<TObjectPtr<UTargetPointFilterBase>> TargetFilters;
+	UFUNCTION()
+	virtual void OnTargetedPointUpdated(UTargetPointComponent* TargetPointComponent);
 
 private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputMappingContext> TargetedPointInputMappingContext;
+	UPROPERTY(EditAnywhere)
+	int32 TargetedPointInputMappingContextPriority = 1;
+	
 	/** Cached reference to the PlayerStates ASC. */
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
@@ -74,9 +76,4 @@ private:
 
 	/** Retrieves the TargetSystemComponent from the pawn. */
 	void InitializeTargetSystemComponent();
-
-//-------------------------------------------------------------------
-// Enhanced Input Functionality
-//-------------------------------------------------------------------
-
 };

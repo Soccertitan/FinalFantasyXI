@@ -4,6 +4,7 @@
 #include "Player/Hero/HeroPlayerController.h"
 
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
+#include "EnhancedInputSubsystems.h"
 #include "TargetingSystemComponent.h"
 #include "ActionSystem/CrysActionManagerComponent.h"
 #include "Input/AbilityInputManagerComponent.h"
@@ -64,6 +65,29 @@ void AHeroPlayerController::PostProcessInput(const float DeltaTime, const bool b
 	Super::PostProcessInput(DeltaTime, bGamePaused);
 }
 
+UTargetingSystemComponent* AHeroPlayerController::GetTargetingSystemComponent_Implementation() const
+{
+	return TargetSystemComponent;
+}
+
+void AHeroPlayerController::OnTargetedPointUpdated(UTargetPointComponent* TargetPointComponent)
+{
+	if (TargetPointComponent)
+	{
+		if (EnhancedInputSubsystem)
+		{
+			EnhancedInputSubsystem->AddMappingContext(TargetedPointInputMappingContext, TargetedPointInputMappingContextPriority);
+		}
+	}
+	else
+	{
+		if (EnhancedInputSubsystem)
+		{
+			EnhancedInputSubsystem->RemoveMappingContext(TargetedPointInputMappingContext);
+		}
+	}
+}
+
 void AHeroPlayerController::TryInitOverlay()
 {
 	if (AbilitySystemComponent)
@@ -86,7 +110,7 @@ void AHeroPlayerController::InitializeTargetSystemComponent()
 {
 	if (TargetSystemComponent)
 	{
-		// Clear bindings.
+		TargetSystemComponent->OnTargetedPointUpdatedDelegate.RemoveAll(this);
 	}
 
 	TargetSystemComponent = nullptr;
@@ -97,7 +121,7 @@ void AHeroPlayerController::InitializeTargetSystemComponent()
 	
 	if (TargetSystemComponent)
 	{
-		//TODO: Bindings to add/remove IMCs based on if a target is selected.
-		// TargetSystemComponent->OnTargetPointSelected
+		OnTargetedPointUpdated(TargetSystemComponent->GetTargetedPoint());
+		TargetSystemComponent->OnTargetedPointUpdatedDelegate.AddUniqueDynamic(this, &ThisClass::OnTargetedPointUpdated);
 	}
 }

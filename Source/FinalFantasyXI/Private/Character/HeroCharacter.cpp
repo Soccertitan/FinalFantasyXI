@@ -84,7 +84,7 @@ AActor* AHeroCharacter::GetAbilityTarget_Implementation(const FGameplayTagContai
 	AActor* Result = IAbilityTargetInterface::GetAbilityTarget_Implementation(AbilityTags);
 	if (Result == nullptr)
 	{
-		if (const UTargetPointComponent* TargetPoint = TargetingSystemComponent->GetTarget())
+		if (const UTargetPointComponent* TargetPoint = TargetingSystemComponent->GetTargetedPoint())
 		{
 			return TargetPoint->GetAttachmentRootActor();
 		}
