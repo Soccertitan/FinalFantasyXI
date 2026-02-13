@@ -61,6 +61,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "CrysActionManager")
 	int32 GetCurrentActionSetIndex() const { return CurrentActionSetIndex; }
 	
+	UFUNCTION(BlueprintPure, Category = "CrysActionManager")
+	bool IsActionSetEmpty(int32 Index) const;
+	
 	//SetActionMap
 	//SetActionMappings
 	//ClearActionMap
@@ -74,7 +77,7 @@ private:
 	UPROPERTY()
 	TArray<FCrysActionMap> ActionMappings;
 	
-	/** A cache of actions that were created to be activated once. */
+	/** A cache of actions that were created that can be activated many times. */
 	UPROPERTY()
 	TArray<TObjectPtr<UCrysAction>> ActionPool;
 	

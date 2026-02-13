@@ -50,7 +50,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	FText ActionName;
 	
-	/** The icon to display on the ActionBar. */
+	/** The user facing icon on the hotbar. */
 	UPROPERTY(EditAnywhere, meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> Icon;
 	

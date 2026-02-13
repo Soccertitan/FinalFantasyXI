@@ -31,7 +31,4 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	TSoftClassPtr<UGameplayAbility> AbilityClass;
-	
-	UPROPERTY()
-	bool bValidAbility = false;
 };

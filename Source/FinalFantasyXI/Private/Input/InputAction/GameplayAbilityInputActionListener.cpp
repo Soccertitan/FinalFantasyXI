@@ -18,7 +18,7 @@ void UGameplayAbilityInputActionListener::OnInputActionTriggered(const FInputAct
 {
 	Super::OnInputActionTriggered(Value);
 	
-	if (AbilityInputManagerComponent && bValidAbility)
+	if (AbilityInputManagerComponent)
 	{
 		if (Value.Get<bool>())
 		{
@@ -35,7 +35,7 @@ void UGameplayAbilityInputActionListener::OnInputActionCanceled(const FInputActi
 {
 	Super::OnInputActionCanceled(Value);
 	
-	if (AbilityInputManagerComponent && bValidAbility)
+	if (AbilityInputManagerComponent)
 	{
 		AbilityInputManagerComponent->InputReleased(AbilityClass);
 	}
@@ -45,7 +45,7 @@ void UGameplayAbilityInputActionListener::OnInputActionCompleted(const FInputAct
 {
 	Super::OnInputActionCompleted(Value);
 	
-	if (AbilityInputManagerComponent && bValidAbility)
+	if (AbilityInputManagerComponent)
 	{
 		AbilityInputManagerComponent->InputReleased(AbilityClass);
 	}

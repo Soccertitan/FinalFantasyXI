@@ -124,7 +124,7 @@ void UCrysActionManagerComponent::SetAction(const FGameplayTag InputTag, const i
 
 void UCrysActionManagerComponent::ClearAction(FGameplayTag InputTag, int32 Index)
 {
-	if (!InputTag.IsValid() || Index < 0 || !ActionMappings.IsValidIndex(Index))
+	if (!InputTag.IsValid() || !ActionMappings.IsValidIndex(Index))
 	{
 		return;
 	}
@@ -138,11 +138,20 @@ void UCrysActionManagerComponent::ClearAction(FGameplayTag InputTag, int32 Index
 
 void UCrysActionManagerComponent::SetCurrentActionSetIndex(int32 Index)
 {
-	if (Index > 0 && Index != CurrentActionSetIndex)
+	if (Index >= 0 && Index != CurrentActionSetIndex)
 	{
 		CurrentActionSetIndex = Index;
 		OnActionSetSelectedDelegate.Broadcast(CurrentActionSetIndex);
 	}
+}
+
+bool UCrysActionManagerComponent::IsActionSetEmpty(int32 Index) const
+{
+	if (ActionMappings.IsValidIndex(Index))
+	{
+		return ActionMappings[Index].ActionMap.IsEmpty();
+	}
+	return true;
 }
 
 UCrysAction* UCrysActionManagerComponent::InternalCreateAction(const TSubclassOf<UCrysAction>& ActionClass)
