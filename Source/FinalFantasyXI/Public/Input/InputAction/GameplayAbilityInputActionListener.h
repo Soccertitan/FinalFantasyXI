@@ -10,9 +10,9 @@ class UGameplayAbility;
 class UAbilityInputManagerComponent;
 
 /**
- * Activates a gameplay ability by InputTag. If the AbilityClass is invalid, removes the ability input.
+ * Activates a gameplay ability by AbilityClass.
  */
-UCLASS()
+UCLASS(Abstract)
 class FINALFANTASYXI_API UGameplayAbilityInputActionListener : public UCrysInputActionListener
 {
 	GENERATED_BODY()
