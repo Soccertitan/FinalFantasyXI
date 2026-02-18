@@ -19,13 +19,13 @@ void UCrysActionManagerComponent::OnRegister()
 	PlayerController = Cast<ACrysPlayerController>(GetOwner());
 }
 
-UCrysAction* UCrysActionManagerComponent::FindAction(FGameplayTag InputTag, int32 Index) const
+UCrysAction* UCrysActionManagerComponent::FindAction(const FGameplayTag InputTag, const int32 Index) const
 {
-	if (InputTag.IsValid() && ActionMappings.IsValidIndex(Index))
+	if (InputTag.IsValid() && ActionMapInstances.IsValidIndex(Index))
 	{
-		if (ActionMappings[Index].ActionMap.Contains(InputTag))
+		if (ActionMapInstances[Index].ActionMap.Contains(InputTag))
 		{
-			return *ActionMappings[Index].ActionMap.Find(InputTag);
+			return *ActionMapInstances[Index].ActionMap.Find(InputTag);
 		}
 	}
 	return nullptr;
@@ -43,7 +43,7 @@ UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UC
 			}
 		}
 
-		for (const FCrysActionMap& Map : ActionMappings)
+		for (const FCrysActionMapInstance& Map : ActionMapInstances)
 		{
 			for (const TTuple<FGameplayTag, TObjectPtr<UCrysAction>>& Pair : Map.ActionMap)
 			{
@@ -55,6 +55,11 @@ UCrysAction* UCrysActionManagerComponent::FindActionByClass(const TSubclassOf<UC
 		}
 	}
 	return nullptr;
+}
+
+const TArray<FCrysActionMapInstance>& UCrysActionManagerComponent::GetActionMapInstances() const
+{
+	return ActionMapInstances;
 }
 
 UCrysAction* UCrysActionManagerComponent::CreateAction(const TSubclassOf<UCrysAction> ActionClass)
@@ -74,11 +79,11 @@ bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclass
 		if (!Action)
 		{
 			Action = InternalCreateAction(ActionClass);
-			ActionPool[CurrentCacheIndex] = Action;
-			CurrentCacheIndex++;
-			if (CurrentCacheIndex >= MaxCacheSize)
+			ActionPool[CacheIndex] = Action;
+			CacheIndex++;
+			if (CacheIndex >= MaxCacheSize)
 			{
-				CurrentCacheIndex = 0;
+				CacheIndex = 0;
 			}
 		}
 		return Action->TryActivateAction();
@@ -86,12 +91,12 @@ bool UCrysActionManagerComponent::CreateActionAndTryActivateOnce(const TSubclass
 	return false;
 }
 
-bool UCrysActionManagerComponent::TryActivateAction(FGameplayTag InputTag)
+bool UCrysActionManagerComponent::TryActivateAction(const FGameplayTag InputTag)
 {
-	return TryActivateActionAtIndex(InputTag, CurrentActionSetIndex);
+	return TryActivateActionAtIndex(InputTag, ActionSetIndex);
 }
 
-bool UCrysActionManagerComponent::TryActivateActionAtIndex(FGameplayTag InputTag, int32 Index)
+bool UCrysActionManagerComponent::TryActivateActionAtIndex(const FGameplayTag InputTag, const int32 Index)
 {
 	if (UCrysAction* Action = FindAction(InputTag, Index))
 	{
@@ -102,14 +107,20 @@ bool UCrysActionManagerComponent::TryActivateActionAtIndex(FGameplayTag InputTag
 
 void UCrysActionManagerComponent::SetAction(const FGameplayTag InputTag, const int32 Index, const TSubclassOf<UCrysAction> ActionClass)
 {
-	if (!InputTag.IsValid() || Index < 0 || !ActionClass)
+	if (!InputTag.IsValid() || Index < 0)
 	{
 		return;
 	}
 	
-	if (!ActionMappings.IsValidIndex(Index))
+	if (!ActionClass)
 	{
-		ActionMappings.SetNum(Index + 1, EAllowShrinking::No);
+		ClearAction(InputTag, Index);
+		return;
+	}
+	
+	if (!ActionMapInstances.IsValidIndex(Index))
+	{
+		ActionMapInstances.SetNum(Index + 1, EAllowShrinking::No);
 	}
 
 	UCrysAction* NewAction = FindActionByClass(ActionClass);
@@ -118,38 +129,107 @@ void UCrysActionManagerComponent::SetAction(const FGameplayTag InputTag, const i
 		NewAction = InternalCreateAction(ActionClass);
 	}
 
-	ActionMappings[Index].ActionMap.Add(InputTag, NewAction);
+	ActionMapInstances[Index].ActionMap.Add(InputTag, NewAction);
 	OnActionMapUpdatedDelegate.Broadcast(NewAction, InputTag, Index);
 }
 
-void UCrysActionManagerComponent::ClearAction(FGameplayTag InputTag, int32 Index)
+void UCrysActionManagerComponent::SetActionMap(const FCrysActionMap& InActionMap, const int32 Index)
 {
-	if (!InputTag.IsValid() || !ActionMappings.IsValidIndex(Index))
+	ClearActionMap(Index);
+	
+	if (Index >= 0)
+	{
+		for (auto Iterator = InActionMap.ActionMap.CreateConstIterator(); Iterator; ++Iterator)
+		{
+			SetAction(Iterator.Key(), Index, Iterator.Value());
+		}
+	}
+}
+
+void UCrysActionManagerComponent::ClearAction(const FGameplayTag InputTag, const int32 Index)
+{
+	if (!InputTag.IsValid() || !ActionMapInstances.IsValidIndex(Index))
 	{
 		return;
 	}
 
-	if (ActionMappings[Index].ActionMap.Contains(InputTag))
+	if (ActionMapInstances[Index].ActionMap.Contains(InputTag))
 	{
-		ActionMappings[Index].ActionMap.Remove(InputTag);
+		ActionMapInstances[Index].ActionMap.Remove(InputTag);
 		OnActionMapUpdatedDelegate.Broadcast(nullptr, InputTag, Index);
 	}
 }
 
-void UCrysActionManagerComponent::SetCurrentActionSetIndex(int32 Index)
+void UCrysActionManagerComponent::ClearActionMap(const int32 Index)
 {
-	if (Index >= 0 && Index != CurrentActionSetIndex)
+	if (ActionMapInstances.IsValidIndex(Index))
 	{
-		CurrentActionSetIndex = Index;
-		OnActionSetSelectedDelegate.Broadcast(CurrentActionSetIndex);
+		for (auto Iterator = ActionMapInstances[Index].ActionMap.CreateIterator(); Iterator; ++Iterator)
+		{
+			Iterator->Value = nullptr;
+			OnActionMapUpdatedDelegate.Broadcast(nullptr, Iterator->Key, Index);
+			Iterator.RemoveCurrent();
+		}
 	}
 }
 
-bool UCrysActionManagerComponent::IsActionSetEmpty(int32 Index) const
+void UCrysActionManagerComponent::SetActionSetIndex(const int32 Index)
 {
-	if (ActionMappings.IsValidIndex(Index))
+	if (Index >= 0 && Index != ActionSetIndex)
 	{
-		return ActionMappings[Index].ActionMap.IsEmpty();
+		ActionSetIndex = Index;
+		OnActionSetSelectedDelegate.Broadcast(ActionSetIndex);
+	}
+}
+
+void UCrysActionManagerComponent::SwitchToNextActionSet(const bool bIncrementIndex)
+{
+	const int32 StartingIndex = GetActionSetIndex();
+	if (StartingIndex == 0)
+	{
+		// Don't proceed if Index equals 0. Reserved for overrides.
+		return;
+	}
+	
+	const int32 MaxIndex = ActionMapInstances.Num() - 1;
+	int32 NextIndex = bIncrementIndex ? StartingIndex + 1 : StartingIndex - 1;
+	do
+	{
+		if (NextIndex > MaxIndex)
+		{
+			// Greater than max go back to 1.
+			NextIndex = 1;
+		}
+		else if (NextIndex < 1)
+		{
+			// Less than min index, loop back to Max.
+			NextIndex = MaxIndex;
+		}
+		else if (NextIndex == StartingIndex)
+		{
+			// The Index is the same. Do nothing.
+			return;
+		}
+		else if (IsActionSetEmpty(NextIndex))
+		{
+			// Increment/Decrement the Index and try again.
+			NextIndex += bIncrementIndex ? 1 : -1;
+		}
+		else
+		{
+			// All condition pass, we set the Index.
+			SetActionSetIndex(NextIndex);
+			return;
+		}
+	}
+	while (true);
+}
+
+bool UCrysActionManagerComponent::IsActionSetEmpty(const int32 Index) const
+{
+	if (ActionMapInstances.IsValidIndex(Index))
+	{
+		return ActionMapInstances[Index].ActionMap.IsEmpty();
 	}
 	return true;
 }

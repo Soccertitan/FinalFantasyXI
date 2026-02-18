@@ -22,8 +22,7 @@ class FINALFANTASYXI_API UActionManagerViewModel : public UCrysViewModel
 
 public:
 
-	int32 GetCurrentActionSet() const { return CurrentActionSet; }
-	void SetCurrentActionSet(int32 Index);
+	int32 GetActiveActionSetIndex() const { return ActiveActionSetIndex; }
 	
 	/** Finds or creates an ActionBarItem VM from InputTag. */
 	UFUNCTION(BlueprintCallable, Category = "ActionBarViewModel")
@@ -33,6 +32,9 @@ protected:
 	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
 	
 	void InitActionManager(APlayerController* PlayerController);
+	
+	UFUNCTION()
+	void SetActiveActionSetIndex(int32 Index);
 
 private:
 	UPROPERTY()
@@ -42,13 +44,11 @@ private:
 	TArray<TObjectPtr<UActionItemViewModel>> ActionBarItemViewModels;
 	
 	/** The current set that is mapped to the InputActions. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Setter, Category = "ActionBarViewModel", meta = (AllowPrivateAccess = true))
-	int32 CurrentActionSet = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "ActionBarViewModel", meta = (AllowPrivateAccess = true))
+	int32 ActiveActionSetIndex = 0;
 	
 	UActionItemViewModel* InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag);
 	
 	UFUNCTION()
 	void OnActionMapUpdated(UCrysAction* Action, const FGameplayTag& InputTag, int32 Index);
-	UFUNCTION()
-	void OnActionSetSelected(int32 Index);
 };

@@ -8,30 +8,22 @@
 
 class UCrysAction;
 
+/** Action mappings that can be loaded into the CrysActionManagerComponent. */
 USTRUCT(BlueprintType)
-struct FCrysActionMapSaveData
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (NoResetToDefault, Categories = "Input"))
-	TMap<FGameplayTag, TSoftClassPtr<UCrysAction>> ActionMap;
-};
-
-USTRUCT(BlueprintType)
-struct FCrysActionContainerSaveData
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (NoResetToDefault))
-	TArray<FCrysActionMapSaveData> CrysActionMappings;
-};
-
-/** Runtime data for action mappings in the CrysActionManagerComponent */
-USTRUCT()
 struct FCrysActionMap
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (Categories = "Input"))
+	TMap<FGameplayTag, TSubclassOf<UCrysAction>> ActionMap;
+};
+
+/** Runtime data for action mappings in the CrysActionManagerComponent */
+USTRUCT(BlueprintType)
+struct FCrysActionMapInstance
+{
+	GENERATED_BODY()
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TMap<FGameplayTag, TObjectPtr<UCrysAction>> ActionMap;
 };

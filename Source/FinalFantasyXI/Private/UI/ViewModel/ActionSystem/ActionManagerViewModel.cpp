@@ -7,14 +7,6 @@
 #include "ActionSystem/CrysActionManagerComponent.h"
 #include "UI/ViewModel/ActionSystem/ActionItemViewModel.h"
 
-void UActionManagerViewModel::SetCurrentActionSet(int32 Index)
-{
-	if (CurrentActionSet != Index && Index >= 0)
-	{
-		UE_MVVM_SET_PROPERTY_VALUE(CurrentActionSet, Index);
-	}
-}
-
 UActionItemViewModel* UActionManagerViewModel::FindOrCreateActionBarItemViewModel(const FGameplayTag& InputTag)
 {
 	if (InputTag.IsValid())
@@ -52,8 +44,23 @@ void UActionManagerViewModel::InitActionManager(APlayerController* PlayerControl
 		return;
 	}
 
+	SetActiveActionSetIndex(ActionManagerComponent->GetActionSetIndex());
 	ActionManagerComponent->OnActionMapUpdatedDelegate.AddUniqueDynamic(this, &UActionManagerViewModel::OnActionMapUpdated);
-	ActionManagerComponent->OnActionSetSelectedDelegate.AddUniqueDynamic(this, &UActionManagerViewModel::OnActionSetSelected);
+	ActionManagerComponent->OnActionSetSelectedDelegate.AddUniqueDynamic(this, &UActionManagerViewModel::SetActiveActionSetIndex);
+}
+
+void UActionManagerViewModel::SetActiveActionSetIndex(int32 Index)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(ActiveActionSetIndex, Index))
+	{
+		if (ActionManagerComponent)
+		{
+			for (UActionItemViewModel* ViewModel : ActionBarItemViewModels)
+			{
+				ViewModel->SetAction(ActionManagerComponent->FindAction(ViewModel->GetInputTag(), ActiveActionSetIndex));
+			}
+		}
+	}
 }
 
 UActionItemViewModel* UActionManagerViewModel::InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag)
@@ -62,7 +69,7 @@ UActionItemViewModel* UActionManagerViewModel::InternalCreateActionBarItemViewMo
 	NewVM->SetInputTag(InputTag);
 	if (ActionManagerComponent)
 	{
-		NewVM->SetAction(ActionManagerComponent->FindAction(InputTag, ActionManagerComponent->GetCurrentActionSetIndex()));
+		NewVM->SetAction(ActionManagerComponent->FindAction(InputTag, ActionManagerComponent->GetActionSetIndex()));
 	}
 	ActionBarItemViewModels.Add(NewVM);
 	return NewVM;
@@ -70,7 +77,7 @@ UActionItemViewModel* UActionManagerViewModel::InternalCreateActionBarItemViewMo
 
 void UActionManagerViewModel::OnActionMapUpdated(UCrysAction* Action, const FGameplayTag& InputTag, int32 Index)
 {
-	if (CurrentActionSet == Index)
+	if (ActiveActionSetIndex == Index)
 	{
 		for (int32 Idx = 0; Idx < ActionBarItemViewModels.Num(); Idx++)
 		{
@@ -80,15 +87,5 @@ void UActionManagerViewModel::OnActionMapUpdated(UCrysAction* Action, const FGam
 				break;
 			}
 		}
-	}
-}
-
-void UActionManagerViewModel::OnActionSetSelected(int32 Index)
-{
-	UE_MVVM_SET_PROPERTY_VALUE(CurrentActionSet, Index);
-	
-	for (UActionItemViewModel* ViewModel : ActionBarItemViewModels)
-	{
-		ViewModel->SetAction(ActionManagerComponent->FindAction(ViewModel->GetInputTag(), CurrentActionSet));
 	}
 }
