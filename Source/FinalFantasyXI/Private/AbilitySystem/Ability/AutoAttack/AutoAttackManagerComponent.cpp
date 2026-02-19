@@ -66,6 +66,11 @@ void UAutoAttackManagerComponent::InitializeWithAbilitySystem_Implementation(UCr
 		OnPauseAutoAttackTagChanged(PauseAutoAttack, AbilitySystemComponent->GetGameplayTagCount(PauseAutoAttack));
 		AbilitySystemComponent->RegisterGameplayTagEvent(PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged);
+	
+		const FGameplayTag& WeaponDrawn = FCrysGameplayTags::Get().Gameplay_State_WeaponDrawn;
+		OnWeaponDrawnTagChanged(WeaponDrawn, AbilitySystemComponent->GetGameplayTagCount(WeaponDrawn));
+		AbilitySystemComponent->RegisterGameplayTagEvent(WeaponDrawn, EGameplayTagEventType::NewOrRemoved).
+			AddUObject(this, &UAutoAttackManagerComponent::OnWeaponDrawnTagChanged);
 	}
 }
 
@@ -79,6 +84,11 @@ void UAutoAttackManagerComponent::StartAutoAttack()
 	if (!HasAuthority())
 	{
 		Server_StartAutoAttack();
+		return;
+	}
+
+	if (bCanStartAutoAttack == false)
+	{
 		return;
 	}
 
@@ -206,6 +216,19 @@ void UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged(const FGameplayTag
 	{
 		GetWorld()->GetTimerManager().UnPauseTimer(AutoAttackTimer);
 		bAutoAttackTimerPaused = false;
+	}
+}
+
+void UAutoAttackManagerComponent::OnWeaponDrawnTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount == 0)
+	{
+		bCanStartAutoAttack = false;
+		StopAutoAttack();
+	}
+	else
+	{
+		bCanStartAutoAttack = true;
 	}
 }
 

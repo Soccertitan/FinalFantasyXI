@@ -80,6 +80,7 @@ public:
 	FGameplayTag Gameplay_State_DualWielding;
 	FGameplayTag Gameplay_State_MovementRooted;
 	FGameplayTag Gameplay_State_PauseAutoAttack;
+	FGameplayTag Gameplay_State_WeaponDrawn;
 
 	/**
 	 * Item GameplayTags

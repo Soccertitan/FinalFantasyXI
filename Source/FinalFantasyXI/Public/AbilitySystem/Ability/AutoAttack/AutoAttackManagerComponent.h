@@ -95,6 +95,8 @@ private:
 	
 	bool bAutoAttackTimerPaused = false;
 	
+	bool bCanStartAutoAttack = false;
+	
 	/** Cached value of whether the owner is a simulated actor. */
 	UPROPERTY()
 	bool bCachedIsNetSimulated = false;
@@ -105,6 +107,7 @@ private:
 	
 	void OnAutoAttackDelayAttributeChanged(const FOnAttributeChangeData& Data);
 	void OnPauseAutoAttackTagChanged(const FGameplayTag Tag, int32 NewCount);
+	void OnWeaponDrawnTagChanged(const FGameplayTag Tag, int32 NewCount);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_StartAutoAttack();
