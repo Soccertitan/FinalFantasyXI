@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Ability/CrysGameplayAbility.h"
-#include "Engine/StreamableManager.h"
 #include "AutoAttackGameplayAbility.generated.h"
 
-class UAutoAttackAnimationData;
+class UCombatAnimationData;
 class UAutoAttackManagerComponent;
 
 /**
@@ -48,24 +47,24 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManager;
 	
-	/** Primary attack animations. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UAutoAttackAnimationData> PrimaryAttacks;
+	/** Primary attack animations retrieved from the AutoAttackManager. */
+	UPROPERTY(BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UCombatAnimationData> PrimaryAttacks;
 	/** Attacks for the offhand when dual wielding. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UAutoAttackAnimationData> SecondaryAttacks;
+	UPROPERTY(BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UCombatAnimationData> SecondaryAttacks;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
 	bool bDualWielding = false;
 	
 	FRandomStream AutoAttackRandomStream;
-	
-	TSharedPtr<FStreamableHandle> PrimaryAttacksStreamableHandle;
-	TSharedPtr<FStreamableHandle> SecondaryAttacksStreamableHandle;
-	
-	static void LoadAnimationData(UAutoAttackAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle);
-	
+
 	void InitAutoAttackManager(const FGameplayAbilityActorInfo* ActorInfo);
+	
+	UFUNCTION()
+	void OnPrimaryAttacksChanged(UCombatAnimationData* AnimationData);
+	UFUNCTION()
+	void OnSecondaryAttacksChanged(UCombatAnimationData* AnimationData);
 	
 	void OnDualWieldingTagChanged(const FGameplayTag Tag, int32 NewCount);
 };

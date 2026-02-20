@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "AutoAttackAnimationData.generated.h"
+#include "CombatAnimationData.generated.h"
 
 /**
- * AutoAttack montage information.
+ * Combat montage information.
  */
 UCLASS(Const)
-class FINALFANTASYXI_API UAutoAttackAnimationData : public UPrimaryDataAsset
+class FINALFANTASYXI_API UCombatAnimationData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 	
 public:
-	UAutoAttackAnimationData();
+	UCombatAnimationData();
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Asset")
@@ -24,4 +24,10 @@ public:
 	/** Montages of the attacks when standing still. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (NoResetToDefault, AssetBundles = "Animation"))
 	TArray<TSoftObjectPtr<UAnimMontage>> AutoAttacks;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (NoResetToDefault, AssetBundles = "Animation"))
+	TSoftObjectPtr<UAnimMontage> EnterCombat;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (NoResetToDefault, AssetBundles = "Animation"))
+	TSoftObjectPtr<UAnimMontage> ExitCombat;
 };

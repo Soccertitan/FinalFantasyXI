@@ -5,7 +5,7 @@
 
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
-#include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
+#include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CombatSkillAttributeSet.h"

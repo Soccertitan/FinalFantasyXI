@@ -8,7 +8,7 @@
 #include "CrysCharacter.generated.h"
 
 class UAbilityAnimationData;
-class UAutoAttackAnimationData;
+class UCombatAnimationData;
 class UAnimationTagRelationship;
 
 USTRUCT(BlueprintType)

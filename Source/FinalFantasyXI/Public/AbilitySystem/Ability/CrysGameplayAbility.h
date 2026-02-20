@@ -13,4 +13,7 @@ UCLASS()
 class FINALFANTASYXI_API UCrysGameplayAbility : public UCrimGameplayAbility
 {
 	GENERATED_BODY()
+	
+public:
+	UCrysGameplayAbility();
 };

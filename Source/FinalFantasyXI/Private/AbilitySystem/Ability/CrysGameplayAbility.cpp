@@ -2,3 +2,8 @@
 
 
 #include "AbilitySystem/Ability/CrysGameplayAbility.h"
+
+UCrysGameplayAbility::UCrysGameplayAbility()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}

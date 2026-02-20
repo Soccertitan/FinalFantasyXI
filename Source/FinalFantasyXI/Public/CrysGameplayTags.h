@@ -66,8 +66,7 @@ public:
 	 */
 	FGameplayTag EquipSlot_MainHand;
 	FGameplayTag EquipSlot_SubHand;
-	FGameplayTag EquipSlot_Range;
-	FGameplayTag EquipSlot_Ammo;
+	FGameplayTag EquipSlot_Special;
 	
 	/**
 	 * Enhanced Input Modes
@@ -80,7 +79,7 @@ public:
 	FGameplayTag Gameplay_State_DualWielding;
 	FGameplayTag Gameplay_State_MovementRooted;
 	FGameplayTag Gameplay_State_PauseAutoAttack;
-	FGameplayTag Gameplay_State_WeaponDrawn;
+	FGameplayTag Gameplay_State_CombatStance;
 
 	/**
 	 * Item GameplayTags

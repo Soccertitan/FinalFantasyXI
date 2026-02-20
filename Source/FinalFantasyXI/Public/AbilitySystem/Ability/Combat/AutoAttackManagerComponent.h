@@ -5,14 +5,15 @@
 #include "CoreMinimal.h"
 #include "CrimAbilitySystemInterface.h"
 #include "Components/ActorComponent.h"
+#include "Engine/StreamableManager.h"
 #include "AutoAttackManagerComponent.generated.h"
 
-class UAutoAttackAnimationData;
+class UCombatAnimationData;
 struct FGameplayTag;
 struct FOnAttributeChangeData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerBoolSignature, bool, bAutoAttacking);
-DECLARE_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerAnimationDataSignature, UAutoAttackAnimationData*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerAnimationDataSignature, UCombatAnimationData*, AnimationData);
 
 /**
  * Manages the timer for auto attacks. Notifies when the timer starts/ends. And updates timers based on specified 
@@ -50,37 +51,41 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
 	bool IsAutoAttacking() const;
 	
+	// Returns true if AutoAttacking is allowed.
+	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
+	bool CanAutoAttack() const;
+	
 	/** Called when the PrimaryAutoAttackAnimationData is set to a valid DataAsset. */
-	FAutoAttackManagerAnimationDataSignature OnPrimaryAutoAttackAnimationDataUpdatedDelegate;
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnPrimaryCombatAnimationDataUpdated")
+	FAutoAttackManagerAnimationDataSignature OnPrimaryCombatAnimationDataUpdatedDelegate;
 	/** Called when the SecondaryAutoAttackAnimationData is set to a valid DataAsset. */
-	FAutoAttackManagerAnimationDataSignature OnSecondaryAutoAttackAnimationDataUpdatedDelegate;
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnSecondaryCombatAnimationDataUpdated")
+	FAutoAttackManagerAnimationDataSignature OnSecondaryCombatAnimationDataUpdatedDelegate;
 	
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager|Animation")
-	UAutoAttackAnimationData* GetPrimaryAutoAttackAnimationData() const;
+	UCombatAnimationData* GetPrimaryCombatAnimationData() const;
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager|Animation")
-	UAutoAttackAnimationData* GetSecondaryAutoAttackAnimationData() const;
-	
-		
+	UCombatAnimationData* GetSecondaryCombatAnimationData() const;
+
 	UFUNCTION(BlueprintCallable, Category = "AutoAttackManager|Animation")
-	void SetPrimaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData);
+	void SetPrimaryCombatAnimationData(UCombatAnimationData* AnimationData);
 	UFUNCTION(BlueprintCallable, Category = "AutoAttackManager|Animation")
-	void SetSecondaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData);
+	void SetSecondaryCombatAnimationData(UCombatAnimationData* AnimationData);
 
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
 	bool HasAuthority() const;
 	
 protected:
-	
 	UFUNCTION()
 	void OnRep_AutoAttacking();
-
+	
 private:
 	/** Attacks done from the main hand. */
 	UPROPERTY(EditAnywhere, Category = "AutoAttackManager|Animation")
-	TObjectPtr<UAutoAttackAnimationData> PrimaryAutoAttackAnimationData;
+	TObjectPtr<UCombatAnimationData> PrimaryCombatAnimationData;
 	/** Attacks done from the offhand when dual wielding. */
 	UPROPERTY(EditAnywhere, Category = "AutoAttackManager|Animation")
-	TObjectPtr<UAutoAttackAnimationData> SecondaryAutoAttackAnimationData;
+	TObjectPtr<UCombatAnimationData> SecondaryCombatAnimationData;
 
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
@@ -95,10 +100,10 @@ private:
 	
 	bool bAutoAttackTimerPaused = false;
 	
-	bool bCanStartAutoAttack = false;
+	bool bCombatStance = false;
+	bool bAlive = true;
 	
 	/** Cached value of whether the owner is a simulated actor. */
-	UPROPERTY()
 	bool bCachedIsNetSimulated = false;
 	void CacheIsNetSimulated();
 	
@@ -107,7 +112,13 @@ private:
 	
 	void OnAutoAttackDelayAttributeChanged(const FOnAttributeChangeData& Data);
 	void OnPauseAutoAttackTagChanged(const FGameplayTag Tag, int32 NewCount);
-	void OnWeaponDrawnTagChanged(const FGameplayTag Tag, int32 NewCount);
+	void OnCombatStanceTagChanged(const FGameplayTag Tag, int32 NewCount);
+	void OnDeathTagChanged(const FGameplayTag Tag, int32 NewCount);
+	
+	TSharedPtr<FStreamableHandle> PrimaryAttacksStreamableHandle;
+	TSharedPtr<FStreamableHandle> SecondaryAttacksStreamableHandle;
+	
+	static void LoadAnimationData(const UCombatAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_StartAutoAttack();

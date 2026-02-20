@@ -1,13 +1,16 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
+#include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 
+#include "AbilityGameplayTags.h"
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
 #include "CrysGameplayTags.h"
+#include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "Net/UnrealNetwork.h"
+#include "System/CrysAssetManager.h"
 
 
 UAutoAttackManagerComponent::UAutoAttackManagerComponent()
@@ -36,6 +39,15 @@ void UAutoAttackManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	CacheIsNetSimulated();
+	
+	if (PrimaryCombatAnimationData)
+	{
+		LoadAnimationData(PrimaryCombatAnimationData, PrimaryAttacksStreamableHandle);
+	}
+	if (SecondaryCombatAnimationData)
+	{
+		LoadAnimationData(SecondaryCombatAnimationData, PrimaryAttacksStreamableHandle);
+	}
 }
 
 void UAutoAttackManagerComponent::PreNetReceive()
@@ -67,16 +79,21 @@ void UAutoAttackManagerComponent::InitializeWithAbilitySystem_Implementation(UCr
 		AbilitySystemComponent->RegisterGameplayTagEvent(PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged);
 	
-		const FGameplayTag& WeaponDrawn = FCrysGameplayTags::Get().Gameplay_State_WeaponDrawn;
-		OnWeaponDrawnTagChanged(WeaponDrawn, AbilitySystemComponent->GetGameplayTagCount(WeaponDrawn));
-		AbilitySystemComponent->RegisterGameplayTagEvent(WeaponDrawn, EGameplayTagEventType::NewOrRemoved).
-			AddUObject(this, &UAutoAttackManagerComponent::OnWeaponDrawnTagChanged);
+		const FGameplayTag& CombatStance = FCrysGameplayTags::Get().Gameplay_State_CombatStance;
+		OnCombatStanceTagChanged(CombatStance, AbilitySystemComponent->GetGameplayTagCount(CombatStance));
+		AbilitySystemComponent->RegisterGameplayTagEvent(CombatStance, EGameplayTagEventType::NewOrRemoved).
+			AddUObject(this, &UAutoAttackManagerComponent::OnCombatStanceTagChanged);
+		
+		const FGameplayTag& Death = FAbilityGameplayTags::Get().Gameplay_State_Death;
+		OnDeathTagChanged(Death, AbilitySystemComponent->GetGameplayTagCount(Death));
+		AbilitySystemComponent->RegisterGameplayTagEvent(Death, EGameplayTagEventType::NewOrRemoved).
+			AddUObject(this, &UAutoAttackManagerComponent::OnDeathTagChanged);
 	}
 }
 
 void UAutoAttackManagerComponent::StartAutoAttack()
 {
-	if (IsAutoAttacking())
+	if (IsAutoAttacking() || !CanAutoAttack())
 	{
 		return;
 	}
@@ -84,11 +101,6 @@ void UAutoAttackManagerComponent::StartAutoAttack()
 	if (!HasAuthority())
 	{
 		Server_StartAutoAttack();
-		return;
-	}
-
-	if (bCanStartAutoAttack == false)
-	{
 		return;
 	}
 
@@ -139,31 +151,41 @@ bool UAutoAttackManagerComponent::IsAutoAttacking() const
 	return bAutoAttacking;
 }
 
-UAutoAttackAnimationData* UAutoAttackManagerComponent::GetPrimaryAutoAttackAnimationData() const
+UCombatAnimationData* UAutoAttackManagerComponent::GetPrimaryCombatAnimationData() const
 {
-	return PrimaryAutoAttackAnimationData;
+	return PrimaryCombatAnimationData;
 }
 
-UAutoAttackAnimationData* UAutoAttackManagerComponent::GetSecondaryAutoAttackAnimationData() const
+UCombatAnimationData* UAutoAttackManagerComponent::GetSecondaryCombatAnimationData() const
 {
-	return SecondaryAutoAttackAnimationData;
+	return SecondaryCombatAnimationData;
 }
 
-void UAutoAttackManagerComponent::SetPrimaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData)
+void UAutoAttackManagerComponent::SetPrimaryCombatAnimationData(UCombatAnimationData* AnimationData)
 {
-	if (AnimationData)
+	if (AnimationData != PrimaryCombatAnimationData)
 	{
-		PrimaryAutoAttackAnimationData = AnimationData;
-		OnPrimaryAutoAttackAnimationDataUpdatedDelegate.Broadcast(PrimaryAutoAttackAnimationData);
+		PrimaryAttacksStreamableHandle.Reset();
+		PrimaryCombatAnimationData = AnimationData;
+		OnPrimaryCombatAnimationDataUpdatedDelegate.Broadcast(PrimaryCombatAnimationData);
+		if (AnimationData)
+		{
+			LoadAnimationData(AnimationData, PrimaryAttacksStreamableHandle);
+		}
 	}
 }
 
-void UAutoAttackManagerComponent::SetSecondaryAutoAttackAnimationData(UAutoAttackAnimationData* AnimationData)
+void UAutoAttackManagerComponent::SetSecondaryCombatAnimationData(UCombatAnimationData* AnimationData)
 {
-	if (AnimationData)
+	if (AnimationData != SecondaryCombatAnimationData)
 	{
-		SecondaryAutoAttackAnimationData = AnimationData;
-		OnSecondaryAutoAttackAnimationDataUpdatedDelegate.Broadcast(SecondaryAutoAttackAnimationData);
+		SecondaryAttacksStreamableHandle.Reset();
+		SecondaryCombatAnimationData = AnimationData;
+		OnSecondaryCombatAnimationDataUpdatedDelegate.Broadcast(SecondaryCombatAnimationData);
+		if (AnimationData)
+		{
+			LoadAnimationData(AnimationData, SecondaryAttacksStreamableHandle);
+		}
 	}
 }
 
@@ -175,6 +197,15 @@ bool UAutoAttackManagerComponent::HasAuthority() const
 void UAutoAttackManagerComponent::OnRep_AutoAttacking()
 {
 	OnAutoAttackStateChangedDelegate.Broadcast(bAutoAttacking);
+}
+
+bool UAutoAttackManagerComponent::CanAutoAttack() const
+{
+	if (bCombatStance && bAlive)
+	{
+		return true;
+	}
+	return false;
 }
 
 void UAutoAttackManagerComponent::CacheIsNetSimulated()
@@ -219,17 +250,28 @@ void UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged(const FGameplayTag
 	}
 }
 
-void UAutoAttackManagerComponent::OnWeaponDrawnTagChanged(const FGameplayTag Tag, int32 NewCount)
+void UAutoAttackManagerComponent::OnCombatStanceTagChanged(const FGameplayTag Tag, int32 NewCount)
 {
-	if (NewCount == 0)
+	bCombatStance = NewCount > 0;
+	if (!bCombatStance)
 	{
-		bCanStartAutoAttack = false;
 		StopAutoAttack();
 	}
-	else
+}
+
+void UAutoAttackManagerComponent::OnDeathTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	bAlive = NewCount == 0;
+	if (!bAlive)
 	{
-		bCanStartAutoAttack = true;
+		StopAutoAttack();
 	}
+}
+
+void UAutoAttackManagerComponent::LoadAnimationData(const UCombatAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle)
+{
+	const TArray<FName>& LoadBundles = {"Animation"};
+	Handle = UCrysAssetManager::Get().PreloadPrimaryAssets({AnimationData->GetPrimaryAssetId()}, LoadBundles, false);
 }
 
 void UAutoAttackManagerComponent::Server_StartAutoAttack_Implementation()

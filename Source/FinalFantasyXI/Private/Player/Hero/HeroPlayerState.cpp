@@ -6,7 +6,7 @@
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
 #include "InventoryManagerComponent.h"
-#include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
+#include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CombatSkillAttributeSet.h"

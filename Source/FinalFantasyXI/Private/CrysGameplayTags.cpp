@@ -60,9 +60,8 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	 * EquipSlot Tags
 	 */
 	GameplayTags.EquipSlot_MainHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.MainHand"), FString("Main Hand slot (typically weapons)."));
-	GameplayTags.EquipSlot_SubHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.SubHand"), FString("Sub Hand slot (typically weapons or shields)."));
-	GameplayTags.EquipSlot_Range = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Range"), FString("Range slot (typically bows/guns, instruments)."));
-	GameplayTags.EquipSlot_Ammo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Ammo"), FString("Ammo slot (typically used for bow/gun ammo and throwing)."));
+	GameplayTags.EquipSlot_SubHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.SubHand"), FString("Sub Hand slot (typically off hand weapons, shields, ammo)."));
+	GameplayTags.EquipSlot_Special = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Special"), FString("Special slot for unique tools (instruments, throwing, etc.)."));
 	
 	/**
 	 * Gameplay State Tags
@@ -70,7 +69,7 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Gameplay_State_DualWielding = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.DualWielding"), FString("The character has two one-handed weapons equipped."));
 	GameplayTags.Gameplay_State_MovementRooted = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.MovementRooted"), FString("The character has the movement rooted status."));
 	GameplayTags.Gameplay_State_PauseAutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.PauseAutoAttack"), FString("A character with this tag will have the auto attack timer paused. And restarted when removed."));
-	GameplayTags.Gameplay_State_WeaponDrawn = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.WeaponDrawn"), FString("A character with this tag has their weapon drawn and is able to auto attack."));
+	GameplayTags.Gameplay_State_CombatStance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.CombatStance"), FString("A character with this tag are able to perform auto attacks."));
 
 	/**
 	 * Item Gameplay Tags

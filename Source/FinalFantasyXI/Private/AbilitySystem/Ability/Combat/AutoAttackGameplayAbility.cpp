@@ -1,14 +1,13 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "AbilitySystem/Ability/AutoAttack/AutoAttackGameplayAbility.h"
+#include "AbilitySystem/Ability/Combat/AutoAttackGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
 #include "CrysGameplayTags.h"
 #include "NativeGameplayTags.h"
-#include "AbilitySystem/Ability/AutoAttack/AutoAttackManagerComponent.h"
-#include "AbilitySystem/Ability/AutoAttack/AutoAttackAnimationData.h"
-#include "System/CrysAssetManager.h"
+#include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
+#include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
 
 namespace AutoAttackTag
 {
@@ -17,7 +16,6 @@ namespace AutoAttackTag
 
 UAutoAttackGameplayAbility::UAutoAttackGameplayAbility()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 	ActivationPolicy = EAbilityActivationPolicy::OnEvent;
 	
@@ -63,18 +61,11 @@ void UAutoAttackGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* 
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 	
-	if (PrimaryAttacks)
-	{
-		LoadAnimationData(PrimaryAttacks, PrimaryAttacksStreamableHandle);
-	}
-	if (SecondaryAttacks)
-	{
-		LoadAnimationData(SecondaryAttacks, SecondaryAttacksStreamableHandle);
-	}
-	
 	InitAutoAttackManager(ActorInfo);
 	
-	GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(FCrysGameplayTags::Get().Gameplay_State_DualWielding).AddUObject(this, &UAutoAttackGameplayAbility::OnDualWieldingTagChanged);
+	const FGameplayTag& DualWieldTag = FCrysGameplayTags::Get().Gameplay_State_DualWielding;
+	OnDualWieldingTagChanged(DualWieldTag, GetAbilitySystemComponentFromActorInfo()->GetTagCount(DualWieldTag));
+	GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(DualWieldTag).AddUObject(this, &UAutoAttackGameplayAbility::OnDualWieldingTagChanged);
 }
 
 void UAutoAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -96,12 +87,6 @@ void UAutoAttackGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Han
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UAutoAttackGameplayAbility::LoadAnimationData(UAutoAttackAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle)
-{
-	const TArray<FName>& LoadBundles = {"Animation"};
-	Handle = UCrysAssetManager::Get().PreloadPrimaryAssets({AnimationData->GetPrimaryAssetId()}, LoadBundles, false);
-}
-
 void UAutoAttackGameplayAbility::InitAutoAttackManager(const FGameplayAbilityActorInfo* ActorInfo)
 {
 	AutoAttackManager = ActorInfo->OwnerActor->FindComponentByClass<UAutoAttackManagerComponent>();
@@ -109,18 +94,28 @@ void UAutoAttackGameplayAbility::InitAutoAttackManager(const FGameplayAbilityAct
 	
 	if (AutoAttackManager)
 	{
-		if (UAutoAttackAnimationData* AnimationData = AutoAttackManager->GetPrimaryAutoAttackAnimationData())
+		if (UCombatAnimationData* AnimationData = AutoAttackManager->GetPrimaryCombatAnimationData())
 		{
-			PrimaryAttacks = AnimationData;
-			LoadAnimationData(AnimationData, PrimaryAttacksStreamableHandle);
+			OnPrimaryAttacksChanged(AnimationData);
 		}
+		AutoAttackManager->OnPrimaryCombatAnimationDataUpdatedDelegate.AddUniqueDynamic(this, &UAutoAttackGameplayAbility::OnPrimaryAttacksChanged);
 		
-		if (UAutoAttackAnimationData* AnimationData = AutoAttackManager->GetSecondaryAutoAttackAnimationData())
+		if (UCombatAnimationData* AnimationData = AutoAttackManager->GetSecondaryCombatAnimationData())
 		{
-			SecondaryAttacks = AnimationData;
-			LoadAnimationData(AnimationData, SecondaryAttacksStreamableHandle);
+			OnSecondaryAttacksChanged(AnimationData);
 		}
+		AutoAttackManager->OnSecondaryCombatAnimationDataUpdatedDelegate.AddUniqueDynamic(this, &UAutoAttackGameplayAbility::OnSecondaryAttacksChanged);
 	}
+}
+
+void UAutoAttackGameplayAbility::OnPrimaryAttacksChanged(UCombatAnimationData* AnimationData)
+{
+	PrimaryAttacks = AnimationData;
+}
+
+void UAutoAttackGameplayAbility::OnSecondaryAttacksChanged(UCombatAnimationData* AnimationData)
+{
+	SecondaryAttacks = AnimationData;
 }
 
 void UAutoAttackGameplayAbility::OnDualWieldingTagChanged(const FGameplayTag Tag, int32 NewCount)
