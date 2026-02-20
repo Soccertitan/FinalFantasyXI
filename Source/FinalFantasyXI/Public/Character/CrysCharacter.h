@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MeshMergeFunctionLibrary.h"
+#include "Engine/StreamableManager.h"
 #include "GameFramework/Character.h"
 #include "CrysCharacter.generated.h"
 
@@ -22,6 +23,8 @@ struct FMessageCharacterNameUpdated
 	UPROPERTY(BlueprintReadOnly)
 	FText CharacterName;
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrysCharacterCombatAnimationDataSignature, UCombatAnimationData*, AnimationData);
 
 UCLASS()
 class FINALFANTASYXI_API ACrysCharacter : public ACharacter
@@ -42,6 +45,23 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "CrysCharacter|Animation")
 	UAbilityAnimationData* GetAbilityAnimationData() const {return AbilityAnimationData;}
+
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnPrimaryCombatAnimationDataUpdated")
+	FCrysCharacterCombatAnimationDataSignature OnPrimaryCombatAnimationDataUpdatedDelegate;
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnSecondaryCombatAnimationDataUpdated")
+	FCrysCharacterCombatAnimationDataSignature OnSecondaryCombatAnimationDataUpdatedDelegate;
+	
+	/** The animation data will be loading/loaded. */
+	UFUNCTION(BlueprintPure, Category = "CrysCharacter|Animation")
+	UCombatAnimationData* GetPrimaryCombatAnimationData() const;
+	/** The animation data will be loading/loaded. */
+	UFUNCTION(BlueprintPure, Category = "CrysCharacter|Animation")
+	UCombatAnimationData* GetSecondaryCombatAnimationData() const;
+
+	UFUNCTION(BlueprintCallable, Category = "CrysCharacter|Animation")
+	void SetPrimaryCombatAnimationData(UCombatAnimationData* AnimationData);
+	UFUNCTION(BlueprintCallable, Category = "CrysCharacter|Animation")
+	void SetSecondaryCombatAnimationData(UCombatAnimationData* AnimationData);
 	
 	void DisableMovement();
 	void EnableMovement();
@@ -65,6 +85,18 @@ private:
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_SkeletalMeshMergeParams, Category = "Character|MeshMerge")
 	FSkeletalMeshMergeParams SkeletalMeshMergeParams;
+	
+	/** Animation data for MainHand combat animations. */
+	UPROPERTY(EditAnywhere, Category = "Character|Animation")
+	TObjectPtr<UCombatAnimationData> PrimaryCombatAnimationData;
+	/** Animation data for OffHand combat animations. */
+	UPROPERTY(EditAnywhere, Category = "Character|Animation")
+	TObjectPtr<UCombatAnimationData> SecondaryCombatAnimationData;
+	
+	TSharedPtr<FStreamableHandle> PrimaryAttacksStreamableHandle;
+	TSharedPtr<FStreamableHandle> SecondaryAttacksStreamableHandle;
+	
+	static void LoadAnimationData(const UCombatAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle);
 
 	void BroadcastCharacterName();
 };

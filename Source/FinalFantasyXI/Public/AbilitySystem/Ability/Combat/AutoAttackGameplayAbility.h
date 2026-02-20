@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Ability/CrysGameplayAbility.h"
+#include "CombatGameplayAbility.h"
 #include "AutoAttackGameplayAbility.generated.h"
 
 class UCombatAnimationData;
@@ -14,7 +14,7 @@ class UAutoAttackManagerComponent;
  * restarts the auto attack timer.
  */
 UCLASS(Abstract)
-class FINALFANTASYXI_API UAutoAttackGameplayAbility : public UCrysGameplayAbility
+class FINALFANTASYXI_API UAutoAttackGameplayAbility : public UCombatGameplayAbility
 {
 	GENERATED_BODY()
 	
@@ -47,24 +47,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManager;
 	
-	/** Primary attack animations retrieved from the AutoAttackManager. */
-	UPROPERTY(BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UCombatAnimationData> PrimaryAttacks;
-	/** Attacks for the offhand when dual wielding. */
-	UPROPERTY(BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UCombatAnimationData> SecondaryAttacks;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "AutoAttack", meta = (AllowPrivateAccess = true))
-	bool bDualWielding = false;
-	
 	FRandomStream AutoAttackRandomStream;
 
 	void InitAutoAttackManager(const FGameplayAbilityActorInfo* ActorInfo);
-	
-	UFUNCTION()
-	void OnPrimaryAttacksChanged(UCombatAnimationData* AnimationData);
-	UFUNCTION()
-	void OnSecondaryAttacksChanged(UCombatAnimationData* AnimationData);
-	
-	void OnDualWieldingTagChanged(const FGameplayTag Tag, int32 NewCount);
 };

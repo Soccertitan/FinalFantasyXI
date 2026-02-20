@@ -7,10 +7,8 @@
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
 #include "CrysGameplayTags.h"
-#include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "Net/UnrealNetwork.h"
-#include "System/CrysAssetManager.h"
 
 
 UAutoAttackManagerComponent::UAutoAttackManagerComponent()
@@ -39,15 +37,6 @@ void UAutoAttackManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	CacheIsNetSimulated();
-	
-	if (PrimaryCombatAnimationData)
-	{
-		LoadAnimationData(PrimaryCombatAnimationData, PrimaryAttacksStreamableHandle);
-	}
-	if (SecondaryCombatAnimationData)
-	{
-		LoadAnimationData(SecondaryCombatAnimationData, PrimaryAttacksStreamableHandle);
-	}
 }
 
 void UAutoAttackManagerComponent::PreNetReceive()
@@ -151,44 +140,6 @@ bool UAutoAttackManagerComponent::IsAutoAttacking() const
 	return bAutoAttacking;
 }
 
-UCombatAnimationData* UAutoAttackManagerComponent::GetPrimaryCombatAnimationData() const
-{
-	return PrimaryCombatAnimationData;
-}
-
-UCombatAnimationData* UAutoAttackManagerComponent::GetSecondaryCombatAnimationData() const
-{
-	return SecondaryCombatAnimationData;
-}
-
-void UAutoAttackManagerComponent::SetPrimaryCombatAnimationData(UCombatAnimationData* AnimationData)
-{
-	if (AnimationData != PrimaryCombatAnimationData)
-	{
-		PrimaryAttacksStreamableHandle.Reset();
-		PrimaryCombatAnimationData = AnimationData;
-		OnPrimaryCombatAnimationDataUpdatedDelegate.Broadcast(PrimaryCombatAnimationData);
-		if (AnimationData)
-		{
-			LoadAnimationData(AnimationData, PrimaryAttacksStreamableHandle);
-		}
-	}
-}
-
-void UAutoAttackManagerComponent::SetSecondaryCombatAnimationData(UCombatAnimationData* AnimationData)
-{
-	if (AnimationData != SecondaryCombatAnimationData)
-	{
-		SecondaryAttacksStreamableHandle.Reset();
-		SecondaryCombatAnimationData = AnimationData;
-		OnSecondaryCombatAnimationDataUpdatedDelegate.Broadcast(SecondaryCombatAnimationData);
-		if (AnimationData)
-		{
-			LoadAnimationData(AnimationData, SecondaryAttacksStreamableHandle);
-		}
-	}
-}
-
 bool UAutoAttackManagerComponent::HasAuthority() const
 {
 	return !bCachedIsNetSimulated;
@@ -266,12 +217,6 @@ void UAutoAttackManagerComponent::OnDeathTagChanged(const FGameplayTag Tag, int3
 	{
 		StopAutoAttack();
 	}
-}
-
-void UAutoAttackManagerComponent::LoadAnimationData(const UCombatAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle)
-{
-	const TArray<FName>& LoadBundles = {"Animation"};
-	Handle = UCrysAssetManager::Get().PreloadPrimaryAssets({AnimationData->GetPrimaryAssetId()}, LoadBundles, false);
 }
 
 void UAutoAttackManagerComponent::Server_StartAutoAttack_Implementation()

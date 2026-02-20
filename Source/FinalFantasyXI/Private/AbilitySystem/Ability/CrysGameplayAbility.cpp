@@ -6,4 +6,5 @@
 UCrysGameplayAbility::UCrysGameplayAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	bServerRespectsRemoteAbilityCancellation = false;
 }

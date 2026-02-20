@@ -5,15 +5,12 @@
 #include "CoreMinimal.h"
 #include "CrimAbilitySystemInterface.h"
 #include "Components/ActorComponent.h"
-#include "Engine/StreamableManager.h"
 #include "AutoAttackManagerComponent.generated.h"
 
-class UCombatAnimationData;
 struct FGameplayTag;
 struct FOnAttributeChangeData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerBoolSignature, bool, bAutoAttacking);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAutoAttackManagerAnimationDataSignature, UCombatAnimationData*, AnimationData);
 
 /**
  * Manages the timer for auto attacks. Notifies when the timer starts/ends. And updates timers based on specified 
@@ -54,23 +51,6 @@ public:
 	// Returns true if AutoAttacking is allowed.
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
 	bool CanAutoAttack() const;
-	
-	/** Called when the PrimaryAutoAttackAnimationData is set to a valid DataAsset. */
-	UPROPERTY(BlueprintAssignable, DisplayName = "OnPrimaryCombatAnimationDataUpdated")
-	FAutoAttackManagerAnimationDataSignature OnPrimaryCombatAnimationDataUpdatedDelegate;
-	/** Called when the SecondaryAutoAttackAnimationData is set to a valid DataAsset. */
-	UPROPERTY(BlueprintAssignable, DisplayName = "OnSecondaryCombatAnimationDataUpdated")
-	FAutoAttackManagerAnimationDataSignature OnSecondaryCombatAnimationDataUpdatedDelegate;
-	
-	UFUNCTION(BlueprintPure, Category = "AutoAttackManager|Animation")
-	UCombatAnimationData* GetPrimaryCombatAnimationData() const;
-	UFUNCTION(BlueprintPure, Category = "AutoAttackManager|Animation")
-	UCombatAnimationData* GetSecondaryCombatAnimationData() const;
-
-	UFUNCTION(BlueprintCallable, Category = "AutoAttackManager|Animation")
-	void SetPrimaryCombatAnimationData(UCombatAnimationData* AnimationData);
-	UFUNCTION(BlueprintCallable, Category = "AutoAttackManager|Animation")
-	void SetSecondaryCombatAnimationData(UCombatAnimationData* AnimationData);
 
 	UFUNCTION(BlueprintPure, Category = "AutoAttackManager")
 	bool HasAuthority() const;
@@ -80,13 +60,6 @@ protected:
 	void OnRep_AutoAttacking();
 	
 private:
-	/** Attacks done from the main hand. */
-	UPROPERTY(EditAnywhere, Category = "AutoAttackManager|Animation")
-	TObjectPtr<UCombatAnimationData> PrimaryCombatAnimationData;
-	/** Attacks done from the offhand when dual wielding. */
-	UPROPERTY(EditAnywhere, Category = "AutoAttackManager|Animation")
-	TObjectPtr<UCombatAnimationData> SecondaryCombatAnimationData;
-
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
 	
@@ -114,11 +87,6 @@ private:
 	void OnPauseAutoAttackTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void OnCombatStanceTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void OnDeathTagChanged(const FGameplayTag Tag, int32 NewCount);
-	
-	TSharedPtr<FStreamableHandle> PrimaryAttacksStreamableHandle;
-	TSharedPtr<FStreamableHandle> SecondaryAttacksStreamableHandle;
-	
-	static void LoadAnimationData(const UCombatAnimationData* AnimationData, TSharedPtr<FStreamableHandle>& Handle);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_StartAutoAttack();

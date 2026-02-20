@@ -4,7 +4,6 @@
 #include "AbilitySystem/Ability/Combat/AutoAttackGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
-#include "CrysGameplayTags.h"
 #include "NativeGameplayTags.h"
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
@@ -36,18 +35,18 @@ const FRandomStream& UAutoAttackGameplayAbility::GetAutoAttackRandomStream() con
 
 UAnimMontage* UAutoAttackGameplayAbility::GetRandomPrimaryAttackMontage() const
 {
-	if (PrimaryAttacks && PrimaryAttacks->AutoAttacks.Num() > 0)
+	if (GetPrimaryCombatAnimationData() && GetPrimaryCombatAnimationData()->AutoAttacks.Num() > 0)
 	{
-		return PrimaryAttacks->AutoAttacks[AutoAttackRandomStream.RandRange(0, PrimaryAttacks->AutoAttacks.Num() - 1)].Get();
+		return GetPrimaryCombatAnimationData()->AutoAttacks[AutoAttackRandomStream.RandRange(0, GetPrimaryCombatAnimationData()->AutoAttacks.Num() - 1)].Get();
 	}
 	return nullptr;
 }
 
 UAnimMontage* UAutoAttackGameplayAbility::GetRandomSecondaryAttackMontage() const
 {
-	if (SecondaryAttacks && SecondaryAttacks->AutoAttacks.Num() > 0)
+	if (GetSecondaryCombatAnimationData() && GetSecondaryCombatAnimationData()->AutoAttacks.Num() > 0)
 	{
-		return SecondaryAttacks->AutoAttacks[AutoAttackRandomStream.RandRange(0, SecondaryAttacks->AutoAttacks.Num() - 1)].Get();
+		return GetSecondaryCombatAnimationData()->AutoAttacks[AutoAttackRandomStream.RandRange(0, GetSecondaryCombatAnimationData()->AutoAttacks.Num() - 1)].Get();
 	}
 	return nullptr;
 }
@@ -62,10 +61,6 @@ void UAutoAttackGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	Super::OnGiveAbility(ActorInfo, Spec);
 	
 	InitAutoAttackManager(ActorInfo);
-	
-	const FGameplayTag& DualWieldTag = FCrysGameplayTags::Get().Gameplay_State_DualWielding;
-	OnDualWieldingTagChanged(DualWieldTag, GetAbilitySystemComponentFromActorInfo()->GetTagCount(DualWieldTag));
-	GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(DualWieldTag).AddUObject(this, &UAutoAttackGameplayAbility::OnDualWieldingTagChanged);
 }
 
 void UAutoAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -91,34 +86,4 @@ void UAutoAttackGameplayAbility::InitAutoAttackManager(const FGameplayAbilityAct
 {
 	AutoAttackManager = ActorInfo->OwnerActor->FindComponentByClass<UAutoAttackManagerComponent>();
 	ensure(AutoAttackManager);
-	
-	if (AutoAttackManager)
-	{
-		if (UCombatAnimationData* AnimationData = AutoAttackManager->GetPrimaryCombatAnimationData())
-		{
-			OnPrimaryAttacksChanged(AnimationData);
-		}
-		AutoAttackManager->OnPrimaryCombatAnimationDataUpdatedDelegate.AddUniqueDynamic(this, &UAutoAttackGameplayAbility::OnPrimaryAttacksChanged);
-		
-		if (UCombatAnimationData* AnimationData = AutoAttackManager->GetSecondaryCombatAnimationData())
-		{
-			OnSecondaryAttacksChanged(AnimationData);
-		}
-		AutoAttackManager->OnSecondaryCombatAnimationDataUpdatedDelegate.AddUniqueDynamic(this, &UAutoAttackGameplayAbility::OnSecondaryAttacksChanged);
-	}
-}
-
-void UAutoAttackGameplayAbility::OnPrimaryAttacksChanged(UCombatAnimationData* AnimationData)
-{
-	PrimaryAttacks = AnimationData;
-}
-
-void UAutoAttackGameplayAbility::OnSecondaryAttacksChanged(UCombatAnimationData* AnimationData)
-{
-	SecondaryAttacks = AnimationData;
-}
-
-void UAutoAttackGameplayAbility::OnDualWieldingTagChanged(const FGameplayTag Tag, int32 NewCount)
-{
-	bDualWielding = NewCount > 0;
 }
