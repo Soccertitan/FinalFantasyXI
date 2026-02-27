@@ -5,6 +5,7 @@
 
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
+#include "CrysGameplayTags.h"
 #include "InventoryManagerComponent.h"
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
@@ -93,6 +94,27 @@ AActor* AHeroPlayerState::GetAbilityTarget_Implementation(const FGameplayTagCont
 		return UCrysBlueprintFunctionLibrary::GetAbilityTarget(GetPawn(), AbilityTags);
 	}
 	return Result;
+}
+
+FWeaponData AHeroPlayerState::GetPrimaryWeaponData_Implementation() const
+{
+	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_MainHand).WeaponData;
+	if (!Result.IsValid())
+	{
+		Result = EquipmentManagerComponent->GetBareHandedWeaponData();
+	}
+	return Result;
+}
+
+FWeaponData AHeroPlayerState::GetSecondaryWeaponData_Implementation() const
+{
+	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_SubHand).WeaponData;
+}
+
+AActor* AHeroPlayerState::GetTargetActor_Implementation()
+{
+	//TODO Get actor from target system component.
+	return nullptr;
 }
 
 void AHeroPlayerState::BindToDelegates()

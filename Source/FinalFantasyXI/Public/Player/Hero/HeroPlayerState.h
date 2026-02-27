@@ -7,6 +7,7 @@
 #include "InventorySystemInterface.h"
 #include "../CrysPlayerState.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
+#include "AbilitySystem/Ability/Combat/CombatInterface.h"
 #include "EquipmentSystem/EquipmentSystemInterface.h"
 #include "HeroSystem/HeroSystemInterface.h"
 #include "HeroPlayerState.generated.h"
@@ -32,7 +33,8 @@ class UCrysHitPointsAttributeSet;
  */
 UCLASS()
 class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbilitySystemInterface,
-	public IInventorySystemInterface, public IHeroSystemInterface, public IEquipmentSystemInterface, public IAbilityTargetInterface
+	public IInventorySystemInterface, public IHeroSystemInterface, public IEquipmentSystemInterface, public IAbilityTargetInterface,
+	public ICombatInterface 
 {
 	GENERATED_BODY()
 
@@ -84,6 +86,11 @@ public:
 	virtual UEquipmentManagerComponent* GetEquipmentManagerComponent_Implementation() const override;
 	/** Implements AbilityTargetInterface */
 	virtual AActor* GetAbilityTarget_Implementation(const FGameplayTagContainer& AbilityTags) const override;
+	
+	/** ICombatInterface */
+	virtual FWeaponData GetPrimaryWeaponData_Implementation() const override;
+	virtual FWeaponData GetSecondaryWeaponData_Implementation() const override;
+	virtual AActor* GetTargetActor_Implementation() override;
 
 protected:
 	/** A generic function to bind to delegates. Called in PostInitializeComponents */

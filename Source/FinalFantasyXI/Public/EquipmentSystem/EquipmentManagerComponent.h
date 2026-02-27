@@ -77,6 +77,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
 	virtual bool CanEquipItem(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, UPARAM(ref) const TInstancedStruct<FItem>& Item) const;
 	
+	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
+	FWeaponData GetBareHandedWeaponData() const { return BareHandedWeaponData; }
+	
 	/** Returns true if an item is blocking a slot from having an item equipped. */
 	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
 	bool IsEquipSlotBlocked(UPARAM(meta=(Categories="EquipSlot")) const FGameplayTag EquipSlot) const;

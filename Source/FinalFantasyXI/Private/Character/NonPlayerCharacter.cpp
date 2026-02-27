@@ -79,6 +79,22 @@ UAbilitySystemComponent* ANonPlayerCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+FWeaponData ANonPlayerCharacter::GetPrimaryWeaponData_Implementation() const
+{
+	return PrimaryWeaponData;
+}
+
+FWeaponData ANonPlayerCharacter::GetSecondaryWeaponData_Implementation() const
+{
+	return PrimaryWeaponData;
+}
+
+AActor* ANonPlayerCharacter::GetTargetActor_Implementation()
+{
+	//TODO: Get from the AI Controller or create a new threat table manager component on here.
+	return nullptr;
+}
+
 void ANonPlayerCharacter::OnDeathStarted(AActor* OwningActor)
 {
 	DisableMovement();
@@ -89,11 +105,28 @@ void ANonPlayerCharacter::OnResurrectionFinished(AActor* OwningActor)
 	EnableMovement();
 }
 
+void ANonPlayerCharacter::ApplyAutoAttackDelay()
+{
+	UGameplayEffect* AttackDelayGE = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("BaseAutoAttackDelay")));
+	AttackDelayGE->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+	int32 Idx = AttackDelayGE->Modifiers.Num();
+	AttackDelayGE->Modifiers.SetNum(Idx + 1);
+
+	FGameplayModifierInfo& InfoMaxHP = AttackDelayGE->Modifiers[Idx];
+	InfoMaxHP.ModifierMagnitude = FScalableFloat(PrimaryWeaponData.Delay.GetValueAtLevel(AbilitySystemComponent->GetNumericAttribute(UAttackerAttributeSet::GetAutoAttackDelayAttribute())));
+	InfoMaxHP.ModifierOp = EGameplayModOp::Override;
+	InfoMaxHP.Attribute = UAttackerAttributeSet::GetAutoAttackDelayAttribute();
+
+	AbilitySystemComponent->ApplyGameplayEffectToSelf(AttackDelayGE, 1.0f, AbilitySystemComponent->MakeEffectContext());
+}
+
 void ANonPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	InitAbilitySystem();
+	ApplyAutoAttackDelay();
 }
 
 void ANonPlayerCharacter::InitAbilitySystem()

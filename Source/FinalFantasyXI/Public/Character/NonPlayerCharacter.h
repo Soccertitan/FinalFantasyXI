@@ -6,6 +6,8 @@
 #include "AbilitySystemInterface.h"
 #include "CrysCharacter.h"
 #include "GameplayTagAssetInterface.h"
+#include "AbilitySystem/Ability/Combat/CombatInterface.h"
+#include "AbilitySystem/Ability/Combat/CombatTypes.h"
 #include "NonPlayerCharacter.generated.h"
 
 class UAutoAttackManagerComponent;
@@ -24,7 +26,7 @@ class UCrysHitPointsAttributeSet;
 
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGameplayTagAssetInterface,
-	public IAbilitySystemInterface
+	public IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 	
@@ -71,6 +73,11 @@ public:
 	// Implement IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	// End Implements IAbilitySystemInterface
+	
+	// ICombatInterface
+	virtual FWeaponData GetPrimaryWeaponData_Implementation() const override;
+	virtual FWeaponData GetSecondaryWeaponData_Implementation() const override;
+	virtual AActor* GetTargetActor_Implementation() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -92,9 +99,15 @@ protected:
 	/** Ends the resurrection sequence for the character. (enables collision, enables movement) */
 	UFUNCTION()
 	virtual void OnResurrectionFinished(AActor* OwningActor);
-	
+
+	/** Applies the AutoAttackDelay based on the current level of the character. */
+	void ApplyAutoAttackDelay();
+
 private:
 	/** Abilities, attributes, and gameplay effects to grant. */
-	UPROPERTY(EditDefaultsOnly, Category = "Character|Ability")
+	UPROPERTY(EditAnywhere, Category = "Character|Ability")
 	TArray<TObjectPtr<UAbilitySet>> AbilitySets;
+	
+	UPROPERTY(EditAnywhere, Category = "Character|Combat")
+	FWeaponData PrimaryWeaponData;
 };
