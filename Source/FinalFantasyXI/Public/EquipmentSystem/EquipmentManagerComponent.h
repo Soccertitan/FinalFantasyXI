@@ -11,14 +11,16 @@
 #include "EquipmentManagerComponent.generated.h"
 
 
+struct FOnAttributeChangeData;
 struct FItemInstance;
 class UItemDefinition;
 class UHeroManagerComponent;
 class UInventoryManagerComponent;
 
 DECLARE_MULTICAST_DELEGATE(FEquipmentManagerComponentGenericSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipmentChangedSignature, UEquipmentManagerComponent*, EquipmentManagerComponent, const FEquippedItem&, Item);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentChangedSignature, const FEquippedItem&, Item);
 
+/** Equip/Unequips items and sets the base AutoAttackDelay for equipped weapons. */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FINALFANTASYXI_API UEquipmentManagerComponent : public UActorComponent, public ICrimAbilitySystemInterface
 {
@@ -73,7 +75,11 @@ public:
 
 	/** Checks to see if the item can be equipped. Will check the equip requirements of the item. */
 	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
-	bool CanEquipItem(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, UPARAM(ref) const TInstancedStruct<FItem>& Item) const;
+	virtual bool CanEquipItem(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, UPARAM(ref) const TInstancedStruct<FItem>& Item) const;
+	
+	/** Returns true if an item is blocking a slot from having an item equipped. */
+	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
+	bool IsEquipSlotBlocked(UPARAM(meta=(Categories="EquipSlot")) const FGameplayTag EquipSlot) const;
 
 	/**
 	 * Retrieves the item from the InventoryManager and checks to see if the item can be equipped.
@@ -90,20 +96,30 @@ public:
 	bool HasAuthority() const;
 
 protected:
-	/** Called wh en an item is equipped. */
+	/** Called when an item is equipped. */
 	virtual void OnItemEquipped(const FEquippedItem& EquippedItem);
 	/** Called when an item is unequipped. */
 	virtual void OnItemUnequipped(const FEquippedItem& EquippedItem);
 
 	/** Unequips items if the hero can no longer meet the equip requirements. */
 	UFUNCTION()
-	virtual void OnHeroClassChanged(UHeroManagerComponent* InHeroManagerComponent);
+	virtual void OnHeroJobChanged();
 
 	/** When an Item is removed from the InventoryManager, unequips the item if it is currently equipped. */
 	UFUNCTION()
-	virtual void OnItemRemoved(UInventoryManagerComponent* InInventoryManagerComponent, const FItemInstance& ItemInstance);
+	virtual void OnItemRemovedFromInventory(const FItemInstance& ItemInstance);
+	UFUNCTION()
+	virtual void OnItemChangedInInventory(const FItemInstance& ItemInstance);
 
 private:
+	/** If empty, will check all ItemContainers in the Inventory Manager.*/
+	UPROPERTY(EditAnywhere, meta = (Categories = "ItemContainer", NoElementDuplicate))
+	TArray<FGameplayTag> AllowedItemContainers;
+	
+	/** WeaponData to use when no weapon is equipped in the MainHand. Scales with character level. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FWeaponData BareHandedWeaponData;
+
 	UPROPERTY(Replicated)
 	FEquippedItemsContainer EquippedItemsContainer;
 
@@ -123,19 +139,34 @@ private:
 	UPROPERTY()
 	bool bCachedIsNetSimulated = false;
 	void CacheIsNetSimulated();
+	
+	void OnHeroMainJobLevelChanged(const FOnAttributeChangeData& Data);
 
 	friend struct FEquippedItemsContainer;
 	friend struct FEquippedItem;
+	
+	/** Checks the allowed ItemContainers for the ItemInstance. */
+	FItemInstance* FindItemByGuid(const FGuid& ItemGuid) const;
 
 	void Internal_EquipItem(const FGameplayTag& EquipSlot, FItemInstance* ItemInstance);
-	/** Unequips the item at the EquipSlot. Does not find and update the ItemInstance. */
-	void Internal_UnequipItem(const FGameplayTag& EquipSlot);
 	/** Unequips the item and updates the ItemInstance. */
 	void Internal_UnequipItem(FItemInstance* ItemInstance);
+	void Internal_UnequipItem(const FGameplayTag& EquipSlot);
 
-	FEquipGrantedHandle ApplyItemStats(const TInstancedStruct<FItem>& Item);
-	void ClearItemStats(FEquipGrantedHandle& EquipGrantedHandle);
+	FActiveGameplayEffectHandle ApplyEquipmentGameplayEffect(const TInstancedStruct<FItem>& Item);
 	void ClearItemInstanceEquipmentManager(FItemInstance* ItemInstance);
+	
+	/** If the EquippedItem is a weapon, sets up the EquippedItem with the weapon data from the ItemInstance. */
+	void TryInitWeapon(const FItemInstance* ItemInstance, FEquippedItem& EquippedItem);
+	
+	/** If the unequipped item is a weapon, refresh the AutoAttack and if applicable remove the DualWield tag. */
+	void TryDeinitWeapon(const FEquippedItem& EquippedItem);
+	
+	/** 
+	 * Gets the currently equipped weapons WeaponData and adds the delays together. If nothing is equipped in MainHand,
+	 * uses the BareHandedWeaponData.
+	 */
+	void ApplyBaseAttackDelay();
 
 	UFUNCTION(Server, Reliable)
 	void Server_TryEquipItem(FGameplayTag EquipSlot, FGuid ItemGuid);

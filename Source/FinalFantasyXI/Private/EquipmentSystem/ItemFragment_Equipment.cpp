@@ -17,7 +17,7 @@ bool FItemShard_Equipment::IsMatching(const TInstancedStruct<FItemShard>& Shard)
 	{
 		if (const FItemShard_Equipment* Ptr = Shard.GetPtr<FItemShard_Equipment>())
 		{
-			if (Ptr->GrindLevel == GrindLevel)
+			if (Ptr->Level == Level)
 			{
 				return true;
 			}
@@ -38,24 +38,24 @@ void FItemFragment_Equipment::SetDefaultValues(TInstancedStruct<FItem>& Item) co
 	AddItemShard(Item, NewShard);
 }
 
-bool FItemShard_Weapon::IsMatching(const TInstancedStruct<FItemShard>& Shard) const
+void FItemFragment_Equipment::PostSerialize(const FArchive& Ar)
 {
-	if (FItemShard_Equipment::IsMatching(Shard))
+	// Ensure that the EquipSlot tags are not also in the BlockedEquipSlots.
+	BlockEquipSlots.RemoveTags(EquipSlots);
+
+	if (!StaticStruct()->IsChildOf(FItemFragment_Weapon::StaticStruct()))
 	{
-		if (const FItemShard_Weapon* Ptr = Shard.GetPtr<FItemShard_Weapon>())
-		{
-			if (Ptr->ElementPower == ElementPower &&
-				Ptr->ElementDamageType == ElementDamageType)
-			{
-				return true;
-			}
-		}
+		EquipSlots.RemoveTag(FCrysGameplayTags::Get().EquipSlot_MainHand);
 	}
-	return false;
 }
 
-FItemFragment_Weapon::FItemFragment_Weapon()
+void FItemFragment_Weapon::PostSerialize(const FArchive& Ar)
 {
-	AllowedEquipSlots.AddTag(FCrysGameplayTags::Get().EquipSlot_MainHand);
-	EquipmentShard.InitializeAsScriptStruct(FItemShard_Weapon::StaticStruct());
+	Super::PostSerialize(Ar);
+
+	// Ensure weapons can only have the MainHand and SubHand tag.
+	FGameplayTagContainer Filter;
+	Filter.AddTag(FCrysGameplayTags::Get().EquipSlot_SubHand);
+	EquipSlots = EquipSlots.Filter(Filter);
+	EquipSlots.AddTag(FCrysGameplayTags::Get().EquipSlot_MainHand);
 }

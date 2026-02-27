@@ -15,11 +15,11 @@ struct FOnAttributeChangeData;
 class UHeroRaceDefinition;
 class UHeroJobDefinition;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeroManagerGenericSignature, UHeroManagerComponent*, HeroManagerComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHeroManagerBoolSignature, UHeroManagerComponent*, HeroManagerComponent, bool, bSuccess);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHeroManagerCharacterLevelUpdatedGenericSignature, UHeroManagerComponent*, HeroManagerComponent, int32, OldLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHeroJobProgressSignature, UHeroManagerComponent*, HeroManagerComponent, const FHeroJobProgressItem&, HeroJobProgressItem);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FHeroJobLevelUpSignature, UHeroManagerComponent*, HeroManagerComponent, const FHeroJobProgressItem&, HeroJobProgressItem, int32, OldLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHeroManagerGenericSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeroManagerBoolSignature, bool, bSuccess);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeroManagerCharacterLevelUpdatedGenericSignature, int32, OldLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeroJobProgressSignature, const FHeroJobProgressItem&, HeroJobProgressItem);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHeroJobLevelUpSignature, const FHeroJobProgressItem&, HeroJobProgressItem, int32, OldLevel);
 
 /**
  * Applies abilities and attributes for the ASC based on the Race and Job combination.
@@ -63,12 +63,6 @@ public:
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnHeroRaceChanged")
 	FHeroManagerGenericSignature OnHeroRaceChangedDelegate;
 
-	/** [Server] When the TrySetHeroJobs have begun on the server. */
-	UPROPERTY(BlueprintAssignable, DisplayName = "OnBeginTrySetHeroJob")
-	FHeroManagerGenericSignature OnBeginTrySetHeroJobDelegate;
-	/** [Server] When the TrySetHeroJobs function has exited. */
-	UPROPERTY(BlueprintAssignable, DisplayName = "OnEndTrySetHeroJob")
-	FHeroManagerGenericSignature OnEndTrySetHeroJobDelegate;
 	/** [Owning Client] When setting the HeroJobs succeeds or fails. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnTrySetHeroJob")
 	FHeroManagerBoolSignature OnTrySetHeroJobDelegate;

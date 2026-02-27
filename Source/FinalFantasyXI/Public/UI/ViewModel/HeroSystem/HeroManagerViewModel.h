@@ -83,14 +83,14 @@ private:
 	void CreateHeroJobViewModel(UHeroJobDefinition* HeroJob);
 
 	UFUNCTION()
-	void OnHeroMainJobChanged(UHeroManagerComponent* InHeroManagerComponent);
+	void OnHeroMainJobChanged();
 	
 	UFUNCTION()
-	void OnHeroSubJobChanged(UHeroManagerComponent* InHeroManagerComponent);
+	void OnHeroSubJobChanged();
 
 	UFUNCTION()
-	void OnTrySetHeroJob(UHeroManagerComponent* InHeroManagerComponent, bool bSuccess);
+	void OnTrySetHeroJob(bool bSuccess);
 
 	UFUNCTION()
-	void OnHeroJobProgressUpdated(UHeroManagerComponent* InHeroManagerComponent, const FHeroJobProgressItem& HeroJobProgressItem);
+	void OnHeroJobProgressUpdated(const FHeroJobProgressItem& HeroJobProgressItem);
 };

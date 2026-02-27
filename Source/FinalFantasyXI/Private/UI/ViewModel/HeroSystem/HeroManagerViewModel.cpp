@@ -145,9 +145,9 @@ void UHeroManagerViewModel::CreateHeroJobViewModel(UHeroJobDefinition* HeroJob)
 	}
 }
 
-void UHeroManagerViewModel::OnHeroMainJobChanged(UHeroManagerComponent* InHeroManagerComponent)
+void UHeroManagerViewModel::OnHeroMainJobChanged()
 {
-	UHeroJobDefinition* MainJob = InHeroManagerComponent->GetHeroMainJob();
+	UHeroJobDefinition* MainJob = HeroManagerComponent->GetHeroMainJob();
 
 	bool bFoundExistingHeroJob = false;
 	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
@@ -169,9 +169,9 @@ void UHeroManagerViewModel::OnHeroMainJobChanged(UHeroManagerComponent* InHeroMa
 	}
 }
 
-void UHeroManagerViewModel::OnHeroSubJobChanged(UHeroManagerComponent* InHeroManagerComponent)
+void UHeroManagerViewModel::OnHeroSubJobChanged()
 {
-	UHeroJobDefinition* SubJob = InHeroManagerComponent->GetHeroSubJob();
+	UHeroJobDefinition* SubJob = HeroManagerComponent->GetHeroSubJob();
 
 	bool bFoundExistingHeroJob = false;
 	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
@@ -193,13 +193,12 @@ void UHeroManagerViewModel::OnHeroSubJobChanged(UHeroManagerComponent* InHeroMan
 	}
 }
 
-void UHeroManagerViewModel::OnTrySetHeroJob(UHeroManagerComponent* InHeroManagerComponent, bool bSuccess)
+void UHeroManagerViewModel::OnTrySetHeroJob(bool bSuccess)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(bSwitchingHeroJobs, false);
 }
 
-void UHeroManagerViewModel::OnHeroJobProgressUpdated(UHeroManagerComponent* InHeroManagerComponent,
-	const FHeroJobProgressItem& HeroJobProgressItem)
+void UHeroManagerViewModel::OnHeroJobProgressUpdated(const FHeroJobProgressItem& HeroJobProgressItem)
 {
 	for (const TObjectPtr<UHeroJobViewModel>& HeroJobViewModel : HeroJobViewModels)
 	{

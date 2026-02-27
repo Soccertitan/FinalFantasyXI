@@ -30,4 +30,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (NoResetToDefault, AssetBundles = "Animation"))
 	TSoftObjectPtr<UAnimMontage> ExitCombat;
+	
+	//TODO InCombatStyle
 };

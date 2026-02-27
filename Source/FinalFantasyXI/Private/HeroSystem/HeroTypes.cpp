@@ -11,12 +11,12 @@
 
 void FHeroJobProgressItem::PostReplicatedAdd(const FHeroJobProgressContainer& InSerializer)
 {
-	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(InSerializer.Owner, *this);
+	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(*this);
 }
 
 void FHeroJobProgressItem::PostReplicatedChange(const FHeroJobProgressContainer& InSerializer)
 {
-	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(InSerializer.Owner, *this);
+	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(*this);
 }
 
 bool FHeroJobProgressItem::IsValid() const
@@ -37,7 +37,7 @@ void FHeroJobProgressContainer::AddHeroJobProgressItem(const FHeroJobProgressIte
 	Item.Experience = NewItem.Experience;
 
 	MarkItemDirty(Item);
-	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(Owner, NewItem);
+	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(NewItem);
 }
 
 void FHeroJobProgressContainer::AddExperience(const FGameplayTag& JobTag,
@@ -82,7 +82,7 @@ void FHeroJobProgressContainer::Internal_AddExperience(FHeroJobProgressItem& Ite
 	const bool bLeveledUp = UHeroSystemBlueprintFunctionLibrary::AddExperience(
 		Item.Level, Item.Experience, Experience, ExperienceRequirement, Owner->GetHeroProgress().MaxJobLevel);
 	MarkItemDirty(Item);
-	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(Owner, Item);
+	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(Item);
 	if (bLeveledUp)
 	{
 		Owner->Internal_OnJobLevelUp(Item, OldLevel);
@@ -90,8 +90,8 @@ void FHeroJobProgressContainer::Internal_AddExperience(FHeroJobProgressItem& Ite
 }
 
 FHeroPrimaryAttributesCalculated::FHeroPrimaryAttributesCalculated(const UHeroRaceDefinition* RaceDefinition,
-                                                                   int32 Level, const UHeroJobDefinition* MainJob, int32 MainJobRank, const UHeroJobDefinition* SubJob,
-                                                                   int32 SubJobRank, float SubJobEfficiency)
+    int32 Level, const UHeroJobDefinition* MainJob, int32 MainJobRank, const UHeroJobDefinition* SubJob,
+	int32 SubJobRank, float SubJobEfficiency)
 {
 	const bool bRaceValid = RaceDefinition ? true : false;
 	const bool bMainJobValid = MainJob ? true : false;

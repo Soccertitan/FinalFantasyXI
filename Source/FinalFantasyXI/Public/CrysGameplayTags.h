@@ -29,9 +29,10 @@ public:
 	FGameplayTag HeroJob;
 	FGameplayTag Input;
 	FGameplayTag Item;
+	FGameplayTag MagicSkill;
 	FGameplayTag Message;
 	FGameplayTag MessageVerb;
-	FGameplayTag WeaponType;
+	FGameplayTag WeaponSkill;
 	
 	/**
 	 * Ability Gameplay Events
@@ -76,6 +77,7 @@ public:
 	/**
 	 * Gameplay State Tags
 	 */
+	FGameplayTag Gameplay_State_DualWieldAllowed;
 	FGameplayTag Gameplay_State_DualWielding;
 	FGameplayTag Gameplay_State_MovementRooted;
 	FGameplayTag Gameplay_State_PauseAutoAttack;

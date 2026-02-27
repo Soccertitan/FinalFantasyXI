@@ -18,7 +18,7 @@ void FEquippedItem::PreReplicatedRemove(const FEquippedItemsContainer& Container
 
 bool FEquippedItem::IsValid() const
 {
-	return EquipSlot.IsValid();
+	return EquipSlot.IsValid() && ItemGuid.IsValid();
 }
 
 FEquippedItem* FEquippedItemsContainer::FindItemByEquipSlot(const FGameplayTag& EquipSlot) const

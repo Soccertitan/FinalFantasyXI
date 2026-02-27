@@ -10,11 +10,12 @@
 #include "CrysLogChannels.h"
 #include "InventoryBlueprintFunctionLibrary.h"
 #include "InventoryManagerComponent.h"
+#include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
+#include "AbilitySystem/AttributeSet/HeroJobAttributeSet.h"
 #include "EquipmentSystem/ItemFragment_Equipment.h"
 #include "HeroSystem/HeroManagerComponent.h"
 #include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
-#include "Settings/FinalFantasyXIGameData.h"
 #include "System/CrysAssetManager.h"
 
 
@@ -58,20 +59,26 @@ void UEquipmentManagerComponent::InitializeWithAbilitySystem_Implementation(UCri
 
 	if (IsReadyToManageEquipment())
 	{
-		// HeroManagerComponent->OnHeroClassChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnHeroClassChanged);
-		InventoryManagerComponent->OnItemRemovedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnItemRemoved);
+		HeroManagerComponent->OnHeroMainJobChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnHeroJobChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHeroJobAttributeSet::GetMainJobLevelAttribute()).AddUObject(this, &UEquipmentManagerComponent::OnHeroMainJobLevelChanged);
+		float MainJobLevel = AbilitySystemComponent->GetNumericAttribute(UHeroJobAttributeSet::GetMainJobLevelAttribute());
+		FOnAttributeChangeData Data;
+		Data.NewValue = MainJobLevel;
+		OnHeroMainJobLevelChanged(Data);
+		InventoryManagerComponent->OnItemRemovedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnItemRemovedFromInventory);
+		InventoryManagerComponent->OnItemChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnItemChangedInInventory);
 		OnEquipmentManagerInitializedDelegate.Broadcast();
 	}
 }
 
 void UEquipmentManagerComponent::TryEquipItem(FGameplayTag EquipSlot, FGuid ItemGuid)
 {
-	if (!IsReadyToManageEquipment() || !EquipSlot.IsValid() || !ItemGuid.IsValid())
+	if (!EquipSlot.IsValid() || !ItemGuid.IsValid() || !InventoryManagerComponent)
 	{
 		return;
 	}
 
-	FItemInstance* ItemInstance = InventoryManagerComponent->FindItemByGuid(ItemGuid);
+	FItemInstance* ItemInstance = FindItemByGuid(ItemGuid);
 	if (!ItemInstance)
 	{
 		return;
@@ -90,7 +97,7 @@ void UEquipmentManagerComponent::TryEquipItem(FGameplayTag EquipSlot, FGuid Item
 
 	TryUnequipItem(EquipSlot);
 
-	// Unequips the item from the EquipmentManagerComponent if it's already equipped.
+	// Unequips the item from an EquipmentManagerComponent if it's already equipped there.
 	FItemShard_Equipment* ItemShard_Equipment = ItemInstance->GetItemPtr()->GetMutablePtr<FItem>()->FindMutableShardByType<FItemShard_Equipment>();
 	if (UEquipmentManagerComponent* EquippedTo = ItemShard_Equipment->GetEquipmentManagerComponent())
 	{
@@ -118,10 +125,6 @@ void UEquipmentManagerComponent::TryUnequipItem(FGameplayTag EquipSlot)
 		if (FItemInstance* ItemInstance = InventoryManagerComponent->FindItemByGuid(EquippedItem->ItemGuid))
 		{
 			Internal_UnequipItem(ItemInstance);
-		}
-		else
-		{
-			Internal_UnequipItem(EquipSlot);
 		}
 	}
 }
@@ -163,7 +166,7 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 		return false;
 	}
 
-	if (!Item.IsValid() || !EquipSlot.MatchesTag(FCrysGameplayTags::Get().EquipSlot))
+	if (!Item.IsValid())
 	{
 		return false;
 	}
@@ -186,36 +189,46 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 		return false;
 	}
 
-	if (!ItemFragment_Equipment->AllowedEquipSlots.HasTag(EquipSlot))
+	if (!ItemFragment_Equipment->EquipSlots.HasTagExact(EquipSlot))
 	{
 		return false;
 	}
 
-	if (ItemFragment_Equipment->EquipRequirement.AttributeTag.IsValid())
+	if (IsEquipSlotBlocked(EquipSlot))
 	{
-		FAttributeRelationshipItem AttributeItem = UCrysBlueprintFunctionLibrary::FindAttributeRelationshipItem(ItemFragment_Equipment->EquipRequirement.AttributeTag, true);
-		if (AttributeItem.IsValid())
+		return false;
+	}
+
+	// Don't allow a weapon to be equipped in the SubHand slot unless the character is allowed to Dual Wield and has
+	// a weapon equipped in the MainHand slot that does not block SubHand.
+	const FItemFragment_Weapon* ItemFragment_Weapon = ItemDefinition->FindFragmentByType<FItemFragment_Weapon>();
+	if (ItemFragment_Weapon && EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand)
+	{
+		const bool bBlockDualWield = AbilitySystemComponent->GetGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWieldAllowed) == 0;
+		if (bBlockDualWield)
 		{
-			if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeItem.GameplayAttribute))
-			{
-				return false;
-			}
-			bool bSuccess = false;
-			const float AttributeValue = UCrimAbilitySystemBlueprintFunctionLibrary::EvaluateAttributeValueWithTagsUpToChannel(
-				AbilitySystemComponent, AttributeItem.GameplayAttribute, EGameplayModEvaluationChannel::Channel0,
-				FGameplayTagContainer(),FGameplayTagContainer(), bSuccess);
-			if (bSuccess == false || AttributeValue < ItemFragment_Equipment->EquipRequirement.BaseValue)
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 
-	if (ItemFragment_Equipment->EquipRequirement.HeroClassRestrictions.IsValid())
+	if (ItemFragment_Equipment->LevelRequirement > 0)
+	{
+		bool bSuccess = false;
+		const float AttributeValue = UCrimAbilitySystemBlueprintFunctionLibrary::EvaluateAttributeValueWithTagsUpToChannel(
+			AbilitySystemComponent, UHeroJobAttributeSet::GetMainJobLevelAttribute(), 
+			EGameplayModEvaluationChannel::Channel0 /** Base value. */,
+			FGameplayTagContainer(),FGameplayTagContainer(), bSuccess);
+		if (bSuccess == false || AttributeValue < ItemFragment_Equipment->LevelRequirement)
+		{
+			return false;
+		}
+	}
+
+	if (ItemFragment_Equipment->HeroJobs.IsValid())
 	{
 		if (UHeroJobDefinition* HeroClass = HeroManagerComponent->GetHeroMainJob())
 		{
-			if (!ItemFragment_Equipment->EquipRequirement.HeroClassRestrictions.HasTag(HeroClass->JobTag))
+			if (!ItemFragment_Equipment->HeroJobs.HasTag(HeroClass->JobTag))
 			{
 				return false;
 			}
@@ -229,11 +242,30 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 	return true;
 }
 
+bool UEquipmentManagerComponent::IsEquipSlotBlocked(const FGameplayTag EquipSlot) const
+{
+	if (!EquipSlot.IsValid())
+	{
+		return true;
+	}
+
+	// Don't allow equipping the item if the slot is blocked by a currently equipped item.
+	for (const FEquippedItem& EquippedItem : EquippedItemsContainer.Items)
+	{
+		if (EquippedItem.BlockedEquipSlots.HasTag(EquipSlot))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool UEquipmentManagerComponent::CanEquipItemByItemGuid(FGameplayTag EquipSlot, FGuid ItemGuid) const
 {
 	if (IsReadyToManageEquipment())
 	{
-		if (FItemInstance* ItemInstance = InventoryManagerComponent->FindItemByGuid(ItemGuid))
+		if (FItemInstance* ItemInstance = FindItemByGuid(ItemGuid))
 		{
 			return CanEquipItem(EquipSlot, ItemInstance->GetItem());
 		}
@@ -266,52 +298,68 @@ bool UEquipmentManagerComponent::HasAuthority() const
 
 void UEquipmentManagerComponent::OnItemEquipped(const FEquippedItem& EquippedItem)
 {
-	OnItemEquippedDelegate.Broadcast(this, EquippedItem);
+	OnItemEquippedDelegate.Broadcast(EquippedItem);
 }
 
 void UEquipmentManagerComponent::OnItemUnequipped(const FEquippedItem& EquippedItem)
 {
-	OnItemUnequippedDelegate.Broadcast(this, EquippedItem);
+	OnItemUnequippedDelegate.Broadcast(EquippedItem);
 }
 
-void UEquipmentManagerComponent::OnHeroClassChanged(UHeroManagerComponent* InHeroManagerComponent)
+void UEquipmentManagerComponent::OnHeroJobChanged()
 {
 	if (HasAuthority() && IsReadyToManageEquipment())
 	{
 		for (int32 idx = EquippedItemsContainer.Items.Num() - 1; idx >= 0; idx--)
 		{
 			FEquippedItem& EquippedItem = EquippedItemsContainer.Items[idx];
-			if (FItemInstance* ItemInstance = InventoryManagerComponent->FindItemByGuid(EquippedItem.ItemGuid))
+			if (FItemInstance* ItemInstance = FindItemByGuid(EquippedItem.ItemGuid))
 			{
 				if (!CanEquipItem(EquippedItem.EquipSlot, ItemInstance->GetItem()))
 				{
 					Internal_UnequipItem(ItemInstance);
 				}
 			}
-			else
-			{
-				Internal_UnequipItem(EquippedItem.EquipSlot);
-			}
 		}
 	}
 }
 
-void UEquipmentManagerComponent::OnItemRemoved(UInventoryManagerComponent* InInventoryManagerComponent, const FItemInstance& ItemInstance)
+void UEquipmentManagerComponent::OnItemRemovedFromInventory(const FItemInstance& ItemInstance)
 {
 	if (HasAuthority() && IsReadyToManageEquipment())
 	{
-		if (FEquippedItem* EquippedItem = EquippedItemsContainer.FindItemByItemGuid(ItemInstance.GetGuid()))
+		if (const FEquippedItem* EquippedItem = EquippedItemsContainer.FindItemByItemGuid(ItemInstance.GetGuid()))
 		{
 			if (UItemContainer* MovedToItemContainer = ItemInstance.GetMovedToItemContainer())
 			{
 				if (FItemInstance* EquippedItemInstance = MovedToItemContainer->FindItemByGuid(ItemInstance.GetGuid()))
 				{
 					Internal_UnequipItem(EquippedItemInstance);
-					return;
 				}
 			}
+			else
+			{
+				Internal_UnequipItem(EquippedItem->EquipSlot);
+			}
+		}
+	}
+}
+
+void UEquipmentManagerComponent::OnItemChangedInInventory(const FItemInstance& ItemInstance)
+{
+	if (HasAuthority())
+	{
+		if (FEquippedItem* EquippedItem = EquippedItemsContainer.FindItemByItemGuid(ItemInstance.GetGuid()))
+		{
+			int32 ItemLevel = ItemInstance.GetItem().Get().FindShardByType<FItemShard_Equipment>()->Level;
+			AbilitySystemComponent->SetActiveGameplayEffectLevel(EquippedItem->GameplayEffectHandle, ItemLevel);
 			
-			Internal_UnequipItem(EquippedItem->EquipSlot);
+			if (EquippedItem->WeaponData.IsValid())
+			{
+				EquippedItem->WeaponData.Level = ItemLevel;
+				EquippedItemsContainer.MarkItemDirty(*EquippedItem);
+				ApplyBaseAttackDelay();
+			}
 		}
 	}
 }
@@ -321,32 +369,56 @@ void UEquipmentManagerComponent::CacheIsNetSimulated()
 	bCachedIsNetSimulated = IsNetSimulating();
 }
 
+void UEquipmentManagerComponent::OnHeroMainJobLevelChanged(const FOnAttributeChangeData& Data)
+{
+	BareHandedWeaponData.Level = Data.NewValue;
+	
+	if (HasAuthority())
+	{
+		const FEquippedItem* MainHand = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_MainHand);
+		if (!MainHand || !MainHand->WeaponData.IsValid())
+		{
+			ApplyBaseAttackDelay();
+		}
+	}
+}
+
+FItemInstance* UEquipmentManagerComponent::FindItemByGuid(const FGuid& ItemGuid) const
+{
+	if (AllowedItemContainers.IsEmpty())
+	{
+		return InventoryManagerComponent->FindItemByGuid(ItemGuid);
+	}
+	
+	for (const FGameplayTag& ItemContainerTag : AllowedItemContainers)
+	{
+		if (UItemContainer* ItemContainer = InventoryManagerComponent->FindItemContainerByTag(ItemContainerTag))
+		{
+			if (FItemInstance* ItemInstance = ItemContainer->FindItemByGuid(ItemGuid))
+			{
+				return ItemInstance;
+			}
+		}
+	}
+	
+	return nullptr;
+}
+
 void UEquipmentManagerComponent::Internal_EquipItem(const FGameplayTag& EquipSlot, FItemInstance* ItemInstance)
 {
 	FEquippedItem& NewEquippedItem = EquippedItemsContainer.Items.AddDefaulted_GetRef();
 	NewEquippedItem.ItemGuid = ItemInstance->GetGuid();
 	NewEquippedItem.EquipSlot = EquipSlot;
-	NewEquippedItem.EquipGrantedHandle = ApplyItemStats(ItemInstance->GetItem());
+	NewEquippedItem.GameplayEffectHandle = ApplyEquipmentGameplayEffect(ItemInstance->GetItem());
+	NewEquippedItem.BlockedEquipSlots = UInventoryBlueprintFunctionLibrary::GetItemDefinition(ItemInstance->GetItem())->FindFragmentByType<FItemFragment_Equipment>()->BlockEquipSlots;
+	
+	TryInitWeapon(ItemInstance, NewEquippedItem);
+	
 	ItemInstance->GetItemPtr()->GetMutablePtr<FItem>()->FindMutableShardByType<FItemShard_Equipment>()->EquipmentManagerComponent = this;
-	ItemInstance->GetItemContainer()->MarkItemDirty(*ItemInstance);
+	ItemInstance->MarkItemDirty();
+	
 	OnItemEquipped(NewEquippedItem);
 	EquippedItemsContainer.MarkItemDirty(NewEquippedItem);
-}
-
-void UEquipmentManagerComponent::Internal_UnequipItem(const FGameplayTag& EquipSlot)
-{
-	for (int32 idx = EquippedItemsContainer.Items.Num() - 1; idx >= 0; idx--)
-	{
-		FEquippedItem TempItem = EquippedItemsContainer.Items[idx];
-		if (TempItem.EquipSlot == EquipSlot)
-		{
-			ClearItemStats(TempItem.EquipGrantedHandle);
-			
-			EquippedItemsContainer.Items.RemoveAt(idx);
-			OnItemUnequipped(TempItem);
-			EquippedItemsContainer.MarkArrayDirty();
-		}
-	}
 }
 
 void UEquipmentManagerComponent::Internal_UnequipItem(FItemInstance* ItemInstance)
@@ -356,66 +428,60 @@ void UEquipmentManagerComponent::Internal_UnequipItem(FItemInstance* ItemInstanc
 		FEquippedItem TempItem = EquippedItemsContainer.Items[idx];
 		if (TempItem.ItemGuid == ItemInstance->GetGuid())
 		{
-			ClearItemStats(TempItem.EquipGrantedHandle);
-			ClearItemInstanceEquipmentManager(ItemInstance);
-			
 			EquippedItemsContainer.Items.RemoveAt(idx);
+			
+			AbilitySystemComponent->RemoveActiveGameplayEffect(TempItem.GameplayEffectHandle);
+			ClearItemInstanceEquipmentManager(ItemInstance);
+			TryDeinitWeapon(TempItem);
 			OnItemUnequipped(TempItem);
 			EquippedItemsContainer.MarkArrayDirty();
+			return;
 		}
 	}
 }
 
-FEquipGrantedHandle UEquipmentManagerComponent::ApplyItemStats(const TInstancedStruct<FItem>& Item)
+void UEquipmentManagerComponent::Internal_UnequipItem(const FGameplayTag& EquipSlot)
+{
+	for (int32 idx = EquippedItemsContainer.Items.Num() - 1; idx >= 0; idx--)
+	{
+		FEquippedItem TempItem = EquippedItemsContainer.Items[idx];
+		if (TempItem.EquipSlot == EquipSlot)
+		{
+			EquippedItemsContainer.Items.RemoveAt(idx);
+			
+			AbilitySystemComponent->RemoveActiveGameplayEffect(TempItem.GameplayEffectHandle);
+			TryDeinitWeapon(TempItem);
+			OnItemUnequipped(TempItem);
+			EquippedItemsContainer.MarkArrayDirty();
+			return;
+		}
+	}
+}
+
+FActiveGameplayEffectHandle UEquipmentManagerComponent::ApplyEquipmentGameplayEffect(const TInstancedStruct<FItem>& Item)
 {
 	const FItemShard_Equipment* ItemShard_Equipment = Item.Get().FindShardByType<FItemShard_Equipment>();
-	const FItemFragment_Equipment* ItemFragment_Equipment = UInventoryBlueprintFunctionLibrary::GetItemDefinition(Item)->
-		FindFragmentByType<FItemFragment_Equipment>();
+	const UItemDefinition* ItemDefinition = UInventoryBlueprintFunctionLibrary::GetItemDefinition(Item);
+	const FItemFragment_Equipment* ItemFragment_Equipment = ItemDefinition->FindFragmentByType<FItemFragment_Equipment>();
 
-	FEquipGrantedHandle Result;
+	FActiveGameplayEffectHandle Result;
 
-	const TSubclassOf<UGameplayEffect> EquipmentGE;// = UCrysAssetManager::GetSubclass(GetDefault<UFinalFantasyXIGameData>()->EquipmentGameplayEffect);
-	if (!EquipmentGE)
+	const TSubclassOf<UGameplayEffect> EquipmentGE = ItemFragment_Equipment->GameplayEffect;
+	if (!ItemFragment_Equipment->GameplayEffect)
 	{
-		UE_LOG(LogCrys, Error, TEXT("EquipmentGameplayEffect is invalid in [%s]"), *GetDefault<UFinalFantasyXIGameData>()->GetName());
+		UE_LOG(LogCrys, Warning, TEXT("GameplayEffect is invalid in [%s]"), *GetNameSafe(ItemDefinition));
 		return Result;
 	}
 
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-	FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(EquipmentGE, 0.f, ContextHandle);
+	FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(EquipmentGE, ItemShard_Equipment->Level, ContextHandle);
 
 	if (Spec.IsValid())
 	{
-		for (const FEquipmentAttribute& Map : ItemFragment_Equipment->AttributeValues)
-		{
-			Spec.Data.Get()->SetSetByCallerMagnitude(Map.AttributeTag,
-				FMath::Floor(Map.ScalableFloat.GetValueAtLevel(ItemShard_Equipment->GrindLevel)));
-		}
-
-		Spec.Data.Get()->AppendDynamicAssetTags(ItemFragment_Equipment->DynamicTags);
-
-		Result.GameplayEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+		Result = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 	}
 
-	if (!ItemFragment_Equipment->AbilitySet.IsNull())
-	{
-		if (!ItemFragment_Equipment->AbilitySet.Get())
-		{
-			UAssetManager::Get().GetStreamableManager().RequestAsyncLoad(
-				ItemFragment_Equipment->AbilitySet.ToSoftObjectPath())->WaitUntilComplete();
-		}
-		if (const UAbilitySet* AbilitySet = ItemFragment_Equipment->AbilitySet.Get())
-		{
-			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &Result.AbilitySet_GrantedHandles);
-		}
-	}
 	return Result;
-}
-
-void UEquipmentManagerComponent::ClearItemStats(FEquipGrantedHandle& EquipGrantedHandle)
-{
-	AbilitySystemComponent->RemoveActiveGameplayEffect(EquipGrantedHandle.GameplayEffectHandle);
-	EquipGrantedHandle.AbilitySet_GrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
 }
 
 void UEquipmentManagerComponent::ClearItemInstanceEquipmentManager(FItemInstance* ItemInstance)
@@ -424,8 +490,75 @@ void UEquipmentManagerComponent::ClearItemInstanceEquipmentManager(FItemInstance
 	if (ItemShard->GetEquipmentManagerComponent() == this)
 	{
 		ItemShard->EquipmentManagerComponent = nullptr;
-		ItemInstance->GetItemContainer()->MarkItemDirty(*ItemInstance);
+		ItemInstance->MarkItemDirty();
 	}
+}
+
+void UEquipmentManagerComponent::TryInitWeapon(const FItemInstance* ItemInstance, FEquippedItem& EquippedItem)
+{
+	const FItemFragment_Weapon* WeaponFragment = UInventoryBlueprintFunctionLibrary::GetItemDefinition(ItemInstance->GetItem())->FindFragmentByType<FItemFragment_Weapon>();
+	if ((EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_MainHand || EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand) && WeaponFragment)
+	{
+		EquippedItem.WeaponData.Level = ItemInstance->GetItem().Get<FItem>().FindShardByType<FItemShard_Equipment>()->Level;
+		EquippedItem.WeaponData.Delay = WeaponFragment->Delay;
+		EquippedItem.WeaponData.Damage = WeaponFragment->Damage;
+		EquippedItem.WeaponData.Range = WeaponFragment->Range;
+		EquippedItem.WeaponData.WeaponSkill = WeaponFragment->WeaponSkill;
+		if (!WeaponFragment->AutoAttackGameplayEffectClass.Get())
+		{
+			EquippedItem.WeaponData.AutoAttackGameplayEffectClass = UCrysAssetManager::Get().GetSubclass(WeaponFragment->AutoAttackGameplayEffectClass, false);
+		}
+		else
+		{
+			EquippedItem.WeaponData.AutoAttackGameplayEffectClass = WeaponFragment->AutoAttackGameplayEffectClass.Get();
+		}
+		
+		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand)
+		{
+			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWielding, 1, EGameplayTagReplicationState::TagOnly);
+		}
+		
+		ApplyBaseAttackDelay();
+	}
+}
+
+void UEquipmentManagerComponent::TryDeinitWeapon(const FEquippedItem& EquippedItem)
+{
+	if (EquippedItem.WeaponData.IsValid())
+	{
+		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand)
+		{
+			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWielding, 0, EGameplayTagReplicationState::TagOnly);
+		}
+		ApplyBaseAttackDelay();
+	}
+}
+
+void UEquipmentManagerComponent::ApplyBaseAttackDelay()
+{
+	float AutoAttackDelay = BareHandedWeaponData.Delay.GetValueAtLevel(BareHandedWeaponData.Level);
+	if (const FEquippedItem* MainHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_MainHand))
+	{
+		AutoAttackDelay = MainHandWeapon->WeaponData.Delay.GetValueAtLevel(MainHandWeapon->WeaponData.Level);
+	}
+	
+	if (const FEquippedItem* SubHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_SubHand))
+	{
+		AutoAttackDelay += SubHandWeapon->WeaponData.Delay.GetValueAtLevel(SubHandWeapon->WeaponData.Level);
+	}
+
+	UGameplayEffect* AttackDelayGE = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("BaseAutoAttackDelay")));
+	AttackDelayGE->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+	int32 Idx = AttackDelayGE->Modifiers.Num();
+	AttackDelayGE->Modifiers.SetNum(Idx + 1);
+
+	FGameplayModifierInfo& InfoMaxHP = AttackDelayGE->Modifiers[Idx];
+	InfoMaxHP.ModifierMagnitude = FScalableFloat(AutoAttackDelay);
+	InfoMaxHP.ModifierOp = EGameplayModOp::Override;
+	InfoMaxHP.Attribute = UAttackerAttributeSet::GetAutoAttackDelayAttribute();
+
+	AbilitySystemComponent->ApplyGameplayEffectToSelf(AttackDelayGE, 1.0f, AbilitySystemComponent->MakeEffectContext());
 }
 
 void UEquipmentManagerComponent::Server_TryEquipItem_Implementation(FGameplayTag EquipSlot, FGuid ItemGuid)

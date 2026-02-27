@@ -19,9 +19,10 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.HeroJob = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("HeroJob"), FString("Root Gameplay Tag for jobs the hero can be."));
 	GameplayTags.Input = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input"), FString("Root Gameplay Tag for input related events."));
 	GameplayTags.Item = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Item"), FString("Root Gameplay Tag for items."));
+	GameplayTags.MagicSkill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("MagicSkill"), FString("Root GameplayTag for magic skill types."));
 	GameplayTags.Message = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message"), FString("Root Gameplay Tag to send messages via Gameplay Message Subsystem."));
 	GameplayTags.MessageVerb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("MessageVerb"), FString("Root Gameplay Tag associated with messages via Gameplay Message Subsystem."));
-	GameplayTags.WeaponType = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponType"), FString("Root GameplayTag for weapon types."));
+	GameplayTags.WeaponSkill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponSkill"), FString("Root GameplayTag for weapon skill types."));
 
 	/**
 	 * Ability Gameplay Events
@@ -59,13 +60,14 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	/**
 	 * EquipSlot Tags
 	 */
-	GameplayTags.EquipSlot_MainHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.MainHand"), FString("Main Hand slot (typically weapons)."));
-	GameplayTags.EquipSlot_SubHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.SubHand"), FString("Sub Hand slot (typically off hand weapons, shields, ammo)."));
+	GameplayTags.EquipSlot_MainHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.MainHand"), FString("Main Hand slot that can only hold a weapon)."));
+	GameplayTags.EquipSlot_SubHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.SubHand"), FString("Sub Hand slot for dual wielding, shield, ammo, or some other sub hand equipment"));
 	GameplayTags.EquipSlot_Special = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Special"), FString("Special slot for unique tools (instruments, throwing, etc.)."));
 	
 	/**
 	 * Gameplay State Tags
 	 */
+	GameplayTags.Gameplay_State_DualWieldAllowed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.DualWieldAllowed"), FString("The character may equip two one-handed weapons."));
 	GameplayTags.Gameplay_State_DualWielding = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.DualWielding"), FString("The character has two one-handed weapons equipped."));
 	GameplayTags.Gameplay_State_MovementRooted = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.MovementRooted"), FString("The character has the movement rooted status."));
 	GameplayTags.Gameplay_State_PauseAutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Gameplay.State.PauseAutoAttack"), FString("A character with this tag will have the auto attack timer paused. And restarted when removed."));

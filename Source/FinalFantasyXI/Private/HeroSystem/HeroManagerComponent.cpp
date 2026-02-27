@@ -98,7 +98,7 @@ void UHeroManagerComponent::AddOrSetHeroJobProgressItem(const FHeroJobProgressIt
 		ProgressItem->Level = InHeroJobProgressItem.Level;
 		ProgressItem->Experience = InHeroJobProgressItem.Experience;
 		HeroJobProgressContainer.MarkItemDirty(*ProgressItem);
-		OnHeroJobProgressUpdatedDelegate.Broadcast(this, *ProgressItem);
+		OnHeroJobProgressUpdatedDelegate.Broadcast(*ProgressItem);
 	}
 	else
 	{
@@ -171,11 +171,9 @@ void UHeroManagerComponent::TrySetHeroJobs(UHeroJobDefinition* InMainJob, UHeroJ
 		Server_TrySetHeroJobs(InMainJob, InSubJob);
 		return;
 	}
-	
-	OnBeginTrySetHeroJobDelegate.Broadcast(this);
+
 	if (!InMainJob || InMainJob == InSubJob)
 	{
-		OnEndTrySetHeroJobDelegate.Broadcast(this);
 		Client_OnTrySetHeroJobs(false);
 		return;
 	}
@@ -187,33 +185,34 @@ void UHeroManagerComponent::TrySetHeroJobs(UHeroJobDefinition* InMainJob, UHeroJ
 	if (!MainJobProgress.IsValid())
 	{
 		bSkipApplyingBaseStats = false;
-		OnEndTrySetHeroJobDelegate.Broadcast(this);
 		Client_OnTrySetHeroJobs(false);
 		return;
 	}
 	
+	bool bMainJobChanged = false;
 	if (MainJob != InMainJob)
 	{
 		MainJob = InMainJob;
-		OnHeroMainJobChangedDelegate.Broadcast(this);
-		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, MainJob, this);
+		bMainJobChanged = true;
 	}
 	
+	bool bSubJobChanged = false;
 	FHeroJobProgressItem SubJobProgress = InSubJob ? FindHeroJobProgressItem(InSubJob->JobTag) : FHeroJobProgressItem();
-	if (HeroProgress.bSubJobUnlocked)
+	if (HeroProgress.bSubJobUnlocked && SubJobProgress.IsValid())
 	{
 		if (SubJob != InSubJob)
 		{
 			SubJob = InSubJob;
-			OnHeroSubJobChangedDelegate.Broadcast(this);
-			MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, SubJob, this);
+			bSubJobChanged = true;
 		}
 	}
 	else
 	{
-		SubJob = nullptr;
-		OnHeroSubJobChangedDelegate.Broadcast(this);
-		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, SubJob, this);
+		if (SubJob)
+		{
+			SubJob = nullptr;
+			bSubJobChanged = true;
+		}
 	}
 	
 	if (AbilitySystemComponent)
@@ -229,8 +228,18 @@ void UHeroManagerComponent::TrySetHeroJobs(UHeroJobDefinition* InMainJob, UHeroJ
 	{
 		ApplyBaseAttributes();
 	}
-	
-	OnEndTrySetHeroJobDelegate.Broadcast(this);
+
+	if (bMainJobChanged)
+	{
+		OnHeroMainJobChangedDelegate.Broadcast();
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, MainJob, this);
+	}
+	if (bSubJobChanged)
+	{
+		OnHeroSubJobChangedDelegate.Broadcast();
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, SubJob, this);
+	}
+
 	Client_OnTrySetHeroJobs(true);
 }
 
@@ -274,7 +283,7 @@ void UHeroManagerComponent::SetHeroProgress(const FHeroProgress& InHeroProgress)
 		OverrideAttribute(HeroProgress.Level, UPrimaryAttributeSet::GetLevelAttribute());
 	}
 
-	OnHeroProgressUpdatedDelegate.Broadcast(this);
+	OnHeroProgressUpdatedDelegate.Broadcast();
 	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, HeroProgress, this);
 }
 
@@ -312,7 +321,7 @@ bool UHeroManagerComponent::AddExperience(const int32 Experience)
 		OverrideAttribute(HeroProgress.Level, UPrimaryAttributeSet::GetLevelAttribute());
 	}
 
-	OnHeroProgressUpdatedDelegate.Broadcast(this);
+	OnHeroProgressUpdatedDelegate.Broadcast();
 	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, HeroProgress, this);
 	return bLevelUpdated;
 }
@@ -351,22 +360,22 @@ void UHeroManagerComponent::OnRegister()
 
 void UHeroManagerComponent::OnRep_HeroRace()
 {
-	OnHeroRaceChangedDelegate.Broadcast(this);
+	OnHeroRaceChangedDelegate.Broadcast();
 }
 
 void UHeroManagerComponent::OnRep_HeroProgress()
 {
-	OnHeroProgressUpdatedDelegate.Broadcast(this);
+	OnHeroProgressUpdatedDelegate.Broadcast();
 }
 
 void UHeroManagerComponent::OnRep_MainJob()
 {
-	OnHeroMainJobChangedDelegate.Broadcast(this);
+	OnHeroMainJobChangedDelegate.Broadcast();
 }
 
 void UHeroManagerComponent::OnRep_SubJob()
 {
-	OnHeroSubJobChangedDelegate.Broadcast(this);
+	OnHeroSubJobChangedDelegate.Broadcast();
 }
 
 void UHeroManagerComponent::CacheIsNetSimulated()
@@ -544,12 +553,12 @@ void UHeroManagerComponent::OnAttributeChanged(const FOnAttributeChangeData& Dat
 
 void UHeroManagerComponent::Multi_OnHeroLevelUp_Implementation(const int32 OldLevel)
 {
-	OnHeroLevelUpDelegate.Broadcast(this, OldLevel);
+	OnHeroLevelUpDelegate.Broadcast(OldLevel);
 }
 
 void UHeroManagerComponent::Multi_OnHeroLevelDown_Implementation(const int32 OldLevel)
 {
-	OnHeroLevelDownDelegate.Broadcast(this, OldLevel);
+	OnHeroLevelDownDelegate.Broadcast(OldLevel);
 }
 
 void UHeroManagerComponent::Internal_OnJobLevelUp(const FHeroJobProgressItem& HeroJobProgressItem, const int32 OldLevel)
@@ -569,7 +578,7 @@ void UHeroManagerComponent::Internal_OnJobLevelUp(const FHeroJobProgressItem& He
 
 void UHeroManagerComponent::Multi_OnJobLevelUp_Implementation(const FHeroJobProgressItem& HeroJobProgressItem, const int32 OldLevel)
 {
-	OnHeroJobLevelUpDelegate.Broadcast(this, HeroJobProgressItem, OldLevel);
+	OnHeroJobLevelUpDelegate.Broadcast(HeroJobProgressItem, OldLevel);
 }
 
 void UHeroManagerComponent::Server_TrySetHeroJobs_Implementation(const UHeroJobDefinition* InMainJob, const UHeroJobDefinition* InSubJob)
@@ -579,5 +588,5 @@ void UHeroManagerComponent::Server_TrySetHeroJobs_Implementation(const UHeroJobD
 
 void UHeroManagerComponent::Client_OnTrySetHeroJobs_Implementation(bool bSuccess)
 {
-	OnTrySetHeroJobDelegate.Broadcast(this, bSuccess);
+	OnTrySetHeroJobDelegate.Broadcast(bSuccess);
 }

@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "EquipmentTypes.h"
 #include "AbilitySystem/ItemFragment_Ability.h"
+#include "AbilitySystem/Ability/Combat/CombatTypes.h"
 
 #include "ItemFragment_Equipment.generated.h"
 
+class UCombatAnimationData;
 class UEquipmentManagerComponent;
 class UAbilitySet;
 
@@ -20,9 +22,9 @@ struct FItemShard_Equipment : public FItemShard
 {
 	GENERATED_BODY()
 
-	/** The current grind level of the equipment. */
+	/** The current level of the equipment. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	int32 GrindLevel = 0;
+	int32 Level = 0;
 
 	/** The EquipmentManagerComponent the item is currently equipped to. */
 	UEquipmentManagerComponent* GetEquipmentManagerComponent() const;
@@ -47,55 +49,49 @@ struct FItemFragment_Equipment : public FItemFragment
 	FItemFragment_Equipment();
 
 	/** The max level an equipment can be upgraded to. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
-	int32 MaxLevel = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (ClampMin = 0))
+	int32 MaxLevel = 0;
 
-	/** Attributes to grant that scale with the item's grind level. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (NoResetToDefault, TitleProperty = "AttributeTag"))
-	TArray<FEquipmentAttribute> AttributeValues;
-
-	/** The static abilities to grant on equip. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (AssetBundles = "Ability"))
-	TSoftObjectPtr<UAbilitySet> AbilitySet;
-
-	/** Dynamic tags to grant to the ASC. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
-	FGameplayTagContainer DynamicTags;
-
-	/** The equip requirement */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
-	FEquipRequirement EquipRequirement;
-
-	/** Which slots can this be equipped in. */
+	/** The slots the equipment is allowed to be equipped in. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "EquipSlot"))
-	FGameplayTagContainer AllowedEquipSlots;
+	FGameplayTagContainer EquipSlots;
+
+	/** Unequips items in these slots when equipped and prevents other items from being equipped in the slots. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "EquipSlot"))
+	FGameplayTagContainer BlockEquipSlots;
+
+	/** A level Requirement of 0 means no requirement. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (ClampMin = 0))
+	int32 LevelRequirement = 0;
+
+	/** The character must be one of the specified jobs to equip the item. If empty, all jobs are allowed. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "HeroJob"))
+	FGameplayTagContainer HeroJobs;
+
+	/** Gameplay effect to grant applied at the item level. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+	TSubclassOf<UGameplayEffect> GameplayEffect;
 
 	/** The Equipment ItemShard type to create. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment", NoClear)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment", AdvancedDisplay)
 	TInstancedStruct<FItemShard_Equipment> EquipmentShard;
 
 	virtual void SetDefaultValues(TInstancedStruct<FItem>& Item) const override;
+	
+	virtual void PostSerialize(const FArchive& Ar);
 };
-
-//-----------------------------------------------------------------------------------------------------------
-// ItemShard and ItemFragment for Weapons
-//-----------------------------------------------------------------------------------------------------------
-
-USTRUCT(BlueprintType)
-struct FItemShard_Weapon : public FItemShard_Equipment
+template<>
+struct TStructOpsTypeTraits<FItemFragment_Equipment> : public TStructOpsTypeTraitsBase2<FItemFragment_Equipment>
 {
-	GENERATED_BODY()
-
-	/** The current element of the weapon. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta = (Categories = "DamageType.Element"))
-	FGameplayTag ElementDamageType = FGameplayTag::EmptyTag;
-
-	/** The current power of the elemental damage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	int32 ElementPower = 0;
-
-	virtual bool IsMatching(const TInstancedStruct<FItemShard>& Shard) const override;
+	enum
+	{
+		WithPostSerialize = true,
+   };
 };
+
+//-----------------------------------------------------------------------------------------------------------
+// ItemFragment for Weapons
+//-----------------------------------------------------------------------------------------------------------
 
 /** An equipment ItemFragment that is a weapon. */
 USTRUCT(BlueprintType)
@@ -103,32 +99,47 @@ struct FItemFragment_Weapon : public FItemFragment_Equipment
 {
 	GENERATED_BODY()
 
-	FItemFragment_Weapon();
+	FItemFragment_Weapon(){}
 
-	/** Determines the abilities that can be used and animations. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon", meta = (Categories = "WeaponType"))
-	FGameplayTag WeaponType;
+	/** The skill the weapon uses to determine effectiveness. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon", meta = (Categories = "WeaponSkill"))
+	FGameplayTag WeaponSkill;
 
-	/** The physical representation of the weapon. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon", meta = (AssetBundles = "World"))
-	TSoftObjectPtr<UStaticMesh> WeaponStaticMesh;
+	/** Base damage of the weapon. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
+	FScalableFloat Damage;
+
+	/** The type of damage this weapon applies. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon", meta = (Categories = "DamageType"))
+	FGameplayTag DamageType;
+
+	/** The effect class to use during an auto attack. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
+	TSoftClassPtr<UGameplayEffect> AutoAttackGameplayEffectClass;
+
+	/** The auto attack delay in seconds between attacks. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
+	FScalableFloat Delay;
+
+	/** The auto attack range. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
+	FScalableFloat Range;
+
+	/** Maps to CombatAnimationData on the character. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
+	FGameplayTag PrimaryCombatAnimationDataTag;
+
+	/** Maps to CombatAnimationData on the character for dual wielding. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
+	FGameplayTag SecondaryCombatAnimationDataTag;
+	
+	virtual void PostSerialize(const FArchive& Ar) override;
 };
-
-//-----------------------------------------------------------------------------------------------------------
-// ItemFragment for Armor/Units
-//-----------------------------------------------------------------------------------------------------------
-
-/** An equipment ItemFragment that is an armor. */
-USTRUCT(BlueprintType)
-struct FItemFragment_Armor : public FItemFragment_Equipment
+template<>
+struct TStructOpsTypeTraits<FItemFragment_Weapon> : public TStructOpsTypeTraitsBase2<FItemFragment_Weapon>
 {
-	GENERATED_BODY()
-
-	/** The physical representation of the armor. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Armor", meta = (AssetBundles = "World"))
-	TSoftObjectPtr<UStaticMesh> LeftArmorStaticMesh;
-
-	/** The physical representation of the armor. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Armor", meta = (AssetBundles = "World"))
-	TSoftObjectPtr<UStaticMesh> RightArmorStaticMesh;
+	enum
+	{
+		WithPostSerialize = true,
+   };
 };
