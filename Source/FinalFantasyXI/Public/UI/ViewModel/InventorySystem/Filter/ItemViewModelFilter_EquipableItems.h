@@ -20,6 +20,6 @@ public:
 	FGameplayTag EquipSlot;
 
 protected:
-	virtual bool ShouldBeginFilter(const UObject* Context, TArray<UItemInstanceViewModel*>& ItemViewModels) const override;
-	virtual bool DoesItemInstanceViewModelPassFilter(const UObject* Context, UItemInstanceViewModel* ItemViewModel) const override;
+	virtual bool ShouldBeginFilter(const UObject* Context, TArray<UItemInstanceViewModel*>& ViewModels) const override;
+	virtual bool DoesItemInstanceViewModelPassFilter(const UObject* Context, UItemInstanceViewModel* ViewModel) const override;
 };
