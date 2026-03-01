@@ -1,21 +1,21 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "HeroSystem/HeroJobDefinition.h"
+#include "JobSystem/JobDefinition.h"
 
 #include "UObject/AssetRegistryTagsContext.h"
 
-UHeroJobDefinition::UHeroJobDefinition()
+UJobDefinition::UJobDefinition()
 {
-	AssetType = TEXT("HeroJobDefinition");
+	AssetType = TEXT("JobDefinition");
 }
 
-FPrimaryAssetId UHeroJobDefinition::GetPrimaryAssetId() const
+FPrimaryAssetId UJobDefinition::GetPrimaryAssetId() const
 {
 	return FPrimaryAssetId(AssetType, GetFName());
 }
 
-void UHeroJobDefinition::GetAssetRegistryTags(FAssetRegistryTagsContext Context) const
+void UJobDefinition::GetAssetRegistryTags(FAssetRegistryTagsContext Context) const
 {
 	Super::GetAssetRegistryTags(Context);
 

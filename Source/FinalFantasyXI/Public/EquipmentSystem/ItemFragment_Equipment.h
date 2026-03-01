@@ -65,8 +65,8 @@ struct FItemFragment_Equipment : public FItemFragment
 	int32 LevelRequirement = 0;
 
 	/** The character must be one of the specified jobs to equip the item. If empty, all jobs are allowed. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "HeroJob"))
-	FGameplayTagContainer HeroJobs;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "Job"))
+	FGameplayTagContainer Jobs;
 
 	/** Gameplay effect to grant applied at the item level. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")

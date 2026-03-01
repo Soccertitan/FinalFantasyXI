@@ -5,15 +5,15 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "InventorySystemInterface.h"
-#include "../CrysPlayerState.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
 #include "AbilitySystem/Ability/Combat/CombatInterface.h"
 #include "EquipmentSystem/EquipmentSystemInterface.h"
-#include "HeroSystem/HeroSystemInterface.h"
+#include "JobSystem/JobSystemInterface.h"
+#include "Player/CrysPlayerState.h"
 #include "HeroPlayerState.generated.h"
 
 class UAutoAttackManagerComponent;
-class UHeroJobAttributeSet;
+class UJobAttributeSet;
 class UDefenderAttributeSet;
 class UAbilityAttributeSet;
 class UCombatSkillAttributeSet;
@@ -21,7 +21,7 @@ class UMovementAttributeSet;
 class UAttackerAttributeSet;
 class UManaPointsAttributeSet;
 class UEquipmentManagerComponent;
-class UHeroManagerComponent;
+class UJobManagerComponent;
 class UCrysManaPointsSet;
 class UPrimaryAttributeSet;
 class UResourcePointsAttributeSet;
@@ -33,7 +33,7 @@ class UCrysHitPointsAttributeSet;
  */
 UCLASS()
 class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbilitySystemInterface,
-	public IInventorySystemInterface, public IHeroSystemInterface, public IEquipmentSystemInterface, public IAbilityTargetInterface,
+	public IInventorySystemInterface, public IJobSystemInterface, public IEquipmentSystemInterface, public IAbilityTargetInterface,
 	public ICombatInterface 
 {
 	GENERATED_BODY()
@@ -59,12 +59,12 @@ class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbi
 	UPROPERTY()
 	TObjectPtr<UAbilityAttributeSet> AbilityAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UHeroJobAttributeSet> JobAttributeSet;
+	TObjectPtr<UJobAttributeSet> JobAttributeSet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "InventoryManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryManagerComponent> InventoryManagerComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HeroManager", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UHeroManagerComponent> HeroManagerComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JobManager", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UJobManagerComponent> JobManagerComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EquipmentManager", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
 	
@@ -80,8 +80,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	/** IInventorySystemInterface */
 	virtual UInventoryManagerComponent* GetInventoryManagerComponent_Implementation() const override;
-	/** IHeroSystemInterface */
-	virtual UHeroManagerComponent* GetHeroManagerComponent_Implementation() const override;
+	/** IJobSystemInterface */
+	virtual UJobManagerComponent* GetJobManagerComponent_Implementation() const override;
 	/** IEquipmentSystemInterface */
 	virtual UEquipmentManagerComponent* GetEquipmentManagerComponent_Implementation() const override;
 	/** Implements AbilityTargetInterface */

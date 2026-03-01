@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "HeroSystemInterface.generated.h"
+#include "JobSystemInterface.generated.h"
 
-class UHeroManagerComponent;
+class UJobManagerComponent;
 
 // This class does not need to be modified.
 UINTERFACE()
-class UHeroSystemInterface : public UInterface
+class UJobSystemInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -18,7 +18,7 @@ class UHeroSystemInterface : public UInterface
 /**
  * 
  */
-class FINALFANTASYXI_API IHeroSystemInterface
+class FINALFANTASYXI_API IJobSystemInterface
 {
 	GENERATED_BODY()
 
@@ -26,5 +26,5 @@ class FINALFANTASYXI_API IHeroSystemInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
-	UHeroManagerComponent* GetHeroManagerComponent() const;
+	UJobManagerComponent* GetJobManagerComponent() const;
 };

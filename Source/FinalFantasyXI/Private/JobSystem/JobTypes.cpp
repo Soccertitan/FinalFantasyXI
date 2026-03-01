@@ -1,25 +1,25 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "HeroSystem/HeroTypes.h"
+#include "JobSystem/JobTypes.h"
 
 #include "CrysGameplayTags.h"
-#include "HeroSystem/HeroManagerComponent.h"
-#include "HeroSystem/HeroRaceDefinition.h"
-#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
+#include "JobSystem/JobManagerComponent.h"
+#include "JobSystem/RaceDefinition.h"
+#include "JobSystem/JobSystemBlueprintFunctionLibrary.h"
 
 
-void FHeroJobProgressItem::PostReplicatedAdd(const FHeroJobProgressContainer& InSerializer)
+void FJobProgressItem::PostReplicatedAdd(const FJobProgressContainer& InSerializer)
 {
-	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(*this);
+	InSerializer.Owner->OnJobProgressUpdatedDelegate.Broadcast(*this);
 }
 
-void FHeroJobProgressItem::PostReplicatedChange(const FHeroJobProgressContainer& InSerializer)
+void FJobProgressItem::PostReplicatedChange(const FJobProgressContainer& InSerializer)
 {
-	InSerializer.Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(*this);
+	InSerializer.Owner->OnJobProgressUpdatedDelegate.Broadcast(*this);
 }
 
-bool FHeroJobProgressItem::IsValid() const
+bool FJobProgressItem::IsValid() const
 {
 	if (!JobTag.IsValid())
 	{
@@ -29,21 +29,21 @@ bool FHeroJobProgressItem::IsValid() const
 	return true;
 }
 
-void FHeroJobProgressContainer::AddHeroJobProgressItem(const FHeroJobProgressItem& NewItem)
+void FJobProgressContainer::AddJobProgressItem(const FJobProgressItem& NewItem)
 {
-	FHeroJobProgressItem& Item = Items.AddDefaulted_GetRef();
+	FJobProgressItem& Item = Items.AddDefaulted_GetRef();
 	Item.JobTag = NewItem.JobTag;
 	Item.Level = NewItem.Level;
 	Item.Experience = NewItem.Experience;
 
 	MarkItemDirty(Item);
-	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(NewItem);
+	Owner->OnJobProgressUpdatedDelegate.Broadcast(NewItem);
 }
 
-void FHeroJobProgressContainer::AddExperience(const FGameplayTag& JobTag,
+void FJobProgressContainer::AddExperience(const FGameplayTag& JobTag,
 	const FScalableFloat& ExperienceRequirement, int32 Experience)
 {
-	for (FHeroJobProgressItem& Item : Items)
+	for (FJobProgressItem& Item : Items)
 	{
 		if (Item.JobTag.MatchesTagExact(JobTag))
 		{
@@ -52,45 +52,45 @@ void FHeroJobProgressContainer::AddExperience(const FGameplayTag& JobTag,
 		}
 	}
 
-	FHeroJobProgressItem& NewItem = Items.AddDefaulted_GetRef();
+	FJobProgressItem& NewItem = Items.AddDefaulted_GetRef();
 	NewItem.JobTag = JobTag;
 	NewItem.Level = 1;
 	Internal_AddExperience(NewItem, ExperienceRequirement, Experience);
 }
 
-FHeroJobProgressItem FHeroJobProgressContainer::GetHeroJobProgressItem(const FGameplayTag& JobTag) const
+FJobProgressItem FJobProgressContainer::GetJobProgressItem(const FGameplayTag& JobTag) const
 {
-	for (const FHeroJobProgressItem& Item : Items)
+	for (const FJobProgressItem& Item : Items)
 	{
 		if (Item.JobTag.MatchesTagExact(JobTag))
 		{
 			return Item;
 		}
 	}
-	return FHeroJobProgressItem();
+	return FJobProgressItem();
 }
 
-void FHeroJobProgressContainer::Reset()
+void FJobProgressContainer::Reset()
 {
 	Items.Empty();
 	MarkArrayDirty();
 }
 
-void FHeroJobProgressContainer::Internal_AddExperience(FHeroJobProgressItem& Item, const FScalableFloat& ExperienceRequirement, int32 Experience)
+void FJobProgressContainer::Internal_AddExperience(FJobProgressItem& Item, const FScalableFloat& ExperienceRequirement, int32 Experience)
 {
 	const int32 OldLevel = Item.Level;
-	const bool bLeveledUp = UHeroSystemBlueprintFunctionLibrary::AddExperience(
-		Item.Level, Item.Experience, Experience, ExperienceRequirement, Owner->GetHeroProgress().MaxJobLevel);
+	const bool bLeveledUp = UJobSystemBlueprintFunctionLibrary::AddExperience(
+		Item.Level, Item.Experience, Experience, ExperienceRequirement, Owner->GetJobManagerData().MaxJobLevel);
 	MarkItemDirty(Item);
-	Owner->OnHeroJobProgressUpdatedDelegate.Broadcast(Item);
+	Owner->OnJobProgressUpdatedDelegate.Broadcast(Item);
 	if (bLeveledUp)
 	{
 		Owner->Internal_OnJobLevelUp(Item, OldLevel);
 	}
 }
 
-FHeroPrimaryAttributesCalculated::FHeroPrimaryAttributesCalculated(const UHeroRaceDefinition* RaceDefinition,
-    int32 Level, const UHeroJobDefinition* MainJob, int32 MainJobRank, const UHeroJobDefinition* SubJob,
+FPrimaryAttributesCalculated::FPrimaryAttributesCalculated(const URaceDefinition* RaceDefinition,
+    int32 Level, const UJobDefinition* MainJob, int32 MainJobRank, const UJobDefinition* SubJob,
 	int32 SubJobRank, float SubJobEfficiency)
 {
 	const bool bRaceValid = RaceDefinition ? true : false;
@@ -143,7 +143,7 @@ FHeroPrimaryAttributesCalculated::FHeroPrimaryAttributesCalculated(const UHeroRa
 		SubJobEfficiency);
 }
 
-int32 FHeroPrimaryAttributesCalculated::CalculateValue(int32 RaceValue, float MainJobMultiplier, float SubJobMultiplier, float SubJobEfficiency)
+int32 FPrimaryAttributesCalculated::CalculateValue(int32 RaceValue, float MainJobMultiplier, float SubJobMultiplier, float SubJobEfficiency)
 {
 	return FMath::Floor(RaceValue * (MainJobMultiplier + (SubJobMultiplier * SubJobEfficiency)));
 }

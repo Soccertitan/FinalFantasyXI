@@ -6,38 +6,39 @@
 #include "GameplayTagContainer.h"
 #include "ScalableFloat.h"
 #include "Net/Serialization/FastArraySerializer.h"
-#include "HeroTypes.generated.h"
+#include "JobTypes.generated.h"
 
-class UHeroJobDefinition;
-class UHeroRaceDefinition;
+class UJobDefinition;
+class URaceDefinition;
 
+/** Used in the JobManagerComponent to store data related to Jobs and overall character level. */
 USTRUCT(BlueprintType)
-struct FHeroProgress
+struct FJobManagerData
 {
 	GENERATED_BODY()
 	
-	/** The overall level of the Hero. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 1))
+	/** The overall level of the character. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
 	int32 Level = 1;
 
-	/** The total cumulative amount of experience achieved by the Hero. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0))
+	/** The total cumulative amount of experience achieved by the character. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0))
 	int32 Experience = 0;
 	
 	/** The MaxLevel a character can obtain from leveling. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 1))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
 	int32 MaxLevel = 50;
 	
 	/** The max level any job can achieve. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 1))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
 	int32 MaxJobLevel = 20;
 	
-	/** Allows the player to equip a SubJob. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	/** Allows the character to equip a SubJob. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bSubJobUnlocked = false;
 	
 	/** A multiplier applied that affects the SubJobs attribute multiplier. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0))
 	float SubJobEfficiency = 0.2f;
 };
 
@@ -45,12 +46,12 @@ struct FHeroProgress
  * Contains data about the progress of an item.
  */
 USTRUCT(BlueprintType)
-struct FHeroJobProgressItem : public FFastArraySerializerItem
+struct FJobProgressItem : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
 	// The identifier for this progress item.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "HeroJob"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Job"))
 	FGameplayTag JobTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 1))
@@ -60,8 +61,8 @@ struct FHeroJobProgressItem : public FFastArraySerializerItem
 	int32 Experience = 0;
 
 	//~ Begin of FFastArraySerializerItem
-	void PostReplicatedAdd(const struct FHeroJobProgressContainer& InSerializer);
-	void PostReplicatedChange(const FHeroJobProgressContainer& InSerializer);
+	void PostReplicatedAdd(const struct FJobProgressContainer& InSerializer);
+	void PostReplicatedChange(const FJobProgressContainer& InSerializer);
 	//~ End of FFastArraySerializerItem
 
 	bool IsValid() const;
@@ -77,55 +78,55 @@ struct FHeroJobProgressItem : public FFastArraySerializerItem
 
 private:
 
-	friend struct FHeroJobProgressContainer;
-	friend class UHeroManagerComponent;
+	friend struct FJobProgressContainer;
+	friend class UJobManagerComponent;
 };
 
 USTRUCT(BlueprintType)
-struct FHeroJobProgressContainer : public FFastArraySerializer
+struct FJobProgressContainer : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
-	FHeroJobProgressContainer() {}
+	FJobProgressContainer() {}
 
-	void AddHeroJobProgressItem(const FHeroJobProgressItem& NewItem);
+	void AddJobProgressItem(const FJobProgressItem& NewItem);
 
 	/**
-	 * Adds the specified amount of experience to the item with the HeroClassTag. If it goes beyond the required exp for
+	 * Adds the specified amount of experience to the item with the JobTag. If it goes beyond the required exp for
 	 * the level, it will add levels to the item.
 	 */
 	void AddExperience(const FGameplayTag& JobTag, const FScalableFloat& ExperienceRequirement, int32 Experience);
 
-	FHeroJobProgressItem GetHeroJobProgressItem(const FGameplayTag& JobTag) const;
+	FJobProgressItem GetJobProgressItem(const FGameplayTag& JobTag) const;
 
 	/** Removes all progress in the Container. */
 	void Reset();
 
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{
-		return FastArrayDeltaSerialize<FHeroJobProgressItem, FHeroJobProgressContainer>(Items, DeltaParms, *this);
+		return FastArrayDeltaSerialize<FJobProgressItem, FJobProgressContainer>(Items, DeltaParms, *this);
 	}
 	
 private:
 	UPROPERTY(EditAnywhere)
-	TArray<FHeroJobProgressItem> Items;
+	TArray<FJobProgressItem> Items;
 
 	UPROPERTY(NotReplicated)
-	TObjectPtr<UHeroManagerComponent> Owner;
+	TObjectPtr<UJobManagerComponent> Owner;
 
-	friend struct FHeroJobProgressItem;
-	friend UHeroManagerComponent;
+	friend struct FJobProgressItem;
+	friend UJobManagerComponent;
 	
-	void Internal_AddExperience(FHeroJobProgressItem& Item, const FScalableFloat& ExperienceRequirement, int32 Experience);
+	void Internal_AddExperience(FJobProgressItem& Item, const FScalableFloat& ExperienceRequirement, int32 Experience);
 };
 template<>
-struct TStructOpsTypeTraits<FHeroJobProgressContainer> : TStructOpsTypeTraitsBase2<FHeroJobProgressContainer>
+struct TStructOpsTypeTraits<FJobProgressContainer> : TStructOpsTypeTraitsBase2<FJobProgressContainer>
 {
 	enum { WithNetDeltaSerializer = true };
 };
 
 USTRUCT()
-struct FHeroPrimaryAttributes
+struct FPrimaryAttributes
 {
 	GENERATED_BODY()
 
@@ -157,16 +158,16 @@ struct FHeroPrimaryAttributes
 	FScalableFloat Charisma;
 };
 
-/** Struct used by the HeroManager to quickly get the BaseAttribute values with a given HeroClass, Race, and Level.*/
+/** Struct used by the JobManager to quickly get the BaseAttribute values with the given Job, Race, and Level.*/
 USTRUCT(BlueprintType)
-struct FHeroPrimaryAttributesCalculated
+struct FPrimaryAttributesCalculated
 {
 	GENERATED_BODY()
 
-	FHeroPrimaryAttributesCalculated() {}
-	FHeroPrimaryAttributesCalculated(const UHeroRaceDefinition* RaceDefinition, int32 Level, 
-		const UHeroJobDefinition* MainJob, int32 MainJobRank, 
-		const UHeroJobDefinition* SubJob, int32 SubJobRank, float SubJobEfficiency);
+	FPrimaryAttributesCalculated() {}
+	FPrimaryAttributesCalculated(const URaceDefinition* RaceDefinition, int32 Level, 
+		const UJobDefinition* MainJob, int32 MainJobRank, 
+		const UJobDefinition* SubJob, int32 SubJobRank, float SubJobEfficiency);
 	
 	int32 CalculateValue(int32 RaceValue, float MainJobMultiplier, float SubJobMultiplier, float SubJobEfficiency);
 

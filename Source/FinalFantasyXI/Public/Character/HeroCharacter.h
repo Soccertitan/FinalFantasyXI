@@ -11,7 +11,7 @@
 #include "GameplayTagAssetInterface.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
 #include "EquipmentSystem/EquipmentSystemInterface.h"
-#include "HeroSystem/HeroSystemInterface.h"
+#include "JobSystem/JobSystemInterface.h"
 #include "HeroCharacter.generated.h"
 
 class UHitPointsComponent;
@@ -25,7 +25,7 @@ class USpringArmComponent;
 
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API AHeroCharacter : public ACrysCharacter, public IInventorySystemInterface,
-	public ITargetingSystemInterface, public IInteractorInterface, public IHeroSystemInterface, public IEquipmentSystemInterface, 
+	public ITargetingSystemInterface, public IInteractorInterface, public IJobSystemInterface, public IEquipmentSystemInterface, 
 	public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IAbilityTargetInterface
 {
 	GENERATED_BODY()
@@ -78,7 +78,7 @@ public:
 	virtual UInventoryManagerComponent* GetInventoryManagerComponent_Implementation() const override;
 	virtual UTargetingSystemComponent* GetTargetingSystemComponent_Implementation() const override;
 	virtual UInteractorComponent* GetInteractorComponent_Implementation() const override;
-	virtual UHeroManagerComponent* GetHeroManagerComponent_Implementation() const override;
+	virtual UJobManagerComponent* GetJobManagerComponent_Implementation() const override;
 	virtual UEquipmentManagerComponent* GetEquipmentManagerComponent_Implementation() const override;
 
 protected:

@@ -16,12 +16,13 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.CharacterRace = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CharacterRace"), FString("Root Gameplay Tag for different the different races. Typically for increasing damage against a species of monster."));
 	GameplayTags.DamageType = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("DamageType"), FString("Root Gameplay Tag for different damage types."));
 	GameplayTags.EquipSlot = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot"), FString("Root Gameplay Tag for equipment slots."));
-	GameplayTags.HeroJob = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("HeroJob"), FString("Root Gameplay Tag for jobs the hero can be."));
 	GameplayTags.Input = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input"), FString("Root Gameplay Tag for input related events."));
 	GameplayTags.Item = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Item"), FString("Root Gameplay Tag for items."));
+	GameplayTags.Job = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Job"), FString("Root Gameplay Tag for jobs characters can be."));
 	GameplayTags.MagicSkill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("MagicSkill"), FString("Root GameplayTag for magic skill types."));
 	GameplayTags.Message = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message"), FString("Root Gameplay Tag to send messages via Gameplay Message Subsystem."));
 	GameplayTags.MessageVerb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("MessageVerb"), FString("Root Gameplay Tag associated with messages via Gameplay Message Subsystem."));
+	GameplayTags.Race = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Race"), FString("Root Gameplay Tag for races characters can be."));
 	GameplayTags.WeaponSkill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponSkill"), FString("Root GameplayTag for weapon skill types."));
 
 	/**

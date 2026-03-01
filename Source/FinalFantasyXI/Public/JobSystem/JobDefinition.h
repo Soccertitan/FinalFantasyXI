@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "HeroTypes.h"
+#include "JobTypes.h"
 #include "ScalableFloat.h"
 #include "Engine/DataAsset.h"
-#include "HeroJobDefinition.generated.h"
+#include "JobDefinition.generated.h"
 
 class UAbilitySet;
 
@@ -15,12 +15,12 @@ class UAbilitySet;
  * Information about a job that characters can be.
  */
 UCLASS(Const)
-class FINALFANTASYXI_API UHeroJobDefinition : public UPrimaryDataAsset
+class FINALFANTASYXI_API UJobDefinition : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	UHeroJobDefinition();
+	UJobDefinition();
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 	virtual void GetAssetRegistryTags(FAssetRegistryTagsContext Context) const override;
 
@@ -37,7 +37,7 @@ public:
 	FText Description;
 
 	/** The tag is used as an identifier to find this Job, Equipment requirements, and other lookups. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Job", meta = (Categories = "HeroJob"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Job", meta = (Categories = "Job"))
 	FGameplayTag JobTag;
 
 	/** The amount of experience required to rank up. */
@@ -46,7 +46,7 @@ public:
 	
 	/** Multiplier applied to the Race attributes. */
 	UPROPERTY(EditDefaultsOnly, Category = "Job")
-	FHeroPrimaryAttributes BaseAttributesMultiplier;
+	FPrimaryAttributes BaseAttributesMultiplier;
 
 	/** AbilitySet to grant when the MainJob. */
 	UPROPERTY(EditDefaultsOnly, Category = "Job", meta = (AssetBundles = "Ability"))

@@ -6,8 +6,11 @@
 #include "AbilitySystemInterface.h"
 #include "CrysCharacter.h"
 #include "GameplayTagAssetInterface.h"
+#include "InventorySystemInterface.h"
 #include "AbilitySystem/Ability/Combat/CombatInterface.h"
 #include "AbilitySystem/Ability/Combat/CombatTypes.h"
+#include "EquipmentSystem/EquipmentSystemInterface.h"
+#include "JobSystem/JobSystemInterface.h"
 #include "NonPlayerCharacter.generated.h"
 
 class UAutoAttackManagerComponent;
@@ -26,7 +29,8 @@ class UCrysHitPointsAttributeSet;
 
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGameplayTagAssetInterface,
-	public IAbilitySystemInterface, public ICombatInterface
+	public IAbilitySystemInterface, public ICombatInterface, public IInventorySystemInterface, public IJobSystemInterface, 
+	public IEquipmentSystemInterface
 {
 	GENERATED_BODY()
 	
@@ -55,6 +59,13 @@ class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGa
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitPointsComponent", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UHitPointsComponent> HitPointsComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "InventoryManager", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInventoryManagerComponent> InventoryManagerComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JobManager", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UJobManagerComponent> JobManagerComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EquipmentManager", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AutoAttackManagerComponent", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManagerComponent;
 
@@ -70,9 +81,14 @@ public:
 	virtual bool HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
 	// End Implements IGameplayTagAssetInterface
 	
-	// Implement IAbilitySystemInterface
+	/** IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	// End Implements IAbilitySystemInterface
+	/** IInventorySystemInterface */
+	virtual UInventoryManagerComponent* GetInventoryManagerComponent_Implementation() const override;
+	/** IJobSystemInterface */
+	virtual UJobManagerComponent* GetJobManagerComponent_Implementation() const override;
+	/** IEquipmentSystemInterface */
+	virtual UEquipmentManagerComponent* GetEquipmentManagerComponent_Implementation() const override;
 	
 	// ICombatInterface
 	virtual FWeaponData GetPrimaryWeaponData_Implementation() const override;
@@ -100,14 +116,8 @@ protected:
 	UFUNCTION()
 	virtual void OnResurrectionFinished(AActor* OwningActor);
 
-	/** Applies the AutoAttackDelay based on the current level of the character. */
-	void ApplyAutoAttackDelay();
-
 private:
 	/** Abilities, attributes, and gameplay effects to grant. */
 	UPROPERTY(EditAnywhere, Category = "Character|Ability")
 	TArray<TObjectPtr<UAbilitySet>> AbilitySets;
-	
-	UPROPERTY(EditAnywhere, Category = "Character|Combat")
-	FWeaponData PrimaryWeaponData;
 };

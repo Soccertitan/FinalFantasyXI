@@ -5,6 +5,8 @@
 
 #include "AbilitySet.h"
 #include "CrimAbilitySystemComponent.h"
+#include "CrysGameplayTags.h"
+#include "InventoryManagerComponent.h"
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
@@ -18,6 +20,8 @@
 #include "Attribute/ResourcePointsAttributeSet.h"
 #include "Character/CrysCharacterMovementComponent.h"
 #include "Character/CrysSkeletalMeshComponent.h"
+#include "EquipmentSystem/EquipmentManagerComponent.h"
+#include "JobSystem/JobManagerComponent.h"
 
 
 ANonPlayerCharacter::ANonPlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -40,6 +44,16 @@ ANonPlayerCharacter::ANonPlayerCharacter(const FObjectInitializer& ObjectInitial
 	
 	HitPointsComponent = CreateDefaultSubobject<UHitPointsComponent>(TEXT("HitPointsComponent"));
 	AutoAttackManagerComponent = CreateDefaultSubobject<UAutoAttackManagerComponent>(TEXT("AutoAttackManagerComponent"));
+	
+	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManagerComponent");
+	InventoryManagerComponent->SetIsReplicated(false);
+	bReplicateUsingRegisteredSubObjectList = true;
+
+	JobManagerComponent = CreateDefaultSubobject<UJobManagerComponent>("JobManagerComponent");
+	JobManagerComponent->SetIsReplicated(false);
+
+	EquipmentManagerComponent = CreateDefaultSubobject<UEquipmentManagerComponent>("EquipmentManagerComponent");
+	EquipmentManagerComponent->SetIsReplicated(false);
 
 	SetNetUpdateFrequency(100.f);
 }
@@ -79,14 +93,34 @@ UAbilitySystemComponent* ANonPlayerCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UInventoryManagerComponent* ANonPlayerCharacter::GetInventoryManagerComponent_Implementation() const
+{
+	return InventoryManagerComponent;
+}
+
+UJobManagerComponent* ANonPlayerCharacter::GetJobManagerComponent_Implementation() const
+{
+	return JobManagerComponent;
+}
+
+UEquipmentManagerComponent* ANonPlayerCharacter::GetEquipmentManagerComponent_Implementation() const
+{
+	return EquipmentManagerComponent;
+}
+
 FWeaponData ANonPlayerCharacter::GetPrimaryWeaponData_Implementation() const
 {
-	return PrimaryWeaponData;
+	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_MainHand).WeaponData;
+	if (!Result.IsValid())
+	{
+		Result = EquipmentManagerComponent->GetBareHandedWeaponData();
+	}
+	return Result;
 }
 
 FWeaponData ANonPlayerCharacter::GetSecondaryWeaponData_Implementation() const
 {
-	return PrimaryWeaponData;
+	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_SubHand).WeaponData;
 }
 
 AActor* ANonPlayerCharacter::GetTargetActor_Implementation()
@@ -105,28 +139,11 @@ void ANonPlayerCharacter::OnResurrectionFinished(AActor* OwningActor)
 	EnableMovement();
 }
 
-void ANonPlayerCharacter::ApplyAutoAttackDelay()
-{
-	UGameplayEffect* AttackDelayGE = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("BaseAutoAttackDelay")));
-	AttackDelayGE->DurationPolicy = EGameplayEffectDurationType::Instant;
-
-	int32 Idx = AttackDelayGE->Modifiers.Num();
-	AttackDelayGE->Modifiers.SetNum(Idx + 1);
-
-	FGameplayModifierInfo& InfoMaxHP = AttackDelayGE->Modifiers[Idx];
-	InfoMaxHP.ModifierMagnitude = FScalableFloat(PrimaryWeaponData.Delay.GetValueAtLevel(AbilitySystemComponent->GetNumericAttribute(UAttackerAttributeSet::GetAutoAttackDelayAttribute())));
-	InfoMaxHP.ModifierOp = EGameplayModOp::Override;
-	InfoMaxHP.Attribute = UAttackerAttributeSet::GetAutoAttackDelayAttribute();
-
-	AbilitySystemComponent->ApplyGameplayEffectToSelf(AttackDelayGE, 1.0f, AbilitySystemComponent->MakeEffectContext());
-}
-
 void ANonPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	InitAbilitySystem();
-	ApplyAutoAttackDelay();
 }
 
 void ANonPlayerCharacter::InitAbilitySystem()

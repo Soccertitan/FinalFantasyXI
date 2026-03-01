@@ -14,12 +14,12 @@
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/DefenderAttributeSet.h"
-#include "AbilitySystem/AttributeSet/HeroJobAttributeSet.h"
+#include "AbilitySystem/AttributeSet/JobAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "Attribute/ResourcePointsAttributeSet.h"
 #include "EquipmentSystem/EquipmentManagerComponent.h"
-#include "HeroSystem/HeroManagerComponent.h"
+#include "JobSystem/JobManagerComponent.h"
 
 AHeroPlayerState::AHeroPlayerState()
 {
@@ -36,7 +36,7 @@ AHeroPlayerState::AHeroPlayerState()
 	CombatSkillAttributeSet = CreateDefaultSubobject<UCombatSkillAttributeSet>("CombatSkillAttributeSet");
 	MovementAttributeSet = CreateDefaultSubobject<UMovementAttributeSet>("MovementAttributeSet");
 	AbilityAttributeSet = CreateDefaultSubobject<UAbilityAttributeSet>("AbilityAttributeSet");
-	JobAttributeSet = CreateDefaultSubobject<UHeroJobAttributeSet>("JobAttributeSet");
+	JobAttributeSet = CreateDefaultSubobject<UJobAttributeSet>("JobAttributeSet");
 
 	SetNetUpdateFrequency(100.f);
 
@@ -44,8 +44,8 @@ AHeroPlayerState::AHeroPlayerState()
 	InventoryManagerComponent->SetIsReplicated(true);
 	bReplicateUsingRegisteredSubObjectList = true;
 
-	HeroManagerComponent = CreateDefaultSubobject<UHeroManagerComponent>("HeroManagerComponent");
-	HeroManagerComponent->SetIsReplicated(true);
+	JobManagerComponent = CreateDefaultSubobject<UJobManagerComponent>("JobManagerComponent");
+	JobManagerComponent->SetIsReplicated(true);
 
 	EquipmentManagerComponent = CreateDefaultSubobject<UEquipmentManagerComponent>("EquipmentManagerComponent");
 	EquipmentManagerComponent->SetIsReplicated(true);
@@ -76,9 +76,9 @@ UInventoryManagerComponent* AHeroPlayerState::GetInventoryManagerComponent_Imple
 	return InventoryManagerComponent;
 }
 
-UHeroManagerComponent* AHeroPlayerState::GetHeroManagerComponent_Implementation() const
+UJobManagerComponent* AHeroPlayerState::GetJobManagerComponent_Implementation() const
 {
-	return HeroManagerComponent;
+	return JobManagerComponent;
 }
 
 UEquipmentManagerComponent* AHeroPlayerState::GetEquipmentManagerComponent_Implementation() const

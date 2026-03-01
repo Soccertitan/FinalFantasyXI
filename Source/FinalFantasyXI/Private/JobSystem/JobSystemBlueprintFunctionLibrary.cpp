@@ -1,27 +1,27 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
+#include "JobSystem/JobSystemBlueprintFunctionLibrary.h"
 
-#include "HeroSystem/HeroManagerComponent.h"
-#include "HeroSystem/HeroSystemInterface.h"
+#include "JobSystem/JobManagerComponent.h"
+#include "JobSystem/JobSystemInterface.h"
 
-UHeroManagerComponent* UHeroSystemBlueprintFunctionLibrary::GetHeroManagerComponent(const AActor* Actor)
+UJobManagerComponent* UJobSystemBlueprintFunctionLibrary::GetJobManagerComponent(const AActor* Actor)
 {
 	if (!IsValid(Actor))
 	{
 		return nullptr;
 	}
 
-	if (Actor->Implements<UHeroSystemInterface>())
+	if (Actor->Implements<UJobSystemInterface>())
 	{
-		return IHeroSystemInterface::Execute_GetHeroManagerComponent(Actor);
+		return IJobSystemInterface::Execute_GetJobManagerComponent(Actor);
 	}
 
-	return Actor->FindComponentByClass<UHeroManagerComponent>();
+	return Actor->FindComponentByClass<UJobManagerComponent>();
 }
 
-bool UHeroSystemBlueprintFunctionLibrary::AddExperience(int32& InLevel, int32& InExperience, const int32 ExperienceToGrant, const FScalableFloat& ExperienceRequirement, int32 MaxLevel)
+bool UJobSystemBlueprintFunctionLibrary::AddExperience(int32& InLevel, int32& InExperience, const int32 ExperienceToGrant, const FScalableFloat& ExperienceRequirement, int32 MaxLevel)
 {
 	if (ExperienceToGrant <= 0 || !ExperienceRequirement.IsValid())
 	{
@@ -56,7 +56,7 @@ bool UHeroSystemBlueprintFunctionLibrary::AddExperience(int32& InLevel, int32& I
 	return bLevelUpdated;
 }
 
-bool UHeroSystemBlueprintFunctionLibrary::SubtractExperience(int32& InLevel, int32& InExperience, const int32 ExperienceToRemove, const FScalableFloat& ExperienceRequirement)
+bool UJobSystemBlueprintFunctionLibrary::SubtractExperience(int32& InLevel, int32& InExperience, const int32 ExperienceToRemove, const FScalableFloat& ExperienceRequirement)
 {
 	if (ExperienceToRemove <= 0 || !ExperienceRequirement.IsValid())
 	{
@@ -86,7 +86,7 @@ bool UHeroSystemBlueprintFunctionLibrary::SubtractExperience(int32& InLevel, int
 	return bLevelUpdated;
 }
 
-void UHeroSystemBlueprintFunctionLibrary::SetLevel(int32& InLevel, int32& InExperience, const int32& NewLevel, const FScalableFloat& ExperienceRequirement)
+void UJobSystemBlueprintFunctionLibrary::SetLevel(int32& InLevel, int32& InExperience, const int32& NewLevel, const FScalableFloat& ExperienceRequirement)
 {
 	if (NewLevel < 0 || !ExperienceRequirement.IsValid())
 	{

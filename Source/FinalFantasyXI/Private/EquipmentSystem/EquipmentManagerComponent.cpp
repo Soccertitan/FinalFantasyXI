@@ -11,10 +11,11 @@
 #include "InventoryBlueprintFunctionLibrary.h"
 #include "InventoryManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
-#include "AbilitySystem/AttributeSet/HeroJobAttributeSet.h"
+#include "AbilitySystem/AttributeSet/JobAttributeSet.h"
+#include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "EquipmentSystem/ItemFragment_Equipment.h"
-#include "HeroSystem/HeroManagerComponent.h"
-#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
+#include "JobSystem/JobManagerComponent.h"
+#include "JobSystem/JobSystemBlueprintFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "System/CrysAssetManager.h"
 
@@ -54,17 +55,17 @@ void UEquipmentManagerComponent::PreNetReceive()
 void UEquipmentManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbilitySystemComponent* NewAbilitySystemComponent)
 {
 	AbilitySystemComponent = NewAbilitySystemComponent;
-	HeroManagerComponent = UHeroSystemBlueprintFunctionLibrary::GetHeroManagerComponent(GetOwner());
+	JobManagerComponent = UJobSystemBlueprintFunctionLibrary::GetJobManagerComponent(GetOwner());
 	InventoryManagerComponent = UInventoryBlueprintFunctionLibrary::GetInventoryManagerComponent(GetOwner());
 
 	if (IsReadyToManageEquipment())
 	{
-		HeroManagerComponent->OnHeroMainJobChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnHeroJobChanged);
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHeroJobAttributeSet::GetMainJobLevelAttribute()).AddUObject(this, &UEquipmentManagerComponent::OnHeroMainJobLevelChanged);
-		float MainJobLevel = AbilitySystemComponent->GetNumericAttribute(UHeroJobAttributeSet::GetMainJobLevelAttribute());
+		JobManagerComponent->OnMainJobChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnMainJobChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UPrimaryAttributeSet::GetLevelAttribute()).AddUObject(this, &UEquipmentManagerComponent::OnLevelChanged);
+		float MainJobLevel = AbilitySystemComponent->GetNumericAttribute(UPrimaryAttributeSet::GetLevelAttribute());
 		FOnAttributeChangeData Data;
 		Data.NewValue = MainJobLevel;
-		OnHeroMainJobLevelChanged(Data);
+		OnLevelChanged(Data);
 		InventoryManagerComponent->OnItemRemovedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnItemRemovedFromInventory);
 		InventoryManagerComponent->OnItemChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerComponent::OnItemChangedInInventory);
 		OnEquipmentManagerInitializedDelegate.Broadcast();
@@ -215,7 +216,7 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 	{
 		bool bSuccess = false;
 		const float AttributeValue = UCrimAbilitySystemBlueprintFunctionLibrary::EvaluateAttributeValueWithTagsUpToChannel(
-			AbilitySystemComponent, UHeroJobAttributeSet::GetMainJobLevelAttribute(), 
+			AbilitySystemComponent, UJobAttributeSet::GetMainJobLevelAttribute(), 
 			EGameplayModEvaluationChannel::Channel0 /** Base value. */,
 			FGameplayTagContainer(),FGameplayTagContainer(), bSuccess);
 		if (bSuccess == false || AttributeValue < ItemFragment_Equipment->LevelRequirement)
@@ -224,11 +225,11 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 		}
 	}
 
-	if (ItemFragment_Equipment->HeroJobs.IsValid())
+	if (ItemFragment_Equipment->Jobs.IsValid())
 	{
-		if (UHeroJobDefinition* HeroClass = HeroManagerComponent->GetHeroMainJob())
+		if (UJobDefinition* JobDefinition = JobManagerComponent->GetMainJob())
 		{
-			if (!ItemFragment_Equipment->HeroJobs.HasTag(HeroClass->JobTag))
+			if (!ItemFragment_Equipment->Jobs.HasTag(JobDefinition->JobTag))
 			{
 				return false;
 			}
@@ -280,7 +281,7 @@ bool UEquipmentManagerComponent::IsReadyToManageEquipment() const
 	{
 		return false;
 	}
-	if (!HeroManagerComponent)
+	if (!JobManagerComponent)
 	{
 		return false;
 	}
@@ -306,7 +307,7 @@ void UEquipmentManagerComponent::OnItemUnequipped(const FEquippedItem& EquippedI
 	OnItemUnequippedDelegate.Broadcast(EquippedItem);
 }
 
-void UEquipmentManagerComponent::OnHeroJobChanged()
+void UEquipmentManagerComponent::OnMainJobChanged()
 {
 	if (HasAuthority() && IsReadyToManageEquipment())
 	{
@@ -369,7 +370,7 @@ void UEquipmentManagerComponent::CacheIsNetSimulated()
 	bCachedIsNetSimulated = IsNetSimulating();
 }
 
-void UEquipmentManagerComponent::OnHeroMainJobLevelChanged(const FOnAttributeChangeData& Data)
+void UEquipmentManagerComponent::OnLevelChanged(const FOnAttributeChangeData& Data)
 {
 	BareHandedWeaponData.Level = Data.NewValue;
 	

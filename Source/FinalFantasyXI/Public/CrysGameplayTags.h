@@ -26,12 +26,13 @@ public:
 	FGameplayTag CharacterRace;
 	FGameplayTag DamageType;
 	FGameplayTag EquipSlot;
-	FGameplayTag HeroJob;
 	FGameplayTag Input;
 	FGameplayTag Item;
+	FGameplayTag Job;
 	FGameplayTag MagicSkill;
 	FGameplayTag Message;
 	FGameplayTag MessageVerb;
+	FGameplayTag Race;
 	FGameplayTag WeaponSkill;
 	
 	/**

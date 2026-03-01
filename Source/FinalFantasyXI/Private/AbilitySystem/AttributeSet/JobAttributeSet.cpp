@@ -1,17 +1,17 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "AbilitySystem/AttributeSet/HeroJobAttributeSet.h"
+#include "AbilitySystem/AttributeSet/JobAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
 
-UHeroJobAttributeSet::UHeroJobAttributeSet()
+UJobAttributeSet::UJobAttributeSet()
 {
 	InitMainJobLevel(1.f);
 	InitSubJobEffectiveness(0.25f);
 }
 
-void UHeroJobAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void UJobAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
@@ -19,7 +19,7 @@ void UHeroJobAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, SubJobLevel, COND_None, REPNOTIFY_Always);
 }
 
-void UHeroJobAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UJobAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetMainJobLevelAttribute())
 	{
@@ -31,12 +31,12 @@ void UHeroJobAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, 
 	}
 }
 
-void UHeroJobAttributeSet::OnRep_MainJobLevel(const FGameplayAttributeData& OldValue)
+void UJobAttributeSet::OnRep_MainJobLevel(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MainJobLevel, OldValue);
 }
 
-void UHeroJobAttributeSet::OnRep_SubJobLevel(const FGameplayAttributeData& OldValue)
+void UJobAttributeSet::OnRep_SubJobLevel(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, SubJobLevel, OldValue);
 }

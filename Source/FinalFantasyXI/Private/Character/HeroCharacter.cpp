@@ -18,7 +18,7 @@
 #include "EquipmentSystem/EquipmentSystemBlueprintFunctionLibrary.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "HeroSystem/HeroSystemBlueprintFunctionLibrary.h"
+#include "JobSystem/JobSystemBlueprintFunctionLibrary.h"
 #include "InteractionType/InteractorBoxComponent.h"
 
 
@@ -127,9 +127,9 @@ UInteractorComponent* AHeroCharacter::GetInteractorComponent_Implementation() co
 	return InteractorComponent;
 }
 
-UHeroManagerComponent* AHeroCharacter::GetHeroManagerComponent_Implementation() const
+UJobManagerComponent* AHeroCharacter::GetJobManagerComponent_Implementation() const
 {
-	return UHeroSystemBlueprintFunctionLibrary::GetHeroManagerComponent(GetPlayerState());
+	return UJobSystemBlueprintFunctionLibrary::GetJobManagerComponent(GetPlayerState());
 }
 
 UEquipmentManagerComponent* AHeroCharacter::GetEquipmentManagerComponent_Implementation() const

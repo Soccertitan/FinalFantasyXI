@@ -4,27 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "HeroSystemBlueprintFunctionLibrary.generated.h"
+#include "JobSystemBlueprintFunctionLibrary.generated.h"
 
 struct FLevelProgressContainer;
 struct FScalableFloat;
-class UHeroManagerComponent;
+class UJobManagerComponent;
+
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UHeroSystemBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
+class FINALFANTASYXI_API UJobSystemBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
 
 	/**
-	 * Gets the HeroManagerComponent, checking the HeroSystemInterface and then falling back to searching the Actor's
+	 * Gets the JobManagerComponent, checking the JobSystemInterface and then falling back to searching the Actor's
 	 * components.
 	 */
-	UFUNCTION(BlueprintPure, Category = "HeroSystem", meta = (DefaultToSelf = "Actor"))
-	static UHeroManagerComponent* GetHeroManagerComponent(const AActor* Actor);
+	UFUNCTION(BlueprintPure, Category = "JobSystem", meta = (DefaultToSelf = "Actor"))
+	static UJobManagerComponent* GetJobManagerComponent(const AActor* Actor);
 	
 	/** 
 	 * Adds experience and adjust the level according to the experience requirement.
@@ -35,7 +36,7 @@ public:
 	 * @param MaxLevel If less than 0, there is no max level and will grow until Max_Int32.
 	 * @return True, if the Level was adjusted.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "HeroSystem")
+	UFUNCTION(BlueprintCallable, Category = "JobSystem")
 	static bool AddExperience(int32& InLevel, int32& InExperience, const int32 ExperienceToGrant, const FScalableFloat& ExperienceRequirement, int32 MaxLevel = -1);
 	
 	/** 
@@ -46,7 +47,7 @@ public:
 	 * @param ExperienceRequirement A curve table with increasing values as the level increases.
 	 * @return True, if the Level was adjusted.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "HeroSystem")
+	UFUNCTION(BlueprintCallable, Category = "JobSystem")
 	static bool SubtractExperience(int32& InLevel, int32& InExperience, const int32 ExperienceToRemove, const FScalableFloat& ExperienceRequirement);
 	
 	/** 
@@ -56,6 +57,6 @@ public:
 	 * @param NewLevel The level to set the container to.
 	 * @param ExperienceRequirement A curve table with increasing values as the level increases.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "HeroSystem")
+	UFUNCTION(BlueprintCallable, Category = "JobSystem")
 	static void SetLevel(int32& InLevel, int32& InExperience, const int32& NewLevel, const FScalableFloat& ExperienceRequirement);
 };

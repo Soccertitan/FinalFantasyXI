@@ -5,18 +5,18 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "Attribute/CrimAttributeSet.h"
-#include "HeroJobAttributeSet.generated.h"
+#include "JobAttributeSet.generated.h"
 
 /**
- * An attribute set for the hero's jobs. Affects the base stats of the hero.
+ * An attribute set for the jobs. Affects the base stats of the character.
  */
 UCLASS()
-class FINALFANTASYXI_API UHeroJobAttributeSet : public UCrimAttributeSet
+class FINALFANTASYXI_API UJobAttributeSet : public UCrimAttributeSet
 {
 	GENERATED_BODY()
 	
 public:
-	UHeroJobAttributeSet();
+	UJobAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, MainJobLevel);

@@ -14,13 +14,16 @@
 struct FOnAttributeChangeData;
 struct FItemInstance;
 class UItemDefinition;
-class UHeroManagerComponent;
+class UJobManagerComponent;
 class UInventoryManagerComponent;
 
 DECLARE_MULTICAST_DELEGATE(FEquipmentManagerComponentGenericSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentChangedSignature, const FEquippedItem&, Item);
 
-/** Equip/Unequips items and sets the base AutoAttackDelay for equipped weapons. */
+/** 
+ * Equip/Unequips items and sets the base AutoAttackDelay for equipped weapons. 
+ * Requires an InventoryManager, JobManager, and ASC component to function.
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FINALFANTASYXI_API UEquipmentManagerComponent : public UActorComponent, public ICrimAbilitySystemInterface
 {
@@ -104,9 +107,9 @@ protected:
 	/** Called when an item is unequipped. */
 	virtual void OnItemUnequipped(const FEquippedItem& EquippedItem);
 
-	/** Unequips items if the hero can no longer meet the equip requirements. */
+	/** Unequips items if the character can no longer meet the equip requirements. */
 	UFUNCTION()
-	virtual void OnHeroJobChanged();
+	virtual void OnMainJobChanged();
 
 	/** When an Item is removed from the InventoryManager, unequips the item if it is currently equipped. */
 	UFUNCTION()
@@ -134,16 +137,16 @@ private:
 	UPROPERTY()
 	TObjectPtr<UInventoryManagerComponent> InventoryManagerComponent;
 
-	/** Cached HeroManagerComponent from the owner. */
+	/** Cached JobManagerComponent from the owner. */
 	UPROPERTY()
-	TObjectPtr<UHeroManagerComponent> HeroManagerComponent;
+	TObjectPtr<UJobManagerComponent> JobManagerComponent;
 
 	/** Cached value of whether the owner is a simulated actor. */
 	UPROPERTY()
 	bool bCachedIsNetSimulated = false;
 	void CacheIsNetSimulated();
 	
-	void OnHeroMainJobLevelChanged(const FOnAttributeChangeData& Data);
+	void OnLevelChanged(const FOnAttributeChangeData& Data);
 
 	friend struct FEquippedItemsContainer;
 	friend struct FEquippedItem;
