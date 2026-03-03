@@ -127,7 +127,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = UINavListEntry, DisplayName = OnFocusedComponentUpdated)
 	void K2_OnFocusedComponentUpdated(UUINavComponent* Component);
 	/** Called when the ListView refreshes it's view. The value will be the currently focused Component. */
-	void OnFocusedComponentUpdated(UUINavComponent* Component) {}
+	virtual void OnFocusedComponentUpdated(UUINavComponent* Component) {}
 
 	/** Called whenever Items are added or removed from the ListItems. */ 
 	virtual void OnItemsChanged(const TArray<UObject*>& AddedItems, const TArray<UObject*>& RemovedItems);

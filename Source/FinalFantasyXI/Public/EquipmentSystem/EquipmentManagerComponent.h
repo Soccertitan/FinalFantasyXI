@@ -160,7 +160,7 @@ private:
 	void Internal_UnequipItem(const FGameplayTag& EquipSlot);
 
 	FActiveGameplayEffectHandle ApplyEquipmentGameplayEffect(const TInstancedStruct<FItem>& Item);
-	void ClearItemInstanceEquipmentManager(FItemInstance* ItemInstance);
+	void ClearEquipmentManagerFromItemInstance(FItemInstance* ItemInstance);
 	
 	/** If the EquippedItem is a weapon, sets up the EquippedItem with the weapon data from the ItemInstance. */
 	void TryInitWeapon(const FItemInstance* ItemInstance, FEquippedItem& EquippedItem);

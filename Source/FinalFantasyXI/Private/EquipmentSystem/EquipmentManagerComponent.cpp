@@ -432,7 +432,7 @@ void UEquipmentManagerComponent::Internal_UnequipItem(FItemInstance* ItemInstanc
 			EquippedItemsContainer.Items.RemoveAt(idx);
 			
 			AbilitySystemComponent->RemoveActiveGameplayEffect(TempItem.GameplayEffectHandle);
-			ClearItemInstanceEquipmentManager(ItemInstance);
+			ClearEquipmentManagerFromItemInstance(ItemInstance);
 			TryDeinitWeapon(TempItem);
 			OnItemUnequipped(TempItem);
 			EquippedItemsContainer.MarkArrayDirty();
@@ -485,7 +485,7 @@ FActiveGameplayEffectHandle UEquipmentManagerComponent::ApplyEquipmentGameplayEf
 	return Result;
 }
 
-void UEquipmentManagerComponent::ClearItemInstanceEquipmentManager(FItemInstance* ItemInstance)
+void UEquipmentManagerComponent::ClearEquipmentManagerFromItemInstance(FItemInstance* ItemInstance)
 {
 	FItemShard_Equipment* ItemShard = ItemInstance->GetItemPtr()->GetMutablePtr<FItem>()->FindMutableShardByType<FItemShard_Equipment>();
 	if (ItemShard->GetEquipmentManagerComponent() == this)

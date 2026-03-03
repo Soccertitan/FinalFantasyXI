@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ViewModelBlueprintFunctionLibrary.generated.h"
 
+struct FItemInstance;
+class UItemInstanceViewModel;
 class UCrysViewModel;
 
 /**
