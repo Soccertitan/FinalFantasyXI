@@ -7,6 +7,7 @@
 #include "MVVMViewModelBase.h"
 #include "EquippedItemViewModel.generated.h"
 
+class UCrysGameplayTagViewModel;
 class UItemInstanceViewModel;
 
 /**
@@ -19,12 +20,13 @@ class FINALFANTASYXI_API UEquippedItemViewModel : public UMVVMViewModelBase
 	
 public:
 	FGameplayTag GetEquipSlot() const { return EquipSlot; }
-	FText GetEquipSlotName() const { return EquipSlotName; }
 	UItemInstanceViewModel* GetItemInstanceViewModel() const { return ItemInstanceViewModel; }
+	UCrysGameplayTagViewModel* GetTagRelationshipItem() const { return TagRelationshipItem; }
 	
 protected:
 	void SetEquipSlot(const FGameplayTag& InValue);
 	void SetItemInstanceViewModel(UItemInstanceViewModel* InValue);
+	void SetTagRelationshipItem(UCrysGameplayTagViewModel* InValue);
 	
 private:
 	/** The EquipSlot the item is equipped to. */
@@ -32,10 +34,10 @@ private:
 	FGameplayTag EquipSlot;
 	
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Category = "EquippedItemViewModel", meta = (AllowPrivateAccess = true))
-	FText EquipSlotName;
+	TObjectPtr<UItemInstanceViewModel> ItemInstanceViewModel;
 	
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Category = "EquippedItemViewModel", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UItemInstanceViewModel> ItemInstanceViewModel;
+	TObjectPtr<UCrysGameplayTagViewModel> TagRelationshipItem;
 	
 	friend class UEquipmentManagerViewModel;
 };

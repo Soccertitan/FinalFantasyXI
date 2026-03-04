@@ -67,17 +67,14 @@ void UAttributeViewModel::SetBaseValue(float InValue)
 
 void UAttributeViewModel::FindAndSetAttributeTagRelationshipItem(const FGameplayTag& AttributeTag)
 {
-	if (AttributeTagRelationshipItem.AttributeTag == AttributeTag)
+	if (AttributeTagRelationshipItem.AttributeTag != AttributeTag)
 	{
-		// Do nothing as we already have the AttributeInfo.
-		return;
+		AttributeTagRelationshipItem = UCrysBlueprintFunctionLibrary::FindAttributeRelationshipItem(AttributeTag, true);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetDescription);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetIcon);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAttributeName);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetShortName);
 	}
-
-	AttributeTagRelationshipItem = UCrysBlueprintFunctionLibrary::FindAttributeRelationshipItem(AttributeTag, true);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetDescription);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetIcon);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAttributeName);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetShortName);
 }
 
 void UAttributeViewModel::OnAttributeValueChanged(const FOnAttributeChangeData& Data)

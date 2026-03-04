@@ -10,7 +10,7 @@
 #include "AttributeTagRelationship.generated.h"
 
 /** Defines the relationship between a GameplayTag and attribute information. */
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FAttributeRelationshipItem
 {
 	GENERATED_BODY()
@@ -27,12 +27,12 @@ struct FAttributeRelationshipItem
 	FText ShortName;
 
 	/** Description of the attribute. */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (MultiLine=true))
 	FText Description;
 
 	/** Icon for this attribute. */
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTexture2D> Icon;
+	TSoftObjectPtr<UTexture2D> Icon;
 
 	/** The attribute to query from the ASC. */
 	UPROPERTY(EditAnywhere)
@@ -63,15 +63,8 @@ class FINALFANTASYXI_API UAttributeTagRelationship : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	UAttributeTagRelationship();
-	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Asset")
-	FPrimaryAssetType AssetType;
-
-	UFUNCTION(BlueprintPure)
 	FAttributeRelationshipItem FindAttributeRelationshipItem(UPARAM(ref) const FGameplayTag& AttributeTag, bool bLogNotFound = false) const;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Attribute", NoResetToDefault, ForceInlineRow, TitleProperty = "{AttributeTag}"))
+	UPROPERTY(EditDefaultsOnly, meta = (Categories = "Attribute", NoResetToDefault, ForceInlineRow, TitleProperty = "{AttributeTag}"))
 	TArray<FAttributeRelationshipItem> AttributeTagRelationships;
 };

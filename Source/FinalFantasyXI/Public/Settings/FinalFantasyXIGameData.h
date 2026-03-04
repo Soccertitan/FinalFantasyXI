@@ -6,8 +6,10 @@
 #include "Engine/DeveloperSettings.h"
 #include "FinalFantasyXIGameData.generated.h"
 
+class UCrysGameplayTagRelationship;
 class UAttributeTagRelationship;
 class UGameplayEffect;
+
 /**
  * 
  */
@@ -25,4 +27,8 @@ public:
 	// Gameplay effect used to add and remove dynamic tags.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem|Gameplay Effect")
 	TSoftClassPtr<UGameplayEffect> DynamicTagGameplayEffect;
+	
+	// Maps non attribute GameplayTags for UI user facing data.
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSoftObjectPtr<UCrysGameplayTagRelationship> CrysGameplayTagRelationship;
 };

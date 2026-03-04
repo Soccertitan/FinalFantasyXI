@@ -14,16 +14,6 @@ bool FAttributeRelationshipItem::IsValid() const
 	return false;
 }
 
-UAttributeTagRelationship::UAttributeTagRelationship()
-{
-	AssetType = TEXT("AttributeTagRelationship");
-}
-
-FPrimaryAssetId UAttributeTagRelationship::GetPrimaryAssetId() const
-{
-	return FPrimaryAssetId(AssetType, GetFName());
-}
-
 FAttributeRelationshipItem UAttributeTagRelationship::FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound) const
 {
 	for (const FAttributeRelationshipItem& Item : AttributeTagRelationships)

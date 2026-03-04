@@ -37,10 +37,6 @@ public:
 	/** Returns an Actor that implements the AbilityTargetInterface */
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
 	static AActor* GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& AbilityTags);
-
-	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary")
-	static FAttributeRelationshipItem FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound = false);
 	
-	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (BlueprintThreadSafe, CompactNodeTitle = "IsValid"))
-	static bool IsAttributeRelationshipItemValid(const FAttributeRelationshipItem& AttributeRelationshipItem);
+	static FAttributeRelationshipItem FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound = false);
 };

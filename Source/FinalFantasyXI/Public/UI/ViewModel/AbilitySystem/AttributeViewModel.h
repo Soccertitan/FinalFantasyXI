@@ -40,7 +40,7 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute ViewModel")
 	FText GetDescription() const {return AttributeTagRelationshipItem.Description;}
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute ViewModel")
-	UTexture2D* GetIcon() const {return AttributeTagRelationshipItem.Icon;}
+	TSoftObjectPtr<UTexture2D> GetIcon() const {return AttributeTagRelationshipItem.Icon;}
 	
 	FCrysAttributeViewModelValueChangedSignature OnCurrentValueChangedDelegate;
 

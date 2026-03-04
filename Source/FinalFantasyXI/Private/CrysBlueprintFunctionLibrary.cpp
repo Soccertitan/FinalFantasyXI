@@ -102,8 +102,3 @@ FAttributeRelationshipItem UCrysBlueprintFunctionLibrary::FindAttributeRelations
 
 	return AttributeTagRelationship->FindAttributeRelationshipItem(AttributeTag, bLogNotFound);
 }
-
-bool UCrysBlueprintFunctionLibrary::IsAttributeRelationshipItemValid(const FAttributeRelationshipItem& AttributeRelationshipItem)
-{
-	return AttributeRelationshipItem.IsValid();
-}
