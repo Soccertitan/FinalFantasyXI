@@ -21,19 +21,19 @@ class FINALFANTASYXI_API UAttributeFractionViewModel : public UMVVMViewModelBase
 public:
 	UAttributeFractionViewModel();
 
-	UFUNCTION(BlueprintCallable, Category = "Attribute Fraction View Model")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Attribute")
 	void SetAttributesWithASC(UAbilitySystemComponent* InAbilitySystemComponent,
 		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag NumeratorAttributeTag,
 		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag DenominatorAttributeTag);
 
-	UFUNCTION(BlueprintCallable, Category = "Attribute Fraction View Model")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Attribute")
 	void SetAttributes(UPARAM(meta = (Categories = "Attribute"))const FGameplayTag NumeratorAttributeTag, float NumeratorCurrentValue, float NumeratorBaseValue,
 		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag DenominatorAttributeTag, float DenominatorCurrentValue, float DenominatorBaseValue);
 
 	UAttributeViewModel* GetNumeratorAttribute() const {return NumeratorAttribute;}
 	UAttributeViewModel* GetDenominatorAttribute() const {return DenominatorAttribute;}
 	
-	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute Fraction View Model")
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	float GetPercentCurrentValue() const;
 
 private:

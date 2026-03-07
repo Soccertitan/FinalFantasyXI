@@ -25,7 +25,7 @@ public:
 	int32 GetActiveActionSetIndex() const { return ActiveActionSetIndex; }
 	
 	/** Finds or creates an ActionBarItem VM from InputTag. */
-	UFUNCTION(BlueprintCallable, Category = "ActionBarViewModel")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|ActionBar")
 	UActionItemViewModel* FindOrCreateActionBarItemViewModel(const FGameplayTag& InputTag);
 
 protected:
@@ -44,7 +44,7 @@ private:
 	TArray<TObjectPtr<UActionItemViewModel>> ActionBarItemViewModels;
 	
 	/** The current set that is mapped to the InputActions. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "ActionBarViewModel", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|ActionBar", meta = (AllowPrivateAccess = true))
 	int32 ActiveActionSetIndex = 0;
 	
 	UActionItemViewModel* InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag);

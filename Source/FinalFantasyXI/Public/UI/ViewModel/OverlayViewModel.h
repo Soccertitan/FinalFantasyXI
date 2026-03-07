@@ -30,7 +30,7 @@ protected:
 	 * @param DenominatorAttributeTag The attribute that denotes the max value the Current value can achieve.
 	 * @return The newly created ViewModel.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Overlay View Model")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Overlay")
 	UAttributeFractionViewModel* CreateAttributeFractionViewModel(
 		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag NumeratorAttributeTag,
 		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag DenominatorAttributeTag);
@@ -40,11 +40,11 @@ protected:
 	 * @param AttributeTag The attribute to monitor.
 	 * @return The newly created ViewModel
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Overlay View Model")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Overlay")
 	UAttributeViewModel* CreateAttributeViewModel(UPARAM(meta = (Categories = "Attribute")) const FGameplayTag AttributeTag);
 
 	/** The AbilitySystemComponent of the controlled pawn. */
-	UFUNCTION(BlueprintPure, Category = "Overlay View Model")
+	UFUNCTION(BlueprintPure, Category = "Viewmodel|Overlay")
 	UCrimAbilitySystemComponent* GetAbilitySystemComponent() const {return AbilitySystemComponent;}
 
 private:

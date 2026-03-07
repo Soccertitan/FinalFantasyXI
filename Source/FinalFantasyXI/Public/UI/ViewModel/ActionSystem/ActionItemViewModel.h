@@ -30,13 +30,13 @@ public:
 protected:
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "ActionBarItemViewModel", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|ActionBar", meta = (AllowPrivateAccess = true))
 	FGameplayTag InputTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "ActionBarItemViewModel", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|ActionBar", meta = (AllowPrivateAccess = true))
 	FText ActionName;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "ActionBarItemViewModel", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|ActionBar", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UTexture2D> Icon;
 	
 	UPROPERTY()

@@ -119,7 +119,7 @@ struct FItemFragment_Weapon : public FItemFragment_Equipment
 
 	/** The auto attack delay in seconds between attacks. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")
-	FScalableFloat Delay;
+	FScalableFloat AutoAttackDelay;
 
 	/** The auto attack range. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment|Weapon")

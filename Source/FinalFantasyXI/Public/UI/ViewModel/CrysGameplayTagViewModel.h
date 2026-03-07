@@ -18,6 +18,7 @@ class FINALFANTASYXI_API UCrysGameplayTagViewModel : public UMVVMViewModelBase
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|GameplayTag")
 	void SetGameplayTag(const FGameplayTag& InValue);
 	
 	UFUNCTION(BlueprintPure, FieldNotify)

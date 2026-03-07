@@ -1,12 +1,12 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/InventorySystem/Filter/ItemViewModelFilter_EquipableItems.h"
+#include "UI/ViewModel/InventorySystem/Filter/ItemInstanceViewModelFilter_EquipableItems.h"
 
 #include "EquipmentSystem/EquipmentManagerComponent.h"
 #include "UI/ViewModel/ItemInstanceViewModel.h"
 
-bool UItemViewModelFilter_EquipableItems::ShouldBeginFilter(const UObject* Context, TArray<UItemInstanceViewModel*>& ViewModels) const
+bool UItemInstanceViewModelFilter_EquipableItems::ShouldBeginFilter(const UObject* Context, TArray<UItemInstanceViewModel*>& ViewModels) const
 {
 	if (!Super::ShouldBeginFilter(Context, ViewModels))
 	{
@@ -26,7 +26,7 @@ bool UItemViewModelFilter_EquipableItems::ShouldBeginFilter(const UObject* Conte
 	return true;
 }
 
-bool UItemViewModelFilter_EquipableItems::DoesItemInstanceViewModelPassFilter(const UObject* Context, UItemInstanceViewModel* ViewModel) const
+bool UItemInstanceViewModelFilter_EquipableItems::DoesItemInstanceViewModelPassFilter(const UObject* Context, UItemInstanceViewModel* ViewModel) const
 {
 	if (!Super::DoesItemInstanceViewModelPassFilter(Context, ViewModel))
 	{

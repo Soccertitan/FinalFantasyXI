@@ -33,13 +33,13 @@ public:
 	float GetBaseValue() const {return BaseValue;}
 	void SetBaseValue(float InValue);
 
-	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute ViewModel")
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	FText GetAttributeName() const {return AttributeTagRelationshipItem.Name;}
-	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute ViewModel")
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	FText GetShortName() const {return AttributeTagRelationshipItem.ShortName;}
-	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute ViewModel")
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	FText GetDescription() const {return AttributeTagRelationshipItem.Description;}
-	UFUNCTION(BlueprintPure, FieldNotify, Category = "Attribute ViewModel")
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	TSoftObjectPtr<UTexture2D> GetIcon() const {return AttributeTagRelationshipItem.Icon;}
 	
 	FCrysAttributeViewModelValueChangedSignature OnCurrentValueChangedDelegate;
@@ -54,10 +54,10 @@ private:
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	/** The current value of the attribute. With all modifiers */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Attribute ViewModel", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|Attribute", meta = (AllowPrivateAccess = true))
 	float CurrentValue = 0.f;
 	/** The base value of the attribute. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Attribute ViewModel", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|Attribute", meta = (AllowPrivateAccess = true))
 	float BaseValue = 0.f;
 
 	void FindAndSetAttributeTagRelationshipItem(const FGameplayTag& AttributeTag);

@@ -10,9 +10,17 @@
 #include "EquipmentSystem/EquipmentManagerComponent.h"
 #include "EquipmentSystem/EquipmentSystemBlueprintFunctionLibrary.h"
 #include "GameFramework/PlayerState.h"
+#include "UI/InventoryUISubsystem.h"
 #include "UI/InventoryViewModelBlueprintFunctionLibrary.h"
+#include "UI/ViewModel/ItemContainerViewModel.h"
 #include "UI/ViewModel/ItemInstanceViewModel.h"
 #include "UI/ViewModel/EquipmentSystem/EquippedItemViewModel.h"
+#include "UI/ViewModel/InventorySystem/Filter/ItemInstanceViewModelFilter_EquipableItems.h"
+
+UEquipmentManagerViewModel::UEquipmentManagerViewModel()
+{
+	EquippableItemsFilter = CreateDefaultSubobject<UItemInstanceViewModelFilter_EquipableItems>("Filter");
+}
 
 UEquippedItemViewModel* UEquipmentManagerViewModel::FindOrCreateEquippedItemViewModel(const FGameplayTag EquipSlot)
 {
@@ -33,6 +41,41 @@ UEquippedItemViewModel* UEquipmentManagerViewModel::FindOrCreateEquippedItemView
 	return nullptr;
 }
 
+TArray<UItemContainerViewModel*> UEquipmentManagerViewModel::GetAllowedItemContainers() const
+{
+	return AllowedItemContainerViewModels;
+}
+
+TArray<UItemInstanceViewModel*> UEquipmentManagerViewModel::GetEquippableItems(const FGameplayTag EquipSlot, UItemContainerViewModel* ItemContainerViewModel) const
+{
+	TArray<UItemInstanceViewModel*> Result;
+	
+	if (EquipSlot.IsValid() && ItemContainerViewModel)
+	{
+		Result = ItemContainerViewModel->GetItemInstanceViewModels();
+		EquippableItemsFilter->EquipSlot = EquipSlot;
+		EquippableItemsFilter->FilterItemInstanceViewModels(EquipmentManagerComponent, Result);
+	}
+	
+	return Result;
+}
+
+void UEquipmentManagerViewModel::TryEquipItem(FGameplayTag EquipSlot, UItemInstanceViewModel* ItemInstanceViewModel)
+{
+	if (EquipmentManagerComponent && ItemInstanceViewModel)
+	{
+		EquipmentManagerComponent->TryEquipItem(EquipSlot, ItemInstanceViewModel->GetItemInstance().GetGuid());
+	}
+}
+
+void UEquipmentManagerViewModel::TryUnequipItem(FGameplayTag EquipSlot)
+{
+	if (EquipmentManagerComponent)
+	{
+		EquipmentManagerComponent->TryUnequipItem(EquipSlot);
+	}
+}
+
 void UEquipmentManagerViewModel::OnInitializeViewModel(APlayerController* PlayerController)
 {
 	Super::OnInitializeViewModel(PlayerController);
@@ -50,6 +93,34 @@ void UEquipmentManagerViewModel::OnInitializeViewModel(APlayerController* Player
 	{
 		InventoryManagerComponent->OnItemAddedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemChanged);
 		InventoryManagerComponent->OnItemChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemChanged);
+	}
+	
+	if (EquipmentManagerComponent && InventoryManagerComponent)
+	{
+		TArray<FGameplayTag> AllowedItemContainers = EquipmentManagerComponent->GetAllowedItemContainers();
+		UInventoryUISubsystem* UISubsystem = GetWorld()->GetSubsystem<UInventoryUISubsystem>();
+		for (const FItemContainerInstance& ItemContainerInstance : InventoryManagerComponent->GetItemContainers())
+		{
+			if (UItemContainer* ItemContainer = ItemContainerInstance.GetItemContainer())
+			{
+				bool bAllowed = AllowedItemContainers.Num() == 0;
+				for (const FGameplayTag& AllowedTag : AllowedItemContainers)
+				{
+					if (ItemContainer->GetItemContainerTag() == AllowedTag)
+					{
+						bAllowed = true;
+					}
+				}
+				
+				if (bAllowed)
+				{
+					if (UItemContainerViewModel* ItemContainerViewModel = UISubsystem->CreateItemContainerViewModel(ItemContainer))
+					{
+						AllowedItemContainerViewModels.Add(ItemContainerViewModel);
+					}
+				}
+			}
+		}
 	}
 }
 

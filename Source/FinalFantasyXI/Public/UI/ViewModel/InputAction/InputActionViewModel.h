@@ -20,7 +20,7 @@ class FINALFANTASYXI_API UInputActionViewModel : public UCrysViewModel
 public:
 	
 	/** Finds or creates an InputActionListener VM from an InputAction. */
-	UFUNCTION(BlueprintCallable, Category = "InputActionViewModel")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|InputAction")
 	UInputActionListenerViewModel* FindOrCreateInputActionListenerViewModel(UInputAction* InputAction);
 	
 protected:

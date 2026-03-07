@@ -58,7 +58,7 @@ struct FWeaponData
 	
 	/** Base auto attack delay in seconds. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FScalableFloat Delay;
+	FScalableFloat AutoAttackDelay;
 	
 	/** The effect class to use during an auto attack. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -97,6 +97,9 @@ public:
 	/** Returns true if items can be (un)equipped. Bind to OnEquipmentManagerInitializedDelegate to be notified when ready. */
 	bool IsReadyToManageEquipment() const;
 	
+	// If empty, all ItemContainers are allowed.
+	const TArray<FGameplayTag>& GetAllowedItemContainers() const {return AllowedItemContainers;}
+	
 	/* Returns true if this Component's Owner Actor has authority. */
 	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
 	bool HasAuthority() const;

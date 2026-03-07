@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "UI/ViewModel/Filter/ItemInstanceViewModelFilter.h"
-#include "ItemViewModelFilter_EquipableItems.generated.h"
+#include "ItemInstanceViewModelFilter_EquipableItems.generated.h"
 
 /**
  * Given a context that is the EquipmentManagerComponent, will filter out items that can't be equipped.
  */
 UCLASS()
-class FINALFANTASYXI_API UItemViewModelFilter_EquipableItems : public UItemInstanceViewModelFilter
+class FINALFANTASYXI_API UItemInstanceViewModelFilter_EquipableItems : public UItemInstanceViewModelFilter
 {
 	GENERATED_BODY()
 

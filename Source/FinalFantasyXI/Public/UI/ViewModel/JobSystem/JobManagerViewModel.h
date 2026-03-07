@@ -31,11 +31,11 @@ public:
 	UJobViewModel* GetSubJobViewModel() const { return SubJobViewModel; }
 
 	/** Finds a ViewModel with the specified JobTag. */
-	UFUNCTION(BlueprintPure, Category = "JobManager ViewModel")
+	UFUNCTION(BlueprintPure, Category = "Viewmodel|Job")
 	UJobViewModel* FindJobViewModel(UPARAM(meta = (Categories = "Job")) FGameplayTag JobTag);
 
 	/** Tries to switch to specified Job. */
-	UFUNCTION(BlueprintCallable, Category = "JobManager ViewModel")
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Job")
 	void TrySetJobs(UPARAM(meta = (Categories = "Job")) FGameplayTag MainJobTag, UPARAM(meta = (Categories = "Job")) FGameplayTag SubJobTag);
 
 protected:

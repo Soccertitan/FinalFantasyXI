@@ -9,6 +9,7 @@
 #include "CrysGameplayTags.h"
 #include "CrysLogChannels.h"
 #include "InventoryBlueprintFunctionLibrary.h"
+#include "InventoryGameplayTags.h"
 #include "InventoryManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/JobAttributeSet.h"
@@ -24,6 +25,8 @@ UEquipmentManagerComponent::UEquipmentManagerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
+	
+	AllowedItemContainers.Add(FInventoryGameplayTags::Get().ItemContainer_Default);
 }
 
 void UEquipmentManagerComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -501,7 +504,7 @@ void UEquipmentManagerComponent::TryInitWeapon(const FItemInstance* ItemInstance
 	if ((EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_MainHand || EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand) && WeaponFragment)
 	{
 		EquippedItem.WeaponData.Level = ItemInstance->GetItem().Get<FItem>().FindShardByType<FItemShard_Equipment>()->Level;
-		EquippedItem.WeaponData.Delay = WeaponFragment->Delay;
+		EquippedItem.WeaponData.AutoAttackDelay = WeaponFragment->AutoAttackDelay;
 		EquippedItem.WeaponData.Damage = WeaponFragment->Damage;
 		EquippedItem.WeaponData.Range = WeaponFragment->Range;
 		EquippedItem.WeaponData.WeaponSkill = WeaponFragment->WeaponSkill;
@@ -537,15 +540,15 @@ void UEquipmentManagerComponent::TryDeinitWeapon(const FEquippedItem& EquippedIt
 
 void UEquipmentManagerComponent::ApplyBaseAttackDelay()
 {
-	float AutoAttackDelay = BareHandedWeaponData.Delay.GetValueAtLevel(BareHandedWeaponData.Level);
+	float AutoAttackDelay = BareHandedWeaponData.AutoAttackDelay.GetValueAtLevel(BareHandedWeaponData.Level);
 	if (const FEquippedItem* MainHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_MainHand))
 	{
-		AutoAttackDelay = MainHandWeapon->WeaponData.Delay.GetValueAtLevel(MainHandWeapon->WeaponData.Level);
+		AutoAttackDelay = MainHandWeapon->WeaponData.AutoAttackDelay.GetValueAtLevel(MainHandWeapon->WeaponData.Level);
 	}
 	
 	if (const FEquippedItem* SubHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_SubHand))
 	{
-		AutoAttackDelay += SubHandWeapon->WeaponData.Delay.GetValueAtLevel(SubHandWeapon->WeaponData.Level);
+		AutoAttackDelay += SubHandWeapon->WeaponData.AutoAttackDelay.GetValueAtLevel(SubHandWeapon->WeaponData.Level);
 	}
 
 	UGameplayEffect* AttackDelayGE = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("BaseAutoAttackDelay")));
