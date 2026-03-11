@@ -95,12 +95,20 @@ void UUINavWidgetListView::AddListItem(UObject* Item)
 
 	ListItems.Add(Item);
 	OnItemsChanged({Item}, {});
+	K2_OnItemsChanged({Item}, {});
 }
 
 void UUINavWidgetListView::RemoveListItem(UObject* Item)
 {
+	if (Item == nullptr)
+	{
+		UE_LOG(LogCrys, Warning, TEXT("Cannot remove a null item from the ListView"));
+		return;
+	}
+
 	ListItems.Remove(Item);
 	OnItemsChanged({}, {Item});
+	K2_OnItemsChanged({}, {Item});
 }
 
 void UUINavWidgetListView::ClearListItems()
@@ -108,6 +116,7 @@ void UUINavWidgetListView::ClearListItems()
 	const TArray<UObject*> Removed = MoveTemp(ListItems);
 	ListItems.Reset();
 	OnItemsChanged({}, Removed);
+	K2_OnItemsChanged({}, Removed);
 }
 
 UObject* UUINavWidgetListView::GetListItemFromComponent(UUINavComponent* Component)
@@ -201,10 +210,6 @@ void UUINavWidgetListView::RefreshCurrentPage()
 			{
 				IUINavListViewEntryInterface::Execute_SetListViewItem(Widget, ListItems[ListItemIndex]);
 				Widget->SetVisibility(ESlateVisibility::Visible);
-				if (Widget->HasFocusedDescendants())
-				{
-					BroadcastFocusedComponentUpdated(Widget);
-				}
 			}
 			else
 			{
@@ -235,6 +240,11 @@ void UUINavWidgetListView::RefreshCurrentPage()
 				}
 				Widget->SetVisibility(VisibilityWithNoListItem);
 				IUINavListViewEntryInterface::Execute_ClearListViewItem(Widget);
+			}
+			
+			if (Widget->HasFocusedDescendants())
+			{
+				BroadcastFocusedComponentUpdated(Widget);
 			}
 		}
 	}

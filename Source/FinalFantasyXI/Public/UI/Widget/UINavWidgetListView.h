@@ -58,6 +58,7 @@ public:
 		}
 
 		OnItemsChanged(ListItems, TArray<UObject*>());
+		K2_OnItemsChanged(ListItems, TArray<UObject*>());
 	}
 
 	/** Adds a ListItem to the end of the array. */
@@ -129,6 +130,9 @@ protected:
 	/** Called when the ListView refreshes it's view. The value will be the currently focused Component. */
 	virtual void OnFocusedComponentUpdated(UUINavComponent* Component) {}
 
+	/** Called when the Items in the list view are added or removed. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "UINavListEntry", Displayname = OnItemsChanged)
+	void K2_OnItemsChanged(const TArray<UObject*>& AddedItems, const TArray<UObject*>& RemovedItems);
 	/** Called whenever Items are added or removed from the ListItems. */ 
 	virtual void OnItemsChanged(const TArray<UObject*>& AddedItems, const TArray<UObject*>& RemovedItems);
 
@@ -143,6 +147,7 @@ protected:
 	void RefreshCurrentPage();
 
 	/** Returns true if the ListItems will be rebuilt. */
+	UFUNCTION(BlueprintPure, Category = "UINavWidget|ListView")
 	bool GetIsRefreshPending() const {return bIsRefreshPending;}
 
 private:
