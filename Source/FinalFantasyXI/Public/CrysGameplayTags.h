@@ -66,8 +66,9 @@ public:
 	/**
 	 * EquipSlot Tags
 	 */
-	FGameplayTag EquipSlot_MainHand;
-	FGameplayTag EquipSlot_SubHand;
+	FGameplayTag EquipSlot_Hand;
+	FGameplayTag EquipSlot_Hand_Main;
+	FGameplayTag EquipSlot_Hand_Sub;
 	FGameplayTag EquipSlot_Special;
 	
 	/**

@@ -41,11 +41,15 @@ void FItemFragment_Equipment::SetDefaultValues(TInstancedStruct<FItem>& Item) co
 void FItemFragment_Equipment::PostSerialize(const FArchive& Ar)
 {
 	// Ensure that the EquipSlot tags are not also in the BlockedEquipSlots.
-	BlockEquipSlots.RemoveTags(EquipSlots);
+	BlockEquipSlots.RemoveTag(EquipSlot);
 
 	if (!StaticStruct()->IsChildOf(FItemFragment_Weapon::StaticStruct()))
 	{
-		EquipSlots.RemoveTag(FCrysGameplayTags::Get().EquipSlot_MainHand);
+		if (EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Main ||
+			EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand)
+		{
+			EquipSlot = FGameplayTag();
+		}
 	}
 }
 
@@ -53,9 +57,10 @@ void FItemFragment_Weapon::PostSerialize(const FArchive& Ar)
 {
 	Super::PostSerialize(Ar);
 
-	// Ensure weapons can only have the MainHand and SubHand tag.
-	FGameplayTagContainer Filter;
-	Filter.AddTag(FCrysGameplayTags::Get().EquipSlot_SubHand);
-	EquipSlots = EquipSlots.Filter(Filter);
-	EquipSlots.AddTag(FCrysGameplayTags::Get().EquipSlot_MainHand);
+	// Ensure weapons can only have the Hand.Main or Hand tag.
+	if (EquipSlot != FCrysGameplayTags::Get().EquipSlot_Hand_Main ||
+		EquipSlot != FCrysGameplayTags::Get().EquipSlot_Hand)
+	{
+		EquipSlot = FCrysGameplayTags::Get().EquipSlot_Hand;
+	}
 }

@@ -110,7 +110,7 @@ UEquipmentManagerComponent* ANonPlayerCharacter::GetEquipmentManagerComponent_Im
 
 FWeaponData ANonPlayerCharacter::GetPrimaryWeaponData_Implementation() const
 {
-	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_MainHand).WeaponData;
+	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_Hand_Main).WeaponData;
 	if (!Result.IsValid())
 	{
 		Result = EquipmentManagerComponent->GetBareHandedWeaponData();
@@ -120,7 +120,7 @@ FWeaponData ANonPlayerCharacter::GetPrimaryWeaponData_Implementation() const
 
 FWeaponData ANonPlayerCharacter::GetSecondaryWeaponData_Implementation() const
 {
-	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_SubHand).WeaponData;
+	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_Hand_Sub).WeaponData;
 }
 
 AActor* ANonPlayerCharacter::GetTargetActor_Implementation()

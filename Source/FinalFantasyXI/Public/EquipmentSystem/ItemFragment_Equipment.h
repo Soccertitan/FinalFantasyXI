@@ -52,9 +52,9 @@ struct FItemFragment_Equipment : public FItemFragment
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (ClampMin = 0))
 	int32 MaxLevel = 0;
 
-	/** The slots the equipment is allowed to be equipped in. */
+	/** The slots the equipment is allowed to be equipped in. Allowed to equip in the specified slot and all children of the tag. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "EquipSlot"))
-	FGameplayTagContainer EquipSlots;
+	FGameplayTag EquipSlot;
 
 	/** Unequips items in these slots when equipped and prevents other items from being equipped in the slots. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment", meta = (Categories = "EquipSlot"))

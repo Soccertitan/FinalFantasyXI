@@ -14,7 +14,7 @@ void UEquippedItemViewModel::SetEquipSlot(const FGameplayTag& InValue)
 		
 		UCrysGameplayTagViewModel* NewVM = NewObject<UCrysGameplayTagViewModel>(this);
 		NewVM->SetGameplayTag(EquipSlot);
-		SetTagRelationshipItem(NewVM);
+		SetEquipSlotGameplayTagViewModel(NewVM);
 	}
 }
 
@@ -23,7 +23,7 @@ void UEquippedItemViewModel::SetItemInstanceViewModel(UItemInstanceViewModel* In
 	UE_MVVM_SET_PROPERTY_VALUE(ItemInstanceViewModel, InValue);
 }
 
-void UEquippedItemViewModel::SetTagRelationshipItem(UCrysGameplayTagViewModel* InValue)
+void UEquippedItemViewModel::SetEquipSlotGameplayTagViewModel(UCrysGameplayTagViewModel* InValue)
 {
-	UE_MVVM_SET_PROPERTY_VALUE(TagRelationshipItem, InValue);
+	UE_MVVM_SET_PROPERTY_VALUE(EquipSlotGameplayTagViewModel, InValue);
 }

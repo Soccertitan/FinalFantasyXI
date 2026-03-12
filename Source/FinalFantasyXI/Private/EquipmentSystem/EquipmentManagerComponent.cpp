@@ -193,7 +193,7 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 		return false;
 	}
 
-	if (!ItemFragment_Equipment->EquipSlots.HasTagExact(EquipSlot))
+	if (!EquipSlot.MatchesTag(ItemFragment_Equipment->EquipSlot))
 	{
 		return false;
 	}
@@ -206,7 +206,7 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 	// Don't allow a weapon to be equipped in the SubHand slot unless the character is allowed to Dual Wield and has
 	// a weapon equipped in the MainHand slot that does not block SubHand.
 	const FItemFragment_Weapon* ItemFragment_Weapon = ItemDefinition->FindFragmentByType<FItemFragment_Weapon>();
-	if (ItemFragment_Weapon && EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand)
+	if (ItemFragment_Weapon && EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub)
 	{
 		const bool bBlockDualWield = AbilitySystemComponent->GetGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWieldAllowed) == 0;
 		if (bBlockDualWield)
@@ -379,7 +379,7 @@ void UEquipmentManagerComponent::OnLevelChanged(const FOnAttributeChangeData& Da
 	
 	if (HasAuthority())
 	{
-		const FEquippedItem* MainHand = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_MainHand);
+		const FEquippedItem* MainHand = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_Hand_Main);
 		if (!MainHand || !MainHand->WeaponData.IsValid())
 		{
 			ApplyBaseAttackDelay();
@@ -501,7 +501,7 @@ void UEquipmentManagerComponent::ClearEquipmentManagerFromItemInstance(FItemInst
 void UEquipmentManagerComponent::TryInitWeapon(const FItemInstance* ItemInstance, FEquippedItem& EquippedItem)
 {
 	const FItemFragment_Weapon* WeaponFragment = UInventoryBlueprintFunctionLibrary::GetItemDefinition(ItemInstance->GetItem())->FindFragmentByType<FItemFragment_Weapon>();
-	if ((EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_MainHand || EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand) && WeaponFragment)
+	if ((EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Main || EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub) && WeaponFragment)
 	{
 		EquippedItem.WeaponData.Level = ItemInstance->GetItem().Get<FItem>().FindShardByType<FItemShard_Equipment>()->Level;
 		EquippedItem.WeaponData.AutoAttackDelay = WeaponFragment->AutoAttackDelay;
@@ -517,7 +517,7 @@ void UEquipmentManagerComponent::TryInitWeapon(const FItemInstance* ItemInstance
 			EquippedItem.WeaponData.AutoAttackGameplayEffectClass = WeaponFragment->AutoAttackGameplayEffectClass.Get();
 		}
 		
-		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand)
+		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub)
 		{
 			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWielding, 1, EGameplayTagReplicationState::TagOnly);
 		}
@@ -530,7 +530,7 @@ void UEquipmentManagerComponent::TryDeinitWeapon(const FEquippedItem& EquippedIt
 {
 	if (EquippedItem.WeaponData.IsValid())
 	{
-		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_SubHand)
+		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub)
 		{
 			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWielding, 0, EGameplayTagReplicationState::TagOnly);
 		}
@@ -541,12 +541,12 @@ void UEquipmentManagerComponent::TryDeinitWeapon(const FEquippedItem& EquippedIt
 void UEquipmentManagerComponent::ApplyBaseAttackDelay()
 {
 	float AutoAttackDelay = BareHandedWeaponData.AutoAttackDelay.GetValueAtLevel(BareHandedWeaponData.Level);
-	if (const FEquippedItem* MainHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_MainHand))
+	if (const FEquippedItem* MainHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_Hand_Main))
 	{
 		AutoAttackDelay = MainHandWeapon->WeaponData.AutoAttackDelay.GetValueAtLevel(MainHandWeapon->WeaponData.Level);
 	}
 	
-	if (const FEquippedItem* SubHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_SubHand))
+	if (const FEquippedItem* SubHandWeapon = EquippedItemsContainer.FindItemByEquipSlot(FCrysGameplayTags::Get().EquipSlot_Hand_Sub))
 	{
 		AutoAttackDelay += SubHandWeapon->WeaponData.AutoAttackDelay.GetValueAtLevel(SubHandWeapon->WeaponData.Level);
 	}

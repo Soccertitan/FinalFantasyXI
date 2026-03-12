@@ -20,12 +20,12 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify)
 	TArray<UCrysGameplayTagViewModel*> GetAllowedJobViewModels() const {return AllowedJobViewModels;}
 	UFUNCTION(BlueprintPure, FieldNotify)
-	TArray<UCrysGameplayTagViewModel*> GetEquipSlotViewModels() const {return EquipSlotViewModels;}
+	UCrysGameplayTagViewModel* GetEquipSlotViewModels() const {return EquipSlotViewModel;}
 	
 protected:
 	void SetLevelRequirement(int32 Value);
 	void SetAllowedJobViewModels(TArray<UCrysGameplayTagViewModel*> Value);
-	void SetEquipSlotViewModels(TArray<UCrysGameplayTagViewModel*> Value);
+	void SetEquipSlotViewModels(UCrysGameplayTagViewModel* Value);
 	
 	virtual void OnItemInstanceSet() override;
 	virtual void OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition) override;
@@ -35,7 +35,7 @@ private:
 	int32 LevelRequirement = 0;
 
 	UPROPERTY()
-	TArray<TObjectPtr<UCrysGameplayTagViewModel>> EquipSlotViewModels;
+	TObjectPtr<UCrysGameplayTagViewModel> EquipSlotViewModel;
 	
 	UPROPERTY()
 	TArray<TObjectPtr<UCrysGameplayTagViewModel>> AllowedJobViewModels;

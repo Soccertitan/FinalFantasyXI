@@ -98,7 +98,7 @@ AActor* AHeroPlayerState::GetAbilityTarget_Implementation(const FGameplayTagCont
 
 FWeaponData AHeroPlayerState::GetPrimaryWeaponData_Implementation() const
 {
-	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_MainHand).WeaponData;
+	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_Hand_Main).WeaponData;
 	if (!Result.IsValid())
 	{
 		Result = EquipmentManagerComponent->GetBareHandedWeaponData();
@@ -108,7 +108,7 @@ FWeaponData AHeroPlayerState::GetPrimaryWeaponData_Implementation() const
 
 FWeaponData AHeroPlayerState::GetSecondaryWeaponData_Implementation() const
 {
-	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_SubHand).WeaponData;
+	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_Hand_Sub).WeaponData;
 }
 
 AActor* AHeroPlayerState::GetTargetActor_Implementation()

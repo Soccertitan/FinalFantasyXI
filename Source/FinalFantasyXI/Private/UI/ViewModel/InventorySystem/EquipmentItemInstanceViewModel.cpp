@@ -19,9 +19,9 @@ void UEquipmentItemInstanceViewModel::SetAllowedJobViewModels(TArray<UCrysGamepl
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAllowedJobViewModels);
 }
 
-void UEquipmentItemInstanceViewModel::SetEquipSlotViewModels(TArray<UCrysGameplayTagViewModel*> Value)
+void UEquipmentItemInstanceViewModel::SetEquipSlotViewModels(UCrysGameplayTagViewModel* Value)
 {
-	EquipSlotViewModels = Value;
+	EquipSlotViewModel = Value;
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetEquipSlotViewModels);
 }
 
@@ -48,22 +48,17 @@ void UEquipmentItemInstanceViewModel::OnItemDefinitionLoaded(const UItemDefiniti
 	if (const FItemFragment_Equipment* ItemFragment = ItemDefinition->FindFragmentByType<FItemFragment_Equipment>())
 	{
 		SetLevelRequirement(ItemFragment->LevelRequirement);
-		
-		TArray<UCrysGameplayTagViewModel*> AllowedEquipSlots;
-		for (const FGameplayTag& EquipSlot : ItemFragment->EquipSlots.GetGameplayTagArray())
-		{
-			UCrysGameplayTagViewModel* NewVM = NewObject<UCrysGameplayTagViewModel>(this);
-			NewVM->SetGameplayTag(EquipSlot);
-			AllowedEquipSlots.Add(NewVM);
-		}
-		SetEquipSlotViewModels(AllowedEquipSlots);
+
+		UCrysGameplayTagViewModel* NewVM = NewObject<UCrysGameplayTagViewModel>(this);
+		NewVM->SetGameplayTag(ItemFragment->EquipSlot);
+		SetEquipSlotViewModels(NewVM);
 		
 		TArray<UCrysGameplayTagViewModel*> AllowedJobs;
 		for (const FGameplayTag& Job : ItemFragment->Jobs.GetGameplayTagArray())
 		{
-			UCrysGameplayTagViewModel* NewVM = NewObject<UCrysGameplayTagViewModel>(this);
-			NewVM->SetGameplayTag(Job);
-			AllowedJobs.Add(NewVM);
+			UCrysGameplayTagViewModel* NewJobVM = NewObject<UCrysGameplayTagViewModel>(this);
+			NewJobVM->SetGameplayTag(Job);
+			AllowedJobs.Add(NewJobVM);
 		}
 		SetAllowedJobViewModels(AllowedJobs);
 	}

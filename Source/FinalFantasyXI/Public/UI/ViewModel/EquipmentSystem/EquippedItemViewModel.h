@@ -21,12 +21,12 @@ class FINALFANTASYXI_API UEquippedItemViewModel : public UMVVMViewModelBase
 public:
 	FGameplayTag GetEquipSlot() const { return EquipSlot; }
 	UItemInstanceViewModel* GetItemInstanceViewModel() const { return ItemInstanceViewModel; }
-	UCrysGameplayTagViewModel* GetTagRelationshipItem() const { return TagRelationshipItem; }
+	UCrysGameplayTagViewModel* GetEquipSlotGameplayTagViewModel() const { return EquipSlotGameplayTagViewModel; }
 	
 protected:
 	void SetEquipSlot(const FGameplayTag& InValue);
 	void SetItemInstanceViewModel(UItemInstanceViewModel* InValue);
-	void SetTagRelationshipItem(UCrysGameplayTagViewModel* InValue);
+	void SetEquipSlotGameplayTagViewModel(UCrysGameplayTagViewModel* InValue);
 	
 private:
 	/** The EquipSlot the item is equipped to. */
@@ -37,7 +37,7 @@ private:
 	TObjectPtr<UItemInstanceViewModel> ItemInstanceViewModel;
 	
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Category = "EquippedItemViewModel", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UCrysGameplayTagViewModel> TagRelationshipItem;
+	TObjectPtr<UCrysGameplayTagViewModel> EquipSlotGameplayTagViewModel;
 	
 	friend class UEquipmentManagerViewModel;
 };

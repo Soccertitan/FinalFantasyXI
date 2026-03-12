@@ -61,8 +61,9 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	/**
 	 * EquipSlot Tags
 	 */
-	GameplayTags.EquipSlot_MainHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.MainHand"), FString("Main Hand slot that can only hold a weapon)."));
-	GameplayTags.EquipSlot_SubHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.SubHand"), FString("Sub Hand slot for dual wielding, shield, ammo, or some other sub hand equipment"));
+	GameplayTags.EquipSlot_Hand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Hand"), FString("Hand slot. An equipment with this can be wielded in both the MainHand and SubHand."));
+	GameplayTags.EquipSlot_Hand_Main = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Hand.Main"), FString("Main Hand slot that can only hold a weapon."));
+	GameplayTags.EquipSlot_Hand_Sub = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Hand.Sub"), FString("Sub Hand slot for dual wielding, shield, ammo, or some other sub hand equipment"));
 	GameplayTags.EquipSlot_Special = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Special"), FString("Special slot for unique tools (instruments, throwing, etc.)."));
 	
 	/**
