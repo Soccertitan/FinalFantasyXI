@@ -1,16 +1,14 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/OverlayViewModel.h"
+#include "UI/ViewModel/AbilitySystem/HeroAttributesViewModel.h"
 
-#include "CrimAbilitySystemComponent.h"
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "Player/CrysPlayerState.h"
 
-
-void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerController)
+void UHeroAttributesViewModel::OnInitializeViewModel(APlayerController* PlayerController)
 {
 	Super::OnInitializeViewModel(PlayerController);
-
+	
 	AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(PlayerController->GetPlayerState<ACrysPlayerState>());
 }

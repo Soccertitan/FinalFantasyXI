@@ -10,7 +10,8 @@
 
 #define LOCTEXT_NAMESPACE "UMG"
 
-UUINavWidgetListView::UUINavWidgetListView()
+UUINavWidgetListView::UUINavWidgetListView(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
 {
 	NumberOfEntryWidgetsToCreate = 1;
 	CurrentPage = 1;
@@ -153,20 +154,24 @@ void UUINavWidgetListView::NativePreConstruct()
 
 	if (EntryWidgetClass)
 	{
-		ListView->ClearChildren();
-		
-		for (int32 idx = 0; idx < NumberOfEntryWidgetsToCreate; idx++)
+		if (ListView)
 		{
-			UUINavComponent* NewNavComp = CreateWidget<UUINavComponent>(this, EntryWidgetClass);
-			if (IsDesignTime())
+			ListView->ClearChildren();
+		
+			for (int32 idx = 0; idx < NumberOfEntryWidgetsToCreate; idx++)
 			{
-				NewNavComp->SetVisibility(ESlateVisibility::Visible);
+				UUINavComponent* NewNavComp = CreateWidget<UUINavComponent>(this, EntryWidgetClass);
+				if (IsDesignTime())
+				{
+					NewNavComp->SetVisibility(ESlateVisibility::Visible);
+				}
+				else
+				{
+					NewNavComp->SetVisibility(VisibilityWithNoListItem);
+				}
+				IUINavListViewEntryInterface::Execute_ClearListViewItem(NewNavComp);
+				ListView->AddChild(NewNavComp);
 			}
-			else
-			{
-				NewNavComp->SetVisibility(VisibilityWithNoListItem);
-			}
-			ListView->AddChild(NewNavComp);
 		}
 	}
 }

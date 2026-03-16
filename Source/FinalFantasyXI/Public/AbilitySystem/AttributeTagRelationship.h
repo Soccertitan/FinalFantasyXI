@@ -33,6 +33,10 @@ struct FAttributeRelationshipItem
 	/** Icon for this attribute. */
 	UPROPERTY(EditAnywhere)
 	TSoftObjectPtr<UTexture2D> Icon;
+	
+	/** Set to true to display the value as a percent. i.e. 0.12 will display as 12.*/
+	UPROPERTY(EditAnywhere)
+	bool bDisplayValueAsPercent = false;
 
 	/** The attribute to query from the ASC. */
 	UPROPERTY(EditAnywhere)

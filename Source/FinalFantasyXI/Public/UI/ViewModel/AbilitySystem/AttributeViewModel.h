@@ -40,6 +40,8 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	FText GetDescription() const {return AttributeTagRelationshipItem.Description;}
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
+	bool IsAttributePercentValue() const {return AttributeTagRelationshipItem.bDisplayValueAsPercent;}
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	TSoftObjectPtr<UTexture2D> GetIcon() const {return AttributeTagRelationshipItem.Icon;}
 	
 	FCrysAttributeViewModelValueChangedSignature OnCurrentValueChangedDelegate;

@@ -74,6 +74,7 @@ void UAttributeViewModel::FindAndSetAttributeTagRelationshipItem(const FGameplay
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetIcon);
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAttributeName);
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetShortName);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsAttributePercentValue);
 	}
 }
 

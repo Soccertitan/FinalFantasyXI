@@ -3,34 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CrysViewModel.h"
-#include "OverlayViewModel.generated.h"
+#include "UI/ViewModel/CrysViewModel.h"
+#include "HeroAttributesViewModel.generated.h"
 
-class UAttributeViewModel;
-class UAttributeFractionViewModel;
 class UCrimAbilitySystemComponent;
-struct FGameplayTag;
 
 /**
- * The overlay viewmodel for the Hero.
+ * Display information about the hero's attributes from the Ability System Component.
  */
 UCLASS(Abstract)
-class FINALFANTASYXI_API UOverlayViewModel : public UCrysViewModel
+class FINALFANTASYXI_API UHeroAttributesViewModel : public UCrysViewModel
 {
 	GENERATED_BODY()
-
+	
 public:
-
+	
 protected:
 	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
-
+	
 	/** The AbilitySystemComponent of the controlled pawn. */
-	UFUNCTION(BlueprintPure, Category = "Viewmodel|Overlay")
+	UFUNCTION(BlueprintPure, Category = "Viewmodel|Attribute")
 	UCrimAbilitySystemComponent* GetAbilitySystemComponent() const {return AbilitySystemComponent;}
-
+	
 private:
-
-	/** The AbilitySystemComponent of the controlled pawn. */
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
 };

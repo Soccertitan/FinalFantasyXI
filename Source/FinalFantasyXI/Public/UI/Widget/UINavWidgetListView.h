@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CrysUINavWidget.h"
+#include "UINavWidget.h"
 #include "UINavWidgetListView.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUINavWidgetListViewOnFocusedComponentUpdatedSignature, UUINavComponent*, Component);
@@ -14,12 +14,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUINavWidgetListViewOnFocusedCompone
  * child items will be hidden/collapsed when there is no entry.
  */
 UCLASS(Abstract)
-class FINALFANTASYXI_API UUINavWidgetListView : public UCrysUINavWidget
+class FINALFANTASYXI_API UUINavWidgetListView : public UUINavWidget
 {
 	GENERATED_BODY()
 
 public:
-	UUINavWidgetListView();
+	UUINavWidgetListView(const FObjectInitializer& ObjectInitializer);
 
 #if WITH_EDITOR
 	virtual void ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const override;
