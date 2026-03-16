@@ -23,10 +23,12 @@ class FINALFANTASYXI_API UAttributeViewModel : public UMVVMViewModelBase
 
 public:
 	/** Will bind to the ASC and listen for attribute changes on the character. */
-	void SetAttribute(const FGameplayTag& AttributeTag, UAbilitySystemComponent* InAbilitySystemComponent);
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Attribute")
+	void SetAttributeWithASC(UPARAM(meta = (Categories = "Attribute")) const FGameplayTag AttributeTag, UAbilitySystemComponent* InAbilitySystemComponent);
 
 	/** Manually initializes the ViewModel with static data. */
-	void SetAttribute(const FGameplayTag& AttributeTag, float InCurrentValue, float InBaseValue);
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Attribute")
+	void SetAttribute(UPARAM(meta = (Categories = "Attribute")) const FGameplayTag AttributeTag, float InCurrentValue, float InBaseValue);
 
 	float GetCurrentValue() const {return CurrentValue;}
 	void SetCurrentValue(float InValue);

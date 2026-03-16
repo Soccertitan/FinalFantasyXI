@@ -22,9 +22,10 @@ public:
 	UAttributeFractionViewModel();
 
 	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Attribute")
-	void SetAttributesWithASC(UAbilitySystemComponent* InAbilitySystemComponent,
+	void SetAttributesWithASC(
 		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag NumeratorAttributeTag,
-		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag DenominatorAttributeTag);
+		UPARAM(meta = (Categories = "Attribute")) const FGameplayTag DenominatorAttributeTag,
+		UAbilitySystemComponent* InAbilitySystemComponent);
 
 	UFUNCTION(BlueprintCallable, Category = "Viewmodel|Attribute")
 	void SetAttributes(UPARAM(meta = (Categories = "Attribute"))const FGameplayTag NumeratorAttributeTag, float NumeratorCurrentValue, float NumeratorBaseValue,

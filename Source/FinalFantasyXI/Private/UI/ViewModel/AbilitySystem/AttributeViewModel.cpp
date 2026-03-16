@@ -9,7 +9,7 @@
 #include "CrysLogChannels.h"
 #include "Settings/FinalFantasyXIGameData.h"
 
-void UAttributeViewModel::SetAttribute(const FGameplayTag& AttributeTag, UAbilitySystemComponent* InAbilitySystemComponent)
+void UAttributeViewModel::SetAttributeWithASC(const FGameplayTag AttributeTag, UAbilitySystemComponent* InAbilitySystemComponent)
 {
 	if (!InAbilitySystemComponent)
 	{
@@ -44,7 +44,7 @@ void UAttributeViewModel::SetAttribute(const FGameplayTag& AttributeTag, UAbilit
 	}
 }
 
-void UAttributeViewModel::SetAttribute(const FGameplayTag& AttributeTag, float InCurrentValue, float InBaseValue)
+void UAttributeViewModel::SetAttribute(const FGameplayTag AttributeTag, float InCurrentValue, float InBaseValue)
 {
 	FindAndSetAttributeTagRelationshipItem(AttributeTag);
 

@@ -11,8 +11,8 @@ UAttributeFractionViewModel::UAttributeFractionViewModel()
 {
 }
 
-void UAttributeFractionViewModel::SetAttributesWithASC(UAbilitySystemComponent* InAbilitySystemComponent,
-                                                    const FGameplayTag NumeratorAttributeTag, const FGameplayTag DenominatorAttributeTag)
+void UAttributeFractionViewModel::SetAttributesWithASC(const FGameplayTag NumeratorAttributeTag, 
+	const FGameplayTag DenominatorAttributeTag, UAbilitySystemComponent* InAbilitySystemComponent)
 {
 	if (!InAbilitySystemComponent)
 	{
@@ -22,8 +22,8 @@ void UAttributeFractionViewModel::SetAttributesWithASC(UAbilitySystemComponent* 
 
 	CreateViewModelsAndBindToDelegates();
 
-	NumeratorAttribute->SetAttribute(NumeratorAttributeTag, InAbilitySystemComponent);
-	DenominatorAttribute->SetAttribute(DenominatorAttributeTag, InAbilitySystemComponent);
+	NumeratorAttribute->SetAttributeWithASC(NumeratorAttributeTag, InAbilitySystemComponent);
+	DenominatorAttribute->SetAttributeWithASC(DenominatorAttributeTag, InAbilitySystemComponent);
 }
 
 void UAttributeFractionViewModel::SetAttributes(const FGameplayTag NumeratorAttributeTag,
