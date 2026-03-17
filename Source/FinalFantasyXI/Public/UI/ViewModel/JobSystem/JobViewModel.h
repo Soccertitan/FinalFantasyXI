@@ -40,16 +40,16 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Job")
 	float GetPercentageTowardsNextLevel() const;
 
-	void SetJobAndProgress(UJobDefinition* InHeroJob, const FJobProgressItem& InHeroJobProgressItem);
-	void SetJobProgressItem(const FJobProgressItem& InHeroJobProgressItem);
-	void SetIsMainJob(bool InValue);
-	void SetIsSubJob(bool InValue);
-
 	UJobDefinition* GetJob() const { return JobDefinition; }
 
 protected:
 	void SetIsJobAvailable(bool InValue);
 	void SetJobDefinition(UJobDefinition* InHeroJob);
+	
+	void SetJobAndProgress(UJobDefinition* InHeroJob, const FJobProgressItem& InHeroJobProgressItem);
+	void SetJobProgressItem(const FJobProgressItem& InHeroJobProgressItem);
+	void SetIsMainJob(bool InValue);
+	void SetIsSubJob(bool InValue);
 
 private:
 	/** The cached value of the HeroJobDefinition. */
@@ -68,4 +68,6 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter="IsSubJob", meta=(AllowPrivateAccess=true))
 	bool bSubJob = false;
+	
+	friend class UJobManagerViewModel;
 };

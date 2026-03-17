@@ -5,14 +5,10 @@
 
 #include "UObject/AssetRegistryTagsContext.h"
 
-URaceDefinition::URaceDefinition()
-{
-	AssetType = TEXT("RaceDefinition");
-}
 
 FPrimaryAssetId URaceDefinition::GetPrimaryAssetId() const
 {
-	return FPrimaryAssetId(AssetType, GetFName());
+	return FPrimaryAssetId(StaticClass()->GetFName(), GetFName());
 }
 
 void URaceDefinition::GetAssetRegistryTags(FAssetRegistryTagsContext Context) const

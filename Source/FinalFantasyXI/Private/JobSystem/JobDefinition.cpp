@@ -5,14 +5,10 @@
 
 #include "UObject/AssetRegistryTagsContext.h"
 
-UJobDefinition::UJobDefinition()
-{
-	AssetType = TEXT("JobDefinition");
-}
 
 FPrimaryAssetId UJobDefinition::GetPrimaryAssetId() const
 {
-	return FPrimaryAssetId(AssetType, GetFName());
+	return FPrimaryAssetId(StaticClass()->GetFName(), GetFName());
 }
 
 void UJobDefinition::GetAssetRegistryTags(FAssetRegistryTagsContext Context) const

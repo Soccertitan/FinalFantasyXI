@@ -19,12 +19,8 @@ class FINALFANTASYXI_API URaceDefinition : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	URaceDefinition();
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 	virtual void GetAssetRegistryTags(FAssetRegistryTagsContext Context) const override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Asset")
-	FPrimaryAssetType AssetType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Race")
 	FText RaceName;

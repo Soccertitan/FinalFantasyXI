@@ -9,6 +9,11 @@
 #include "JobSystem/JobSystemBlueprintFunctionLibrary.h"
 #include "UI/ViewModel/JobSystem/JobViewModel.h"
 
+bool UJobManagerViewModel::IsSubJobEquipped() const
+{
+	return SubJobViewModel ? true : false;
+}
+
 UJobViewModel* UJobManagerViewModel::FindJobViewModel(FGameplayTag JobTag)
 {
 	if (JobTag.IsValid())
@@ -89,8 +94,7 @@ void UJobManagerViewModel::SetMainJobViewModel(UJobViewModel* InValue)
 	{
 		InValue->SetIsMainJob(true);
 	}
-	MainJobViewModel = InValue;
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetMainJobViewModel);
+	UE_MVVM_SET_PROPERTY_VALUE(MainJobViewModel, InValue);
 }
 
 void UJobManagerViewModel::SetSubJobViewModel(UJobViewModel* InValue)
@@ -99,8 +103,8 @@ void UJobManagerViewModel::SetSubJobViewModel(UJobViewModel* InValue)
 	{
 		InValue->SetIsSubJob(false);
 	}
-	SubJobViewModel = InValue;
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetSubJobViewModel);
+	UE_MVVM_SET_PROPERTY_VALUE(SubJobViewModel, InValue);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsSubJobEquipped);
 }
 
 void UJobManagerViewModel::LoadJobs()
@@ -189,7 +193,14 @@ void UJobManagerViewModel::OnSubJobChanged()
 
 	if (!bFoundExistingJob)
 	{
-		CreateJobViewModel(SubJob);
+		if (SubJob)
+		{
+			CreateJobViewModel(SubJob);
+		}
+		else
+		{
+			SetSubJobViewModel(nullptr);
+		}
 	}
 }
 

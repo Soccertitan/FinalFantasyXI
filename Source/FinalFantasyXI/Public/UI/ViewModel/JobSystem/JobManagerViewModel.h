@@ -25,10 +25,11 @@ public:
 	bool GetIsLoadingJobs() const { return bLoadingJobs; }
 	bool GetIsSwitchingJobs() const { return bSwitchingJobs; }
 
-	UFUNCTION(BlueprintPure, FieldNotify)
 	UJobViewModel* GetMainJobViewModel() const { return MainJobViewModel; }
-	UFUNCTION(BlueprintPure, FieldNotify)
 	UJobViewModel* GetSubJobViewModel() const { return SubJobViewModel; }
+	
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Job")
+	bool IsSubJobEquipped() const;
 
 	/** Finds a ViewModel with the specified JobTag. */
 	UFUNCTION(BlueprintPure, Category = "Viewmodel|Job")
@@ -65,11 +66,11 @@ private:
 	TSharedPtr<FStreamableHandle> JobStreamableHandle;
 
 	/** The current MainJob the player is. */
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, FieldNotify, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UJobViewModel> MainJobViewModel;
 	
 	/** The current SubJob the player is. */
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, FieldNotify, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UJobViewModel> SubJobViewModel;
 
 	/** All the Job ViewModels created from the JobsToLoad. */

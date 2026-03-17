@@ -20,12 +20,8 @@ class FINALFANTASYXI_API UJobDefinition : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	UJobDefinition();
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 	virtual void GetAssetRegistryTags(FAssetRegistryTagsContext Context) const override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Asset")
-	FPrimaryAssetType AssetType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Job|UI")
 	FText JobName;
