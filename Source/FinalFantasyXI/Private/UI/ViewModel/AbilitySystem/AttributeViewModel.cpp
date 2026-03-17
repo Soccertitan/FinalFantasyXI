@@ -54,10 +54,7 @@ void UAttributeViewModel::SetAttribute(const FGameplayTag AttributeTag, float In
 
 void UAttributeViewModel::SetCurrentValue(float InValue)
 {
-	if (UE_MVVM_SET_PROPERTY_VALUE(CurrentValue, InValue))
-	{
-		OnCurrentValueChangedDelegate.Broadcast();
-	}
+	UE_MVVM_SET_PROPERTY_VALUE(CurrentValue, InValue);
 }
 
 void UAttributeViewModel::SetBaseValue(float InValue)

@@ -47,5 +47,5 @@ private:
 	TObjectPtr<UAttributeViewModel> DenominatorAttribute;
 
 	void CreateViewModelsAndBindToDelegates();
-	void BroadcastValueChanged();
+	void BroadcastValueChanged(UObject* Object, UE::FieldNotification::FFieldId FieldId);
 };

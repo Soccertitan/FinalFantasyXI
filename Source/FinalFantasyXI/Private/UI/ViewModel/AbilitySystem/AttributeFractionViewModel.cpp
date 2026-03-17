@@ -52,19 +52,20 @@ float UAttributeFractionViewModel::GetPercentCurrentValue() const
 
 void UAttributeFractionViewModel::CreateViewModelsAndBindToDelegates()
 {
+	FFieldValueChangedDelegate Delegate = FFieldValueChangedDelegate::CreateUObject(this, &UAttributeFractionViewModel::BroadcastValueChanged);
 	if (!NumeratorAttribute)
 	{
 		NumeratorAttribute = NewObject<UAttributeViewModel>(this, UAttributeViewModel::StaticClass());
-		NumeratorAttribute->OnCurrentValueChangedDelegate.AddUObject(this, &UAttributeFractionViewModel::BroadcastValueChanged);
+		NumeratorAttribute->AddFieldValueChangedDelegate(UAttributeViewModel::FFieldNotificationClassDescriptor::CurrentValue, Delegate);
 	}
 	if (!DenominatorAttribute)
 	{
 		DenominatorAttribute = NewObject<UAttributeViewModel>(this, UAttributeViewModel::StaticClass());
-		DenominatorAttribute->OnCurrentValueChangedDelegate.AddUObject(this, &UAttributeFractionViewModel::BroadcastValueChanged);
+		DenominatorAttribute->AddFieldValueChangedDelegate(UAttributeViewModel::FFieldNotificationClassDescriptor::CurrentValue, Delegate);
 	}
 }
 
-void UAttributeFractionViewModel::BroadcastValueChanged()
+void UAttributeFractionViewModel::BroadcastValueChanged(UObject* Object, UE::FieldNotification::FFieldId FieldId)
 {
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetPercentCurrentValue);
 }

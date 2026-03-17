@@ -11,7 +11,6 @@ class UAttributeTagRelationship;
 class UAbilitySystemComponent;
 struct FGameplayTag;
 
-DECLARE_MULTICAST_DELEGATE(FCrysAttributeViewModelValueChangedSignature);
 
 /**
  * Takes an AttributeTag and displays information about that attribute.
@@ -31,9 +30,7 @@ public:
 	void SetAttribute(UPARAM(meta = (Categories = "Attribute")) const FGameplayTag AttributeTag, float InCurrentValue, float InBaseValue);
 
 	float GetCurrentValue() const {return CurrentValue;}
-	void SetCurrentValue(float InValue);
 	float GetBaseValue() const {return BaseValue;}
-	void SetBaseValue(float InValue);
 
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	FText GetAttributeName() const {return AttributeTagRelationshipItem.Name;}
@@ -46,7 +43,12 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Attribute")
 	TSoftObjectPtr<UTexture2D> GetIcon() const {return AttributeTagRelationshipItem.Icon;}
 	
-	FCrysAttributeViewModelValueChangedSignature OnCurrentValueChangedDelegate;
+protected:
+	void SetCurrentValue(float InValue);
+	void SetBaseValue(float InValue);
+
+	UFUNCTION(BlueprintPure, Category = "Viewmodel|Attribute")
+	UAbilitySystemComponent* GetAbilitySystemComponent() const {return AbilitySystemComponent;}
 
 private:
 	/** The static details of the attribute. */
