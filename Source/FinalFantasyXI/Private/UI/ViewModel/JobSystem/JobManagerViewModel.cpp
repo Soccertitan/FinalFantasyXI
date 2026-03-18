@@ -29,41 +29,54 @@ UJobViewModel* UJobManagerViewModel::FindJobViewModel(FGameplayTag JobTag)
 	return nullptr;
 }
 
-void UJobManagerViewModel::TrySetJobs(FGameplayTag MainJobTag, FGameplayTag SubJobTag)
+void UJobManagerViewModel::TrySetJobs(UJobViewModel* InMainJobViewModel, UJobViewModel* InSubJobViewModel)
 {
-	if (!MainJobTag.IsValid() || !JobManagerComponent || bSwitchingJobs || MainJobTag == SubJobTag)
+	if (!InMainJobViewModel || !JobManagerComponent || bSwitchingJobs)
 	{
 		return;
 	}
 	
-	UJobDefinition* NewMainJob = nullptr;
-	UJobDefinition* NewSubJob = nullptr;
-
-	for (const TObjectPtr<UJobViewModel>& JobViewModel : JobViewModels)
-	{
-		if (JobViewModel->GetJob()->JobTag.MatchesTagExact(MainJobTag))
-		{
-			NewMainJob = JobViewModel->GetJob();
-			break;
-		}
-	}
-	
-	if (SubJobTag.IsValid())
-	{
-		for (const TObjectPtr<UJobViewModel>& JobViewModel : JobViewModels)
-		{
-			if (JobViewModel->GetJob()->JobTag.MatchesTagExact(SubJobTag))
-			{
-				NewSubJob = JobViewModel->GetJob();
-				break;
-			}
-		}
-	}
+	UJobDefinition* NewMainJob = InMainJobViewModel->GetJob();
+	UJobDefinition* NewSubJob = InSubJobViewModel ? InSubJobViewModel->GetJob() : nullptr;
 
 	if (NewMainJob)
 	{
 		UE_MVVM_SET_PROPERTY_VALUE(bSwitchingJobs, true);
 		JobManagerComponent->TrySetJobs(NewMainJob, NewSubJob);
+	}
+}
+
+void UJobManagerViewModel::TrySetMainJob(UJobViewModel* JobViewModel)
+{
+	if (!JobViewModel || !JobManagerComponent || bSwitchingJobs)
+	{
+		return;
+	}
+	
+	if (JobManagerComponent->GetSubJob() == JobViewModel->GetJob())
+	{
+		JobManagerComponent->TrySetJobs(JobViewModel->GetJob(), JobManagerComponent->GetMainJob());
+	}
+	else
+	{
+		JobManagerComponent->TrySetJobs(JobViewModel->GetJob(), JobManagerComponent->GetSubJob());
+	}
+}
+
+void UJobManagerViewModel::TrySetSubJob(UJobViewModel* JobViewModel)
+{
+	if (!JobViewModel || !JobManagerComponent || bSwitchingJobs)
+	{
+		return;
+	}
+	
+	if (JobManagerComponent->GetMainJob() == JobViewModel->GetJob())
+	{
+		JobManagerComponent->TrySetJobs(JobManagerComponent->GetSubJob(), JobViewModel->GetJob());
+	}
+	else
+	{
+		JobManagerComponent->TrySetJobs( JobManagerComponent->GetMainJob(), JobViewModel->GetJob());
 	}
 }
 
@@ -77,15 +90,12 @@ void UJobManagerViewModel::OnInitializeViewModel(APlayerController* PlayerContro
 		JobManagerComponent->OnSubJobChangedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnSubJobChanged);
 		JobManagerComponent->OnTrySetJobDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnTrySetJob);
 		JobManagerComponent->OnJobProgressUpdatedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnJobProgressUpdated);
+		JobManagerComponent->OnJobManagerDataUpdatedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnJobManagerDataUpdated);
+		OnJobManagerDataUpdated();
 		CreateJobViewModel(JobManagerComponent->GetMainJob());
 		CreateJobViewModel(JobManagerComponent->GetSubJob());
 		LoadJobs();
 	}
-}
-
-void UJobManagerViewModel::SetIsLoadingJobs(const bool InValue)
-{
-	UE_MVVM_SET_PROPERTY_VALUE(bLoadingJobs, InValue);
 }
 
 void UJobManagerViewModel::SetMainJobViewModel(UJobViewModel* InValue)
@@ -122,7 +132,7 @@ void UJobManagerViewModel::OnJobsLoaded()
 			CreateJobViewModel(JobDefinition);
 		}
 	}
-	UE_MVVM_SET_PROPERTY_VALUE(bLoadingJobs, false);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(JobsLoaded);
 	JobStreamableHandle.Reset();
 }
 
@@ -219,4 +229,16 @@ void UJobManagerViewModel::OnJobProgressUpdated(const FJobProgressItem& JobProgr
 			return;
 		}
 	}
+}
+
+void UJobManagerViewModel::OnJobManagerDataUpdated()
+{
+	JobManagerData = JobManagerComponent->GetJobManagerData();
+	
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetLevel);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetExperience);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetMaxLevel);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetMaxJobLevel);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsSubJobUnlocked);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetSubJobEfficiency);
 }
