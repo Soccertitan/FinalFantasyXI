@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WidgetBlueprintFunctionLibrary.generated.h"
 
+enum class ESelectorPosition : uint8;
 class UWidget;
 /**
  * 
@@ -24,4 +25,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "WidgetFunctionLibrary", meta=(DeterminesOutputType=TestClass, DefaultToSelf = UserWidget))
 	static TArray<UWidget*> TraverseWidgetHierarchy(UUserWidget* UserWidget, TSubclassOf<UUserWidget> TestClass);
+	
+	UFUNCTION(BlueprintPure, Category = "WidgetFunctionLibrary")
+	static FVector2D GetLocation(UWidget* Widget, const ESelectorPosition Offset, const bool bUseViewportPosition);
 };
