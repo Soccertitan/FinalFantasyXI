@@ -7,11 +7,43 @@
 #include "GameFramework/PlayerState.h"
 #include "JobSystem/JobManagerComponent.h"
 #include "JobSystem/JobSystemBlueprintFunctionLibrary.h"
+#include "JobSystem/RaceDefinition.h"
 #include "UI/ViewModel/JobSystem/JobViewModel.h"
 
 bool UJobManagerViewModel::IsSubJobEquipped() const
 {
 	return SubJobViewModel ? true : false;
+}
+
+int32 UJobManagerViewModel::GetExperienceRequiredUntilNextLevel() const
+{
+	if (JobManagerComponent && JobManagerComponent->GetRaceDefinition())
+	{
+		URaceDefinition* RaceDefinition = JobManagerComponent->GetRaceDefinition();
+		const int32 RequiredExp = RaceDefinition->ExperienceRequirement.GetValueAtLevel(JobManagerData.Level);
+		return FMath::Max(RequiredExp - JobManagerData.Experience, 0);
+	}
+	return 0;
+}
+
+float UJobManagerViewModel::GetPercentageTowardsNextLevel() const
+{
+	if (JobManagerComponent && JobManagerComponent->GetRaceDefinition())
+	{
+		URaceDefinition* RaceDefinition = JobManagerComponent->GetRaceDefinition();
+		const float PreviousLevelRequirement = RaceDefinition->ExperienceRequirement.GetValueAtLevel(JobManagerData.Level - 1);
+		const float NextLevelRequirement = RaceDefinition->ExperienceRequirement.GetValueAtLevel(JobManagerData.Level);
+		
+		const float ExperienceIntoNextLevel = JobManagerData.Experience - PreviousLevelRequirement;
+		const float TotalExperienceRequired = NextLevelRequirement - PreviousLevelRequirement;
+		
+		if (TotalExperienceRequired > 0)
+		{
+			return FMath::Clamp(ExperienceIntoNextLevel / TotalExperienceRequired, 0.f, 1.f);
+		}
+	}
+
+	return 0.f;
 }
 
 UJobViewModel* UJobManagerViewModel::FindJobViewModel(FGameplayTag JobTag)
@@ -241,4 +273,6 @@ void UJobManagerViewModel::OnJobManagerDataUpdated()
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetMaxJobLevel);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsSubJobUnlocked);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetSubJobEfficiency);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetPercentageTowardsNextLevel);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetExperienceRequiredUntilNextLevel);
 }

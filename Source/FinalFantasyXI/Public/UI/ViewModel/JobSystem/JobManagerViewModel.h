@@ -47,6 +47,11 @@ public:
 	bool IsSubJobUnlocked() const { return JobManagerData.bSubJobUnlocked; }
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Job")
 	float GetSubJobEfficiency() const { return JobManagerData.SubJobEfficiency; } 
+	
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Job")
+	int32 GetExperienceRequiredUntilNextLevel() const;
+	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Job")
+	float GetPercentageTowardsNextLevel() const;
 
 	/** Finds a ViewModel with the specified JobTag. */
 	UFUNCTION(BlueprintPure, Category = "Viewmodel|Job")
