@@ -198,6 +198,9 @@ private:
 	 */
 	void ApplyBaseAttributes();
 	
+	/** Sets the HP and MP attributes to the maximum value. */
+	void MaximizeHPMPAttributes();
+	
 	/** Stored AbilitySet handles from the RaceDefinition Traits. */
 	UPROPERTY()
 	FAbilitySet_GrantedHandles AbilitySet_GrantedHandles_RaceTraits;

@@ -67,6 +67,7 @@ void UJobManagerComponent::InitializeWithAbilitySystem_Implementation(UCrimAbili
 			
 			BindToAttributeDelegates();
 			ApplyBaseAttributes();
+			MaximizeHPMPAttributes();
 		}
 	}
 }
@@ -161,6 +162,7 @@ void UJobManagerComponent::RestoreJobProgressItems(const TArray<FJobProgressItem
 		}
 		bSkipApplyingBaseStats = false;
 		ApplyBaseAttributes();
+		MaximizeHPMPAttributes();
 	}
 }
 
@@ -227,6 +229,7 @@ void UJobManagerComponent::TrySetJobs(UJobDefinition* InMainJob, UJobDefinition*
 	if (AbilitySystemComponent)
 	{
 		ApplyBaseAttributes();
+		MaximizeHPMPAttributes();
 	}
 
 	if (bMainJobChanged)
@@ -260,6 +263,7 @@ void UJobManagerComponent::SetRaceDefinition(URaceDefinition* InRaceDefinition)
 	{
 		ApplyRaceTraits();
 		ApplyBaseAttributes();
+		MaximizeHPMPAttributes();
 	}
 	OnRep_RaceDefinition();
 }
@@ -462,6 +466,27 @@ void UJobManagerComponent::ApplyBaseAttributes()
 	AbilitySystemComponent->ApplyGameplayEffectToSelf(BaseStats, 1.0f, AbilitySystemComponent->MakeEffectContext());
 }
 
+void UJobManagerComponent::MaximizeHPMPAttributes()
+{
+	UGameplayEffect* GameplayEffect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("MaximizeAttributes")));
+	GameplayEffect->DurationPolicy = EGameplayEffectDurationType::Instant;
+	
+	int32 Idx = GameplayEffect->Modifiers.Num();
+	GameplayEffect->Modifiers.SetNum(Idx + 2);
+	
+	FGameplayModifierInfo& InfoMaxHP = GameplayEffect->Modifiers[Idx];
+	InfoMaxHP.ModifierMagnitude = FScalableFloat(AbilitySystemComponent->GetNumericAttribute(UHitPointsAttributeSet::GetMaxPointsAttribute()));
+	InfoMaxHP.ModifierOp = EGameplayModOp::Override;
+	InfoMaxHP.Attribute = UHitPointsAttributeSet::GetCurrentPointsAttribute();
+	
+	FGameplayModifierInfo& InfoMaxMP = GameplayEffect->Modifiers[Idx + 1];
+	InfoMaxMP.ModifierMagnitude = FScalableFloat(AbilitySystemComponent->GetNumericAttribute(UManaPointsAttributeSet::GetMaxPointsAttribute()));
+	InfoMaxMP.ModifierOp = EGameplayModOp::Override;
+	InfoMaxMP.Attribute = UManaPointsAttributeSet::GetCurrentPointsAttribute();
+	
+	AbilitySystemComponent->ApplyGameplayEffectToSelf(GameplayEffect, 1.0f, AbilitySystemComponent->MakeEffectContext());
+}
+
 void UJobManagerComponent::ApplyRaceTraits()
 {
 	AbilitySet_GrantedHandles_RaceTraits.TakeFromAbilitySystem(AbilitySystemComponent);
@@ -548,6 +573,10 @@ void UJobManagerComponent::OnAttributeChanged(const FOnAttributeChangeData& Data
 	if (!bSkipApplyingBaseStats)
 	{
 		ApplyBaseAttributes();
+		if (Data.Attribute == UPrimaryAttributeSet::GetLevelAttribute())
+		{
+			MaximizeHPMPAttributes();
+		}
 	}
 }
 

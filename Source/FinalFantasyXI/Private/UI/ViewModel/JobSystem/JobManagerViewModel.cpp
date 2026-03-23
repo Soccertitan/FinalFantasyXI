@@ -111,7 +111,7 @@ void UJobManagerViewModel::SetSubJobViewModel(UJobViewModel* InValue)
 {
 	if (InValue)
 	{
-		InValue->SetIsSubJob(false);
+		InValue->SetIsSubJob(true);
 	}
 	UE_MVVM_SET_PROPERTY_VALUE(SubJobViewModel, InValue);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsSubJobEquipped);
