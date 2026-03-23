@@ -101,6 +101,7 @@ protected:
 	/** A generic function to bind to delegates. Called in PostInitializeComponents */
 	virtual void BindToDelegates();
 	
-	UPROPERTY(VisibleAnywhere, Category = "Player")
+private:
+	UPROPERTY(EditAnywhere, Category = "Player")
 	FGenericTeamId GenericTeamId;
 };

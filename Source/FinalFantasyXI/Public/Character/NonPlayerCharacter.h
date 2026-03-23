@@ -101,9 +101,6 @@ public:
 	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Character")
-	FGenericTeamId GenericTeamId;
-
 	virtual void BeginPlay() override;
 
 	virtual void InitAbilitySystem();
@@ -128,4 +125,7 @@ private:
 	/** Abilities, attributes, and gameplay effects to grant. */
 	UPROPERTY(EditAnywhere, Category = "Character|Ability")
 	TArray<TObjectPtr<UAbilitySet>> AbilitySets;
+	
+	UPROPERTY(EditAnywhere, Category = "Character")
+	FGenericTeamId GenericTeamId;
 };

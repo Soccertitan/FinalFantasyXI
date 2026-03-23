@@ -13,4 +13,8 @@ class FINALFANTASYXI_API ACrysAIController : public AAIController
 
 public:
 	ACrysAIController();
+	
+	// IGenericTeamAgentInterface
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
 };
