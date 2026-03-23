@@ -112,6 +112,23 @@ bool AHeroCharacter::HasAnyMatchingGameplayTags(const FGameplayTagContainer& Tag
 	return AbilitySystemComponent->HasAnyMatchingGameplayTags(TagContainer);
 }
 
+FGenericTeamId AHeroCharacter::GetGenericTeamId() const
+{
+	if (IGenericTeamAgentInterface* Interface = Cast<IGenericTeamAgentInterface>(GetPlayerState()))
+	{
+		return Interface->GetGenericTeamId();
+	}
+	return FGenericTeamId();
+}
+
+void AHeroCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	if (IGenericTeamAgentInterface* Interface = Cast<IGenericTeamAgentInterface>(GetPlayerState()))
+	{
+		Interface->SetGenericTeamId(TeamID);
+	}
+}
+
 UInventoryManagerComponent* AHeroCharacter::GetInventoryManagerComponent_Implementation() const
 {
 	return UInventoryBlueprintFunctionLibrary::GetInventoryManagerComponent(GetPlayerState());

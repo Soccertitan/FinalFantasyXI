@@ -9,6 +9,7 @@
 #include "TargetingSystemInterface.h"
 #include "CrysCharacter.h"
 #include "GameplayTagAssetInterface.h"
+#include "GenericTeamAgentInterface.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
 #include "EquipmentSystem/EquipmentSystemInterface.h"
 #include "JobSystem/JobSystemInterface.h"
@@ -26,7 +27,7 @@ class USpringArmComponent;
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API AHeroCharacter : public ACrysCharacter, public IInventorySystemInterface,
 	public ITargetingSystemInterface, public IInteractorInterface, public IJobSystemInterface, public IEquipmentSystemInterface, 
-	public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IAbilityTargetInterface
+	public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IAbilityTargetInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -74,6 +75,10 @@ public:
 	virtual bool HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
 	virtual bool HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
 	// End Implements IGameplayTagAssetInterface
+	
+	// IGenericTeamAgentInterface
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
 
 	virtual UInventoryManagerComponent* GetInventoryManagerComponent_Implementation() const override;
 	virtual UTargetingSystemComponent* GetTargetingSystemComponent_Implementation() const override;

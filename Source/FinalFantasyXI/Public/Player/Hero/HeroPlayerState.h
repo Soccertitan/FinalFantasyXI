@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "GenericTeamAgentInterface.h"
 #include "InventorySystemInterface.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
 #include "AbilitySystem/Ability/Combat/CombatInterface.h"
@@ -34,7 +35,7 @@ class UCrysHitPointsAttributeSet;
 UCLASS()
 class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbilitySystemInterface,
 	public IInventorySystemInterface, public IJobSystemInterface, public IEquipmentSystemInterface, public IAbilityTargetInterface,
-	public ICombatInterface 
+	public ICombatInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -91,8 +92,15 @@ public:
 	virtual FWeaponData GetPrimaryWeaponData_Implementation() const override;
 	virtual FWeaponData GetSecondaryWeaponData_Implementation() const override;
 	virtual AActor* GetTargetActor_Implementation() override;
+	
+	// IGenericTeamAgentInterface
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
 
 protected:
 	/** A generic function to bind to delegates. Called in PostInitializeComponents */
 	virtual void BindToDelegates();
+	
+	UPROPERTY(VisibleAnywhere, Category = "Player")
+	FGenericTeamId GenericTeamId;
 };

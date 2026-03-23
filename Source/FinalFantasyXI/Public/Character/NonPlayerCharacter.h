@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "CrysCharacter.h"
 #include "GameplayTagAssetInterface.h"
+#include "GenericTeamAgentInterface.h"
 #include "InventorySystemInterface.h"
 #include "AbilitySystem/Ability/Combat/CombatInterface.h"
 #include "AbilitySystem/Ability/Combat/CombatTypes.h"
@@ -30,7 +31,7 @@ class UCrysHitPointsAttributeSet;
 UCLASS(Blueprintable)
 class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGameplayTagAssetInterface,
 	public IAbilitySystemInterface, public ICombatInterface, public IInventorySystemInterface, public IJobSystemInterface, 
-	public IEquipmentSystemInterface
+	public IEquipmentSystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 	
@@ -94,8 +95,15 @@ public:
 	virtual FWeaponData GetPrimaryWeaponData_Implementation() const override;
 	virtual FWeaponData GetSecondaryWeaponData_Implementation() const override;
 	virtual AActor* GetTargetActor_Implementation() override;
+	
+	// IGenericTeamAgentInterface
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Character")
+	FGenericTeamId GenericTeamId;
+
 	virtual void BeginPlay() override;
 
 	virtual void InitAbilitySystem();

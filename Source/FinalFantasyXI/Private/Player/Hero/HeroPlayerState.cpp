@@ -52,6 +52,8 @@ AHeroPlayerState::AHeroPlayerState()
 	
 	AutoAttackManagerComponent = CreateDefaultSubobject<UAutoAttackManagerComponent>(TEXT("AutoAttackManagerComponent"));
 	AutoAttackManagerComponent->SetIsReplicated(true);
+	
+	GenericTeamId = FGenericTeamId(1);
 }
 
 void AHeroPlayerState::PostInitializeComponents()
@@ -115,6 +117,16 @@ AActor* AHeroPlayerState::GetTargetActor_Implementation()
 {
 	//TODO Get actor from target system component.
 	return nullptr;
+}
+
+FGenericTeamId AHeroPlayerState::GetGenericTeamId() const
+{
+	return GenericTeamId;
+}
+
+void AHeroPlayerState::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	// GenericTeamId = TeamID;
 }
 
 void AHeroPlayerState::BindToDelegates()

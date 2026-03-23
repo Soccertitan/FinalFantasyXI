@@ -56,6 +56,8 @@ ANonPlayerCharacter::ANonPlayerCharacter(const FObjectInitializer& ObjectInitial
 	EquipmentManagerComponent->SetIsReplicated(false);
 
 	SetNetUpdateFrequency(100.f);
+	
+	GenericTeamId = FGenericTeamId(2);
 }
 
 void ANonPlayerCharacter::PostInitializeComponents()
@@ -127,6 +129,16 @@ AActor* ANonPlayerCharacter::GetTargetActor_Implementation()
 {
 	//TODO: Get from the AI Controller or create a new threat table manager component on here.
 	return nullptr;
+}
+
+FGenericTeamId ANonPlayerCharacter::GetGenericTeamId() const
+{
+	return GenericTeamId;
+}
+
+void ANonPlayerCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	// GenericTeamId = TeamID;
 }
 
 void ANonPlayerCharacter::OnDeathStarted(AActor* OwningActor)
