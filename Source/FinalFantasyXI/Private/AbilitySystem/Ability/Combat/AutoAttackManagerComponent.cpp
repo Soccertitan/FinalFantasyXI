@@ -63,17 +63,17 @@ void UAutoAttackManagerComponent::InitializeWithAbilitySystem_Implementation(UCr
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UAttackerAttributeSet::GetAutoAttackDelayAttribute()).
 			AddUObject(this, &UAutoAttackManagerComponent::OnAutoAttackDelayAttributeChanged);
 		
-		const FGameplayTag& PauseAutoAttack = FCrysGameplayTags::Get().Gameplay_State_PauseAutoAttack;
+		const FGameplayTag& PauseAutoAttack = FCrysGameplayTags::Get().Ability_State_PauseAutoAttack;
 		OnPauseAutoAttackTagChanged(PauseAutoAttack, AbilitySystemComponent->GetGameplayTagCount(PauseAutoAttack));
 		AbilitySystemComponent->RegisterGameplayTagEvent(PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged);
 	
-		const FGameplayTag& CombatStance = FCrysGameplayTags::Get().Gameplay_State_CombatStance;
+		const FGameplayTag& CombatStance = FCrysGameplayTags::Get().Ability_State_CombatStance;
 		OnCombatStanceTagChanged(CombatStance, AbilitySystemComponent->GetGameplayTagCount(CombatStance));
 		AbilitySystemComponent->RegisterGameplayTagEvent(CombatStance, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnCombatStanceTagChanged);
 		
-		const FGameplayTag& Death = FAbilityGameplayTags::Get().Gameplay_State_Death;
+		const FGameplayTag& Death = FAbilityGameplayTags::Get().Ability_State_Death;
 		OnDeathTagChanged(Death, AbilitySystemComponent->GetGameplayTagCount(Death));
 		AbilitySystemComponent->RegisterGameplayTagEvent(Death, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnDeathTagChanged);

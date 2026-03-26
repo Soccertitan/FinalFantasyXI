@@ -21,7 +21,7 @@ void UCombatGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 	
-	const FGameplayTag& DualWieldTag = FCrysGameplayTags::Get().Gameplay_State_DualWielding;
+	const FGameplayTag& DualWieldTag = FCrysGameplayTags::Get().Ability_State_DualWielding;
 	FOnGameplayEffectTagCountChanged::FDelegate Delegate = FOnGameplayEffectTagCountChanged::FDelegate::CreateWeakLambda(this,
 		[this](const FGameplayTag Tag, int32 NewCount)
 		{

@@ -39,6 +39,15 @@ public:
 	 * Ability Gameplay Events
 	 */
 	FGameplayTag Ability_GameplayEvent_AutoAttack;
+	
+	/**
+	 * Ability State Tags
+	 */
+	FGameplayTag Ability_State_DualWield;
+	FGameplayTag Ability_State_DualWielding;
+	FGameplayTag Ability_State_MovementRooted;
+	FGameplayTag Ability_State_PauseAutoAttack;
+	FGameplayTag Ability_State_CombatStance;
 
 	/**
 	 * Attributes
@@ -75,15 +84,6 @@ public:
 	 * Enhanced Input Modes
 	 */
 	FGameplayTag EnhancedInput_Modes_UI;
-
-	/**
-	 * Gameplay State Tags
-	 */
-	FGameplayTag Gameplay_State_DualWieldAllowed;
-	FGameplayTag Gameplay_State_DualWielding;
-	FGameplayTag Gameplay_State_MovementRooted;
-	FGameplayTag Gameplay_State_PauseAutoAttack;
-	FGameplayTag Gameplay_State_CombatStance;
 
 	/**
 	 * Item GameplayTags

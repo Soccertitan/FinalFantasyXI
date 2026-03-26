@@ -208,7 +208,7 @@ bool UEquipmentManagerComponent::CanEquipItem(FGameplayTag EquipSlot, const TIns
 	const FItemFragment_Weapon* ItemFragment_Weapon = ItemDefinition->FindFragmentByType<FItemFragment_Weapon>();
 	if (ItemFragment_Weapon && EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub)
 	{
-		const bool bBlockDualWield = AbilitySystemComponent->GetGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWieldAllowed) == 0;
+		const bool bBlockDualWield = AbilitySystemComponent->GetGameplayTagCount(FCrysGameplayTags::Get().Ability_State_DualWield) == 0;
 		if (bBlockDualWield)
 		{
 			return false;
@@ -519,7 +519,7 @@ void UEquipmentManagerComponent::TryInitWeapon(const FItemInstance* ItemInstance
 		
 		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub)
 		{
-			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWielding, 1, EGameplayTagReplicationState::TagOnly);
+			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Ability_State_DualWielding, 1, EGameplayTagReplicationState::TagOnly);
 		}
 		
 		ApplyBaseAttackDelay();
@@ -532,7 +532,7 @@ void UEquipmentManagerComponent::TryDeinitWeapon(const FEquippedItem& EquippedIt
 	{
 		if (EquippedItem.EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Sub)
 		{
-			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Gameplay_State_DualWielding, 0, EGameplayTagReplicationState::TagOnly);
+			AbilitySystemComponent->SetLooseGameplayTagCount(FCrysGameplayTags::Get().Ability_State_DualWielding, 0, EGameplayTagReplicationState::TagOnly);
 		}
 		ApplyBaseAttackDelay();
 	}

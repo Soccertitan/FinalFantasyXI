@@ -22,6 +22,8 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingProbability);
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingCriticalHitChance);
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingDefensePierce);
+	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingCumulativeEnmity);
+	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingVolatileEnmity);
 
 	ATTRIBUTE_ACCESSORS(ThisClass, AbilityCooldownMultiplier);
 	ATTRIBUTE_ACCESSORS(ThisClass, AbilityCostMultiplier);
@@ -46,6 +48,14 @@ private:
 	/** Ignores a percentage of the defenders defense. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData OutgoingDefensePierce;
+	
+	/** The amount of Enmity the ability generates. */
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData OutgoingCumulativeEnmity;
+	
+	/** The amount of Enmity the ability generates. */
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData OutgoingVolatileEnmity;
 
 	/** Affects the cooldown of abilities. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))

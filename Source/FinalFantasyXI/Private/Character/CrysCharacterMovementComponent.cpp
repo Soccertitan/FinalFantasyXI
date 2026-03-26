@@ -39,7 +39,7 @@ void UCrysCharacterMovementComponent::InitializeWithAbilitySystem_Implementation
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->RegisterGameplayTagEvent(
-			FCrysGameplayTags::Get().Gameplay_State_MovementRooted,
+			FCrysGameplayTags::Get().Ability_State_MovementRooted,
 			EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
 	}
 
@@ -48,10 +48,10 @@ void UCrysCharacterMovementComponent::InitializeWithAbilitySystem_Implementation
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->RegisterGameplayTagEvent(
-		   FCrysGameplayTags::Get().Gameplay_State_MovementRooted,
+		   FCrysGameplayTags::Get().Ability_State_MovementRooted,
 		   EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UCrysCharacterMovementComponent::OnGameplayTagMovementRootedUpdated);
 		
-		bMovementRooted = AbilitySystemComponent->HasMatchingGameplayTag(FCrysGameplayTags::Get().Gameplay_State_MovementRooted);
+		bMovementRooted = AbilitySystemComponent->HasMatchingGameplayTag(FCrysGameplayTags::Get().Ability_State_MovementRooted);
 		
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UMovementAttributeSet::GetMovementSpeedMultiplierAttribute())
 		.AddUObject(this, &UCrysCharacterMovementComponent::OnMovementSpeedMultiplierUpdated);
