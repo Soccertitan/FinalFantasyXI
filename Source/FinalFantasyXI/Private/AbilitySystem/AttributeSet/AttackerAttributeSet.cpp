@@ -8,7 +8,7 @@
 UAttackerAttributeSet::UAttackerAttributeSet()
 {
 	InitAttack(1.f);
-	InitAccuracy(1.f);
+	InitAccuracy(0.f);
 
 	InitCriticalHitChance(0.05f);
 	InitAutoAttackDelay(2.f);

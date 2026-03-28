@@ -1,9 +1,10 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
+#include "AbilitySystem/ExecCalc/DamageExecCalc.h"
 
 #include "CrysGameplayTags.h"
+#include "NativeGameplayTags.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CombatSkillAttributeSet.h"
@@ -14,8 +15,16 @@
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ShieldAttributeSet.h"
 
+namespace DamageExecCalcTag
+{
+	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_Evasion, "Ability.State.Perfect.Evasion")
+	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_Hit, "Ability.State.Perfect.Hit")
+	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Ignore_Evasion, "Ability.State.Ignore.Evasion")
+	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_CriticalHit, "Ability.State.Perfect.CriticalHit")
+	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_CriticalHitAvoidance, "Ability.State.Perfect.CriticalHitAvoidance")
+}
 
-UExecCalc_Damage::UExecCalc_Damage()
+UDamageExecCalc::UDamageExecCalc()
 {
 	BaseDamageAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	BaseDamageAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetOutgoingPotencyAttribute();
@@ -30,23 +39,26 @@ UExecCalc_Damage::UExecCalc_Damage()
 	BaseVolatileEnmityAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	BaseVolatileEnmityAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetOutgoingVolatileEnmityAttribute();
 	
+	IncomingDamageAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
+    IncomingDamageAttributeDef.AttributeToCapture = UHitPointsAttributeSet::GetDamageAttribute();
+
 	AttackerLevelAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	AttackerLevelAttributeDef.AttributeToCapture = UPrimaryAttributeSet::GetLevelAttribute();
-	DefenderLevelAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
-	DefenderLevelAttributeDef.AttributeToCapture = UPrimaryAttributeSet::GetLevelAttribute();
-	
 	AttackAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	AttackAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetAttackAttribute();
-	AccuracyAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
-	AccuracyAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetAccuracyAttribute();
 	CriticalHitChanceAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	CriticalHitChanceAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetCriticalHitChanceAttribute();
 	DefensePierceAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	DefensePierceAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetDefensePierceAttribute();
-	
+	AccuracyAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	AccuracyAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetAccuracyAttribute();
 	CombatSkillAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	CombatSkillAttributeDef.AttributeToCapture = UCombatSkillAttributeSet::GetWeaponSkillAttribute();
+	EnmityMultiplierAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	EnmityMultiplierAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetEnmityMultiplierAttribute();
 	
+	DefenderLevelAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
+	DefenderLevelAttributeDef.AttributeToCapture = UPrimaryAttributeSet::GetLevelAttribute();
 	DefenseAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
 	DefenseAttributeDef.AttributeToCapture = UDefenderAttributeSet::GetDefenseAttribute();
 	EvasionAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
@@ -72,43 +84,51 @@ UExecCalc_Damage::UExecCalc_Damage()
 	BlockAngleAttributeDef.AttributeToCapture = UShieldAttributeSet::GetBlockAngleAttribute();
 	BlockDamageReductionAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
 	BlockDamageReductionAttributeDef.AttributeToCapture = UShieldAttributeSet::GetBlockDamageReductionAttribute();
-
-	EnmityMultiplierAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
-	EnmityMultiplierAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetEnmityMultiplierAttribute();
 	
 	UpdateAggregatedRelevantAttributesToCapture();
+	
+	PerfectEvasionTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_Evasion);
+	PerfectHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_Hit);
+	IgnoreEvasionAttributeTagContainer.AddTag(DamageExecCalcTag::Ability_State_Ignore_Evasion);
+	
+	PerfectCriticalHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_CriticalHit);
+	PerfectCriticalHitAvoidanceTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_CriticalHitAvoidance);
 }
 
-void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	FGameplayEffectSpec* Spec = ExecutionParams.GetOwningSpecForPreExecuteMod();
 	
-	FAggregatorEvaluateParameters EvaluateParameters;
-	EvaluateParameters.SourceTags = Spec->CapturedSourceTags.GetAggregatedTags();
-	EvaluateParameters.TargetTags = Spec->CapturedTargetTags.GetAggregatedTags();
+	FAggregatorEvaluateParameters EvaluateParams;
+	EvaluateParams.SourceTags = Spec->CapturedSourceTags.GetAggregatedTags();
+	EvaluateParams.TargetTags = Spec->CapturedTargetTags.GetAggregatedTags();
 	
-	float BaseDamage = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BaseDamageAttributeDef, EvaluateParameters, BaseDamage);
+	const float HitChance = CalculateHitChance(ExecutionParams, OutExecutionOutput, EvaluateParams);
+	const bool bHit = HitChance >= FMath::RandRange(0.f, 1.f);
 	
-	float Attack = 1.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(AttackAttributeDef, EvaluateParameters, Attack);
-	float Defense = 1.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DefenseAttributeDef, EvaluateParameters, Defense);
-	
-	float HitChance = CalculateHitChance(ExecutionParams, EvaluateParameters);
-	float RandomNum = FMath::RandRange(0.f, 1.f);
-	bool bHit = HitChance >= RandomNum; 
-	
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UHitPointsAttributeSet::GetDamageAttribute(), EGameplayModOp::Override, BaseDamage));
+	if (bHit)
+	{
+		const float BaseDamage = FMath::Floor(CalculateBaseDamage(ExecutionParams, OutExecutionOutput, EvaluateParams));
+		const float CriticalHitChance = CalculateCriticalHitChance(ExecutionParams, OutExecutionOutput, EvaluateParams);
+		const bool bCriticalHit = CriticalHitChance >= FMath::RandRange(0.f, 1.f);
+		
+		if (bCriticalHit)
+		{
+			// Apply CriticalHit
+		}
+		
+		const float FinalDamage = FMath::Floor(BaseDamage);
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, FinalDamage));
+	}
 }
 
-const TArray<FGameplayEffectAttributeCaptureDefinition>& UExecCalc_Damage::GetAttributeCaptureDefinitions() const
+const TArray<FGameplayEffectAttributeCaptureDefinition>& UDamageExecCalc::GetAttributeCaptureDefinitions() const
 {
 	return AggregatedRelevantAttributesToCapture;
 }
 
 #if WITH_EDITOR
-void UExecCalc_Damage::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+void UDamageExecCalc::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	
@@ -116,7 +136,7 @@ void UExecCalc_Damage::PostEditChangeProperty(struct FPropertyChangedEvent& Prop
 }
 #endif
 
-void UExecCalc_Damage::UpdateAggregatedRelevantAttributesToCapture()
+void UDamageExecCalc::UpdateAggregatedRelevantAttributesToCapture()
 {
 	AggregatedRelevantAttributesToCapture.Empty();
 	AggregatedRelevantAttributesToCapture.Add(BaseDamageAttributeDef);
@@ -126,15 +146,17 @@ void UExecCalc_Damage::UpdateAggregatedRelevantAttributesToCapture()
 	AggregatedRelevantAttributesToCapture.Add(BaseCumulativeEnmityAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(BaseVolatileEnmityAttributeDef);
 	
-	AggregatedRelevantAttributesToCapture.Add(AttackerLevelAttributeDef);
-	AggregatedRelevantAttributesToCapture.Add(DefenderLevelAttributeDef);
+	AggregatedRelevantAttributesToCapture.Add(IncomingDamageAttributeDef);
 	
+	AggregatedRelevantAttributesToCapture.Add(AttackerLevelAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(AttackAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(AccuracyAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(CriticalHitChanceAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(DefensePierceAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(CombatSkillAttributeDef);
+	AggregatedRelevantAttributesToCapture.Add(EnmityMultiplierAttributeDef);
 	
+	AggregatedRelevantAttributesToCapture.Add(DefenderLevelAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(DefenseAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(EvasionAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(ResistanceAttributeDef);
@@ -150,26 +172,67 @@ void UExecCalc_Damage::UpdateAggregatedRelevantAttributesToCapture()
 	AggregatedRelevantAttributesToCapture.Add(BlockAngleAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(BlockDamageReductionAttributeDef);
 	
-	AggregatedRelevantAttributesToCapture.Add(EnmityMultiplierAttributeDef);
-	
 	AggregatedRelevantAttributesToCapture.Append(RelevantAttributesToCapture);
 }
 
-float UExecCalc_Damage::CalculateHitChance(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FAggregatorEvaluateParameters& EvaluateParameters) const
+float UDamageExecCalc::CalculateHitChance(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
 {
+	if (PerfectHitTagContainer.HasAny(*EvaluateParams.SourceTags))
+	{
+		return 1.f;
+	}
+	if (PerfectEvasionTagContainer.HasAny(*EvaluateParams.SourceTags))
+	{
+		return -1.f;
+	}
+	
 	float HitChance = 1.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BaseHitChanceAttributeDef, EvaluateParameters, HitChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BaseHitChanceAttributeDef, EvaluateParams, HitChance);
+	
 	float AttackerLevel = 1.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(AttackerLevelAttributeDef, EvaluateParameters, AttackerLevel);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(AttackerLevelAttributeDef, EvaluateParams, AttackerLevel);
 	float DefenderLevel = 1.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DefenderLevelAttributeDef, EvaluateParameters, DefenderLevel);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DefenderLevelAttributeDef, EvaluateParams, DefenderLevel);
 	float Accuracy = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(AccuracyAttributeDef, EvaluateParameters, Accuracy);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(AccuracyAttributeDef, EvaluateParams, Accuracy);
+	
 	float Evasion = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(EvasionAttributeDef, EvaluateParameters, Evasion);
+	if (IgnoreEvasionAttributeTagContainer.HasAny(*EvaluateParams.SourceTags) == false)
+	{
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(EvasionAttributeDef, EvaluateParams, Evasion);
+	}
 	
-	Accuracy = Accuracy + (AttackerLevel - DefenderLevel) * LevelModifierAccuracy.GetValue();
-	HitChance = HitChance + (Accuracy - Evasion) * AccuracyEvasionHitChance.GetValue();
+	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+
+	Accuracy = Accuracy + (AttackerLevel - DefenderLevel) * LevelModifierAccuracy.GetValueAtLevel(Spec.GetLevel());
+	HitChance = HitChance + (Accuracy - Evasion) * AccuracyEvasionHitChance.GetValueAtLevel(Spec.GetLevel());
+
+	return FMath::Clamp(HitChance, MinHitChance.GetValueAtLevel(Spec.GetLevel()), MaxHitChance.GetValueAtLevel(Spec.GetLevel()));
+}
+
+float UDamageExecCalc::CalculateBaseDamage(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
+{
+	float BaseDamage = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BaseDamageAttributeDef, EvaluateParams, BaseDamage);
 	
-	return FMath::Clamp(HitChance, MinHitChance.GetValue(), MaxHitChance.GetValue());
+	return BaseDamage;
+}
+
+float UDamageExecCalc::CalculateCriticalHitChance(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
+{
+	if (PerfectCriticalHitTagContainer.HasAny(*EvaluateParams.SourceTags))
+	{
+		return 1.f;
+	}
+	if (PerfectCriticalHitAvoidanceTagContainer.HasAny(*EvaluateParams.SourceTags))
+	{
+		return -1.f;
+	}
+	
+	float CriticalHitChance = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BaseCriticalHitChanceAttributeDef, EvaluateParams, CriticalHitChance);
+	
+	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	
+	return FMath::Clamp(CriticalHitChance, MinHitChance.GetValueAtLevel(Spec.GetLevel()), MaxHitChance.GetValueAtLevel(Spec.GetLevel()));
 }

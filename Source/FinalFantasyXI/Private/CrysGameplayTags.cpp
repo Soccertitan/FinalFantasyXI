@@ -39,6 +39,20 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_State_PauseAutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.PauseAutoAttack"), FString("A character with this tag will have the auto attack timer paused. And restarted when removed."));
 	GameplayTags.Ability_State_CombatStance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.CombatStance"), FString("A character with this tag are able to start the auto attack timer."));
 
+	/**
+	 * Ability State Ignore Tags
+	 */
+	GameplayTags.Ability_State_Ignore = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore"), FString("Base tag to ignore characteristics."));
+	GameplayTags.Ability_State_Ignore_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore.Evasion"), FString("Ignores the target's evasion stat."));
+	
+	/**
+	 * Ability State Perfect Tags
+	 */
+	GameplayTags.Ability_State_Perfect = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect"), FString("Base tag to denote characteristics that will always succeed."));
+	GameplayTags.Ability_State_Perfect_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.Evasion"), FString("Guarantees evading an attack/debuff/etc.."));
+	GameplayTags.Ability_State_Perfect_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.Hit"), FString("Guarantees to land an Gameplay Effect."));
+	GameplayTags.Ability_State_Perfect_CriticalHit = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.CriticalHit"), FString("Guarantees a critical hit."));
+	GameplayTags.Ability_State_Perfect_CriticalHitAvoidance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.CriticalHitAvoidance"), FString("Guarantees avoiding a critical hit."));
 	
 	/**
 	 * Attribute Gameplay Tags

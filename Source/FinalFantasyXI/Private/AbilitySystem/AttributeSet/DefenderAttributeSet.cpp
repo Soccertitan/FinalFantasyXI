@@ -8,7 +8,7 @@
 UDefenderAttributeSet::UDefenderAttributeSet()
 {
 	InitDefense(1.f);
-	InitEvasion(1.f);
+	InitEvasion(0.f);
 }
 
 void UDefenderAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
