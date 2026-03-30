@@ -32,10 +32,6 @@ UDamageExecCalc::UDamageExecCalc()
 	CriticalHitChanceAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetCriticalHitChanceAttribute();
 	DefensePierceAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	DefensePierceAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetDefensePierceAttribute();
-	BaseCumulativeEnmityAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
-	BaseCumulativeEnmityAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetOutgoingCumulativeEnmityAttribute();
-	BaseVolatileEnmityAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
-	BaseVolatileEnmityAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetOutgoingVolatileEnmityAttribute();
 	
 	IncomingDamageAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
     IncomingDamageAttributeDef.AttributeToCapture = UHitPointsAttributeSet::GetDamageAttribute();
@@ -50,11 +46,8 @@ UDamageExecCalc::UDamageExecCalc()
 	CriticalHitBonusAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetCriticalHitBonusAttribute();
 	DefensePierceAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	DefensePierceAttributeDef.AttributeToCapture = UAttackerAttributeSet::GetDefensePierceAttribute();
-
 	DamageMultiplierAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	DamageMultiplierAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetPotencyMultiplierAttribute();
-	EnmityMultiplierAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
-	EnmityMultiplierAttributeDef.AttributeToCapture = UAbilityAttributeSet::GetEnmityMultiplierAttribute();
 
 	DefenseAttributeDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
 	DefenseAttributeDef.AttributeToCapture = UDefenderAttributeSet::GetDefenseAttribute();
@@ -148,8 +141,6 @@ void UDamageExecCalc::UpdateAggregatedRelevantAttributesToCapture()
 	AggregatedRelevantAttributesToCapture.Add(HitChanceAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(CriticalHitChanceAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(DefensePierceAttributeDef);
-	AggregatedRelevantAttributesToCapture.Add(BaseCumulativeEnmityAttributeDef);
-	AggregatedRelevantAttributesToCapture.Add(BaseVolatileEnmityAttributeDef);
 	
 	AggregatedRelevantAttributesToCapture.Add(IncomingDamageAttributeDef);
 	
@@ -159,7 +150,6 @@ void UDamageExecCalc::UpdateAggregatedRelevantAttributesToCapture()
 	AggregatedRelevantAttributesToCapture.Add(CriticalHitBonusAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(DefensePierceAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(DamageMultiplierAttributeDef);
-	AggregatedRelevantAttributesToCapture.Add(EnmityMultiplierAttributeDef);
 	
 	AggregatedRelevantAttributesToCapture.Add(DefenseAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(ResistanceAttributeDef);

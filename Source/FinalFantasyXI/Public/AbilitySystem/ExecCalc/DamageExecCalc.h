@@ -33,10 +33,6 @@ protected:
 	FGameplayEffectAttributeCaptureDefinition CriticalHitChanceAttributeDef;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
 	FGameplayEffectAttributeCaptureDefinition DefensePierceAttributeDef;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
-	FGameplayEffectAttributeCaptureDefinition BaseCumulativeEnmityAttributeDef;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
-	FGameplayEffectAttributeCaptureDefinition BaseVolatileEnmityAttributeDef;
 
 	/** The attribute the damage will be applied to on the target. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
@@ -50,10 +46,6 @@ protected:
 	FGameplayEffectAttributeCaptureDefinition CriticalHitBonusAttributeDef;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes|Attacker")
 	FGameplayEffectAttributeCaptureDefinition DamageMultiplierAttributeDef;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes|Attacker")
-	FGameplayEffectAttributeCaptureDefinition CombatSkillAttributeDef;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes|Attacker")
-	FGameplayEffectAttributeCaptureDefinition EnmityMultiplierAttributeDef;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes|Defender")
 	FGameplayEffectAttributeCaptureDefinition DefenseAttributeDef;
