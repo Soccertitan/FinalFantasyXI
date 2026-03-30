@@ -21,7 +21,7 @@ public:
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, ShieldSkill);
 	ATTRIBUTE_ACCESSORS(ThisClass, BlockChance);
-	ATTRIBUTE_ACCESSORS(ThisClass, BlockAngle);
+	ATTRIBUTE_ACCESSORS(ThisClass, BlockHalfAngle);
 	ATTRIBUTE_ACCESSORS(ThisClass, BlockDamageReduction);
 	
 protected:
@@ -42,7 +42,7 @@ private:
 	
 	/** The front angle valid for blocking. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData BlockAngle;
+	FGameplayAttributeData BlockHalfAngle;
 	
 	/** The percent reduction in taking damage from blocking. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))

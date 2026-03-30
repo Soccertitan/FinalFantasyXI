@@ -7,6 +7,8 @@
 
 UGuardAttributeSet::UGuardAttributeSet()
 {
+	InitGuardHalfAngle(45.f);
+	InitGuardDamageReduction(1.f);
 }
 
 void UGuardAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

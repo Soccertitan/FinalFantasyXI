@@ -10,9 +10,10 @@ UAttackerAttributeSet::UAttackerAttributeSet()
 	InitAttack(1.f);
 	InitAccuracy(0.f);
 
+	InitAttackDefenseRatioCap(3.f);
 	InitCriticalHitChance(0.05f);
+	InitCriticalHitBonus(1.f);
 	InitAutoAttackDelay(2.f);
-	InitCastSpeedMultiplier(1.f);
 }
 
 void UAttackerAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -21,7 +22,6 @@ void UAttackerAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Attack, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, AutoAttackDelay, COND_OwnerOnly, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CastSpeedMultiplier, COND_OwnerOnly, REPNOTIFY_Always);
 }
 
 void UAttackerAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
@@ -37,7 +37,8 @@ void UAttackerAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute,
 	
 	if (Attribute == GetCriticalHitChanceAttribute() ||
 		Attribute == GetAutoAttackDelayAttribute() ||
-		Attribute == GetCastSpeedMultiplierAttribute())
+		Attribute == GetCriticalHitBonusAttribute() ||
+		Attribute == GetAttackDefenseRatioCapAttribute())
 	{
 		NewValue = FMath::Max(NewValue, 0.f);
 	}
@@ -51,9 +52,4 @@ void UAttackerAttributeSet::OnRep_Attack(const FGameplayAttributeData& OldValue)
 void UAttackerAttributeSet::OnRep_AutoAttackDelay(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, AutoAttackDelay, OldValue);
-}
-
-void UAttackerAttributeSet::OnRep_CastSpeedMultiplier(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, CastSpeedMultiplier, OldValue);
 }

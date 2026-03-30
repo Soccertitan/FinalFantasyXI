@@ -33,17 +33,23 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	/**
 	 * Gameplay State Tags
 	 */
+	GameplayTags.Ability_State_Block = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Block"), FString("A character can block attacks with this tag."));
 	GameplayTags.Ability_State_DualWield = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.DualWield"), FString("The character may equip two one-handed weapons."));
 	GameplayTags.Ability_State_DualWielding = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.DualWielding"), FString("The character has two one-handed weapons equipped."));
+	GameplayTags.Ability_State_Guard = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Guard"), FString("A character can guard from attacks with this tag."));
 	GameplayTags.Ability_State_MovementRooted = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.MovementRooted"), FString("The character cannot move or rotate."));
 	GameplayTags.Ability_State_PauseAutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.PauseAutoAttack"), FString("A character with this tag will have the auto attack timer paused. And restarted when removed."));
+	GameplayTags.Ability_State_Parry = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Parry"), FString("A character can parry attacks with this tag."));
 	GameplayTags.Ability_State_CombatStance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.CombatStance"), FString("A character with this tag are able to start the auto attack timer."));
 
 	/**
 	 * Ability State Ignore Tags
 	 */
 	GameplayTags.Ability_State_Ignore = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore"), FString("Base tag to ignore characteristics."));
-	GameplayTags.Ability_State_Ignore_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore.Evasion"), FString("Ignores the target's evasion stat."));
+	GameplayTags.Ability_State_Ignore_Block = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore.Block"), FString("Attacks with tag cannot be blocked."));
+	GameplayTags.Ability_State_Ignore_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore.Evasion"), FString("Attacks with tag cannot be evaded."));
+	GameplayTags.Ability_State_Ignore_Guard = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore.Guard"), FString("Attacks with tag are not guardable."));
+	GameplayTags.Ability_State_Ignore_Parry = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Ignore.Parry"), FString("Attacks with tag cannot be parried."));
 	
 	/**
 	 * Ability State Perfect Tags
@@ -52,7 +58,11 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_State_Perfect_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.Evasion"), FString("Guarantees evading an attack/debuff/etc.."));
 	GameplayTags.Ability_State_Perfect_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.Hit"), FString("Guarantees to land an Gameplay Effect."));
 	GameplayTags.Ability_State_Perfect_CriticalHit = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.CriticalHit"), FString("Guarantees a critical hit."));
-	GameplayTags.Ability_State_Perfect_CriticalHitAvoidance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Perfect.CriticalHitAvoidance"), FString("Guarantees avoiding a critical hit."));
+	
+	/**
+	 * Ability State Immune Tags
+	 */
+	GameplayTags.Ability_State_Immune_CriticalHit = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.State.Immune.CriticalHit"), FString("Prevents from being critically hit."));
 	
 	/**
 	 * Attribute Gameplay Tags

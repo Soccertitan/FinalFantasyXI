@@ -21,7 +21,7 @@ public:
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, ParrySkill);
 	ATTRIBUTE_ACCESSORS(ThisClass, ParryChance);
-	ATTRIBUTE_ACCESSORS(ThisClass, ParryAngle);
+	ATTRIBUTE_ACCESSORS(ThisClass, ParryHalfAngle);
 	
 protected:
 	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
@@ -41,5 +41,5 @@ private:
 	
 	/** The front angle valid for parrying. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData ParryAngle;
+	FGameplayAttributeData ParryHalfAngle;
 };

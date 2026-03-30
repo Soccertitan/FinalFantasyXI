@@ -23,10 +23,11 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, Accuracy);
 
 	ATTRIBUTE_ACCESSORS(ThisClass, DefensePierce);
+	ATTRIBUTE_ACCESSORS(ThisClass, AttackDefenseRatioCap);
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalHitChance);
+	ATTRIBUTE_ACCESSORS(ThisClass, CriticalHitBonus);
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, AutoAttackDelay);
-	ATTRIBUTE_ACCESSORS(ThisClass, CastSpeedMultiplier);
 	
 protected:
 
@@ -37,9 +38,6 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_AutoAttackDelay(const FGameplayAttributeData& OldValue);
-	
-	UFUNCTION()
-	void OnRep_CastSpeedMultiplier(const FGameplayAttributeData& OldValue);
 	
 private:
 	
@@ -54,16 +52,20 @@ private:
 	/** Defense * (1 - DefensePierce). Ignores a percentage of the defenders defense. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData DefensePierce;
+	
+	/** Limits the damage multiplier when Attack/Defense. */
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData AttackDefenseRatioCap;
 
 	/** Chance to critically hit */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData CriticalHitChance;
-	
+
+	/** Adds to the Attack/Defense ratio when a critical hit occurs. */
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData CriticalHitBonus;
+
 	/** The amount of time between auto attacks in seconds. */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_AutoAttackDelay, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AutoAttackDelay;
-	
-	/** The multiplier for casting abilities. */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CastSpeedMultiplier, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData CastSpeedMultiplier;
 };

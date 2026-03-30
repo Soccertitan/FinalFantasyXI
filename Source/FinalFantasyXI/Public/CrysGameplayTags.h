@@ -43,17 +43,23 @@ public:
 	/**
 	 * Ability State Tags
 	 */
+	FGameplayTag Ability_State_Block;
 	FGameplayTag Ability_State_CombatStance;
 	FGameplayTag Ability_State_DualWield;
 	FGameplayTag Ability_State_DualWielding;
+	FGameplayTag Ability_State_Guard;
 	FGameplayTag Ability_State_MovementRooted;
+	FGameplayTag Ability_State_Parry;
 	FGameplayTag Ability_State_PauseAutoAttack;
 	
 	/**
 	 * Ability State Ignore Tags
 	 */
 	FGameplayTag Ability_State_Ignore;
+	FGameplayTag Ability_State_Ignore_Block;
 	FGameplayTag Ability_State_Ignore_Evasion;
+	FGameplayTag Ability_State_Ignore_Guard;
+	FGameplayTag Ability_State_Ignore_Parry;
 	
 	/**
 	 * Ability State Perfect Tags
@@ -62,7 +68,11 @@ public:
 	FGameplayTag Ability_State_Perfect_Evasion;
 	FGameplayTag Ability_State_Perfect_Hit;
 	FGameplayTag Ability_State_Perfect_CriticalHit;
-	FGameplayTag Ability_State_Perfect_CriticalHitAvoidance;
+	
+	/**
+	 * Ability State Immune Tags
+	 */
+	FGameplayTag Ability_State_Immune_CriticalHit;
 
 	/**
 	 * Attributes

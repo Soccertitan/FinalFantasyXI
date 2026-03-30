@@ -21,7 +21,7 @@ public:
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, GuardSkill);
 	ATTRIBUTE_ACCESSORS(ThisClass, GuardChance);
-	ATTRIBUTE_ACCESSORS(ThisClass, GuardAngle);
+	ATTRIBUTE_ACCESSORS(ThisClass, GuardHalfAngle);
 	ATTRIBUTE_ACCESSORS(ThisClass, GuardDamageReduction);
 	
 protected:
@@ -40,9 +40,9 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData GuardChance;
 	
-	/** The front angle valid for guarding. */
+	/** The half angle in front of the actor valid for guarding. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData GuardAngle;
+	FGameplayAttributeData GuardHalfAngle;
 	
 	/** The reduction in damage from guarding. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))

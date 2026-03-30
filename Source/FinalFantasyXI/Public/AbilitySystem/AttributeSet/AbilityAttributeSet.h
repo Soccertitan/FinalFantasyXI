@@ -8,7 +8,7 @@
 #include "AbilityAttributeSet.generated.h"
 
 /**
- * A non replicated set that is captured from source when applying gameplay effects. Like damage or buffs.
+ * A generic attribute set for various attributes related to abilities.
  */
 UCLASS()
 class FINALFANTASYXI_API UAbilityAttributeSet : public UCrimAttributeSet
@@ -17,14 +17,15 @@ class FINALFANTASYXI_API UAbilityAttributeSet : public UCrimAttributeSet
 	
 public:
 	UAbilityAttributeSet();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingPotency);
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingProbability);
-	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingCriticalHitChance);
-	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingDefensePierce);
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingCumulativeEnmity);
 	ATTRIBUTE_ACCESSORS(ThisClass, OutgoingVolatileEnmity);
 
+	ATTRIBUTE_ACCESSORS(ThisClass, PotencyMultiplier);
+	ATTRIBUTE_ACCESSORS(ThisClass, CastSpeedMultiplier);
 	ATTRIBUTE_ACCESSORS(ThisClass, AbilityCooldownMultiplier);
 	ATTRIBUTE_ACCESSORS(ThisClass, AbilityCostMultiplier);
 	ATTRIBUTE_ACCESSORS(ThisClass, EnmityMultiplier);
@@ -32,22 +33,17 @@ public:
 protected:
 	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	
+	UFUNCTION()
+	void OnRep_CastSpeedMultiplier(const FGameplayAttributeData& OldValue);
+	
 private:
-	/** Potency. A generic attribute for boosting the effectiveness of abilities. */
+	/** Potency. A generic attribute for base effectiveness of abilities. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData OutgoingPotency;
 	
 	/** Base likelihood of an ability hitting or an effect happening. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData OutgoingProbability;
-	
-	/** The base chance for the ability to be a critically effective. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData OutgoingCriticalHitChance;
-	
-	/** Ignores a percentage of the defenders defense. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData OutgoingDefensePierce;
 	
 	/** The amount of Enmity the ability generates. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
@@ -56,6 +52,14 @@ private:
 	/** The amount of Enmity the ability generates. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData OutgoingVolatileEnmity;
+	
+	/** Potency. A generic attribute for multiplying the effectiveness of abilities. */
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData PotencyMultiplier;
+	
+	/** The multiplier for casting abilities. */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CastSpeedMultiplier, meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData CastSpeedMultiplier;
 
 	/** Affects the cooldown of abilities. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
