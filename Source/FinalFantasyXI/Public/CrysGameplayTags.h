@@ -39,6 +39,8 @@ public:
 	 * Ability Gameplay Events
 	 */
 	FGameplayTag Ability_GameplayEvent_AutoAttack;
+	FGameplayTag Ability_GameplayEvent_Damage_Mana;
+	FGameplayTag Ability_GameplayEvent_Healing_Mana;
 	
 	/**
 	 * Ability State Tags

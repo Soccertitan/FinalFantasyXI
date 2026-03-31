@@ -29,6 +29,8 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	 * Ability Gameplay Events
 	 */
 	GameplayTags.Ability_GameplayEvent_AutoAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.GameplayEvent.AutoAttack"), FString("Triggers an auto attack gameplay ability."));
+	GameplayTags.Ability_GameplayEvent_Damage_Mana = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.GameplayEvent.Damage.Mana"), FString("Sends a Gameplay event when mana is damaged."));
+	GameplayTags.Ability_GameplayEvent_Healing_Mana = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.GameplayEvent.Healing.Mana"), FString("Sends a Gameplay event when mana is healed."));
 	
 	/**
 	 * Gameplay State Tags

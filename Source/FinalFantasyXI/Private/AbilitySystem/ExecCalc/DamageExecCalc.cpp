@@ -111,11 +111,12 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 				ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BlockDamageReductionAttributeDef, EvaluateParams, BlockDamageReduction);
 				Damage = FMath::Floor(Damage * (1 - BlockDamageReduction));
 			}
-		
-			const float FinalDamage = FMath::Floor(Damage);
-			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, FinalDamage));
-			//TODO: Calculate Enmity generated from damage.
-			// OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
+			
+			ExecutionParams.AttemptCalculateCapturedAttributeMagnitudeWithBase(IncomingDamageAttributeDef, EvaluateParams, Damage, Damage);
+			Damage = FMath::Floor(Damage);
+			
+			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, Damage));
+			OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
 		}
 	}
 }
