@@ -25,9 +25,9 @@ void UMovementAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Att
 	NewValue = 1.f;
 }
 
-void UMovementAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UMovementAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	Super::ClampAttributes(Attribute, NewValue);
+	Super::ClampAttribute(Attribute, NewValue);
 	
 	NewValue = FMath::Max(NewValue, 0.f);
 }

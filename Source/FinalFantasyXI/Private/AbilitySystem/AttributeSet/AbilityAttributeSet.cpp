@@ -21,7 +21,7 @@ void UAbilityAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CastSpeedMultiplier, COND_OwnerOnly, REPNOTIFY_Always);
 }
 
-void UAbilityAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UAbilityAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	NewValue = FMath::Max(NewValue, 0.f);
 }

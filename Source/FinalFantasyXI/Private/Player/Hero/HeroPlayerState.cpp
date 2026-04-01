@@ -17,7 +17,7 @@
 #include "AbilitySystem/AttributeSet/JobAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
-#include "Attribute/ResourcePointsAttributeSet.h"
+#include "AbilitySystem/AttributeSet/TacticalPointsAttributeSet.h"
 #include "EquipmentSystem/EquipmentManagerComponent.h"
 #include "JobSystem/JobManagerComponent.h"
 
@@ -28,7 +28,7 @@ AHeroPlayerState::AHeroPlayerState()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
 
 	HitPointsAttributeSet = CreateDefaultSubobject<UCrysHitPointsAttributeSet>("HitPointsAttributeSet");
-	TacticalPointsAttributeSet = CreateDefaultSubobject<UResourcePointsAttributeSet>("TacticalPointsAttributeSet");
+	TacticalPointsAttributeSet = CreateDefaultSubobject<UTacticalPointsAttributeSet>("TacticalPointsAttributeSet");
 	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
 	PrimaryAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("PrimaryAttributeSet");
 	AttackerAttributeSet = CreateDefaultSubobject<UAttackerAttributeSet>("AttackerAttributeSet");

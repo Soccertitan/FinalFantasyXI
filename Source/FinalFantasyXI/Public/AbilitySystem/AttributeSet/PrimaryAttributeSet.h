@@ -30,7 +30,7 @@ public:
 
 protected:
 
-	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
+	virtual void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
 	UFUNCTION()
 	void OnRep_Level(const FGameplayAttributeData& OldValue);

@@ -118,7 +118,7 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 		}
 	}
 	GCParams.EffectContext = Spec->GetContext();
-	ExecutionParams.GetTargetAbilitySystemComponent()->ExecuteGameplayCue(GameplayCueTag, GCParams);
+	// ExecutionParams.GetTargetAbilitySystemComponent()->ExecuteGameplayCue(GameplayCueTag, GCParams);
 	OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
 }
 

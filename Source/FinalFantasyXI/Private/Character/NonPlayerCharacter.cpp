@@ -16,8 +16,8 @@
 #include "AbilitySystem/AttributeSet/DefenderAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ManaPointsAttributeSet.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
+#include "AbilitySystem/AttributeSet/TacticalPointsAttributeSet.h"
 #include "Attribute/HitPointsComponent.h"
-#include "Attribute/ResourcePointsAttributeSet.h"
 #include "Character/CrysCharacterMovementComponent.h"
 #include "Character/CrysSkeletalMeshComponent.h"
 #include "EquipmentSystem/EquipmentManagerComponent.h"
@@ -33,7 +33,7 @@ ANonPlayerCharacter::ANonPlayerCharacter(const FObjectInitializer& ObjectInitial
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	HitPointsAttributeSet = CreateDefaultSubobject<UCrysHitPointsAttributeSet>("HitPointsAttributeSet");
-	TacticalPointsAttributeSet = CreateDefaultSubobject<UResourcePointsAttributeSet>("TacticalPointsAttributeSet");
+	TacticalPointsAttributeSet = CreateDefaultSubobject<UTacticalPointsAttributeSet>("TacticalPointsAttributeSet");
 	ManaPointsAttributeSet = CreateDefaultSubobject<UManaPointsAttributeSet>("ManaPointsAttributeSet");
 	PrimaryAttributeSet = CreateDefaultSubobject<UPrimaryAttributeSet>("PrimaryAttributeSet");
 	AttackerAttributeSet = CreateDefaultSubobject<UAttackerAttributeSet>("AttackerAttributeSet");

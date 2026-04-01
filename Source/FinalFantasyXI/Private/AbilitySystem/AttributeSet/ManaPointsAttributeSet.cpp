@@ -85,7 +85,7 @@ void UManaPointsAttributeSet::PostAttributeChange(const FGameplayAttribute& Attr
 	}
 }
 
-void UManaPointsAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UManaPointsAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetCurrentPointsAttribute())
 	{

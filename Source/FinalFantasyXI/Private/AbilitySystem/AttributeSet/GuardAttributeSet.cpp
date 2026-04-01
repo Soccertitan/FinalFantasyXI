@@ -18,9 +18,9 @@ void UGuardAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, GuardSkill, COND_None, REPNOTIFY_Always);
 }
 
-void UGuardAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UGuardAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	Super::ClampAttributes(Attribute, NewValue);
+	Super::ClampAttribute(Attribute, NewValue);
 	
 	NewValue = FMath::Max(NewValue, 0.0f);
 }

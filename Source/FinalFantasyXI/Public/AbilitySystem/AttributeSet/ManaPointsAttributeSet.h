@@ -36,7 +36,7 @@ protected:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 
-	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
+	virtual void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
 	virtual void HandleDamage(const FGameplayEffectModCallbackData& Data, float Magnitude);
 	virtual void HandleHealing(const FGameplayEffectModCallbackData& Data, float Magnitude);

@@ -8,8 +8,10 @@
 namespace Crys::NativeGameplayTag
 {
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_AutoAttack, "Ability.GameplayEvent.AutoAttack", "Triggers an auto attack gameplay ability.");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Damage_Mana, "Ability.GameplayEvent.Damage.Mana", "Sends an event when mana is damaged.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Damage_Mana, "Ability.GameplayEvent.Damage.Mana", "Sends a gameplay event when mana is damaged.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Healing_Mana, "Ability.GameplayEvent.Healing.Mana", "Sends a Gameplay event when mana is healed.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Damage_TacticalPoints, "Ability.GameplayEvent.Damage.TacticalPoints", "Sends a Gameplay event when TP is damaged.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Healing_TacticalPoints, "Ability.GameplayEvent.Healing.TacticalPoints", "Sends a Gameplay event when TP is healed.");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_State_Block, "Ability.State.Block", "A character can block attacks with this tag.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_State_CombatStance, "Ability.State.CombatStance", "A character with this tag are able to start the auto attack timer.");

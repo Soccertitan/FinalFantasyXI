@@ -14,6 +14,7 @@
 #include "JobSystem/JobSystemInterface.h"
 #include "NonPlayerCharacter.generated.h"
 
+class UTacticalPointsAttributeSet;
 class UAutoAttackManagerComponent;
 class UDefenderAttributeSet;
 class UAbilityAttributeSet;
@@ -25,7 +26,6 @@ class UHitPointsComponent;
 class UCrimAbilitySystemComponent;
 class UPrimaryAttributeSet;
 class UManaPointsAttributeSet;
-class UResourcePointsAttributeSet;
 class UCrysHitPointsAttributeSet;
 
 UCLASS(Blueprintable)
@@ -41,7 +41,7 @@ class FINALFANTASYXI_API ANonPlayerCharacter : public ACrysCharacter, public IGa
 	UPROPERTY()
 	TObjectPtr<UCrysHitPointsAttributeSet> HitPointsAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UResourcePointsAttributeSet> TacticalPointsAttributeSet;
+	TObjectPtr<UTacticalPointsAttributeSet> TacticalPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
 	UPROPERTY()

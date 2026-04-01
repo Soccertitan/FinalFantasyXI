@@ -13,6 +13,7 @@
 #include "Player/CrysPlayerState.h"
 #include "HeroPlayerState.generated.h"
 
+class UTacticalPointsAttributeSet;
 class UAutoAttackManagerComponent;
 class UJobAttributeSet;
 class UDefenderAttributeSet;
@@ -25,7 +26,6 @@ class UEquipmentManagerComponent;
 class UJobManagerComponent;
 class UCrysManaPointsSet;
 class UPrimaryAttributeSet;
-class UResourcePointsAttributeSet;
 class UCrimAbilitySystemComponent;
 class UCrysHitPointsAttributeSet;
 
@@ -44,7 +44,7 @@ class FINALFANTASYXI_API AHeroPlayerState : public ACrysPlayerState, public IAbi
 	UPROPERTY()
 	TObjectPtr<UCrysHitPointsAttributeSet> HitPointsAttributeSet;
 	UPROPERTY()
-	TObjectPtr<UResourcePointsAttributeSet> TacticalPointsAttributeSet;
+	TObjectPtr<UTacticalPointsAttributeSet> TacticalPointsAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UManaPointsAttributeSet> ManaPointsAttributeSet;
 	UPROPERTY()

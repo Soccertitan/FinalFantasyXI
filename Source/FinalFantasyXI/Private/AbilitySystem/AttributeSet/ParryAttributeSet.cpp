@@ -16,9 +16,9 @@ void UParryAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ParrySkill, COND_None, REPNOTIFY_Always);
 }
 
-void UParryAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UParryAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	Super::ClampAttributes(Attribute, NewValue);
+	Super::ClampAttribute(Attribute, NewValue);
 	
 	NewValue = FMath::Max(NewValue, 0.0f);
 }

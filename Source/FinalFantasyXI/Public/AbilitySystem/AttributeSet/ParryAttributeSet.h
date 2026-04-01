@@ -24,7 +24,7 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, ParryHalfAngle);
 	
 protected:
-	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
+	virtual void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	
 	UFUNCTION()
 	void OnRep_ParrySkill(const FGameplayAttributeData& OldValue);

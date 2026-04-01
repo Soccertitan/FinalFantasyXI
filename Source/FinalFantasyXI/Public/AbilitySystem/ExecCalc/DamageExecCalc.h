@@ -26,9 +26,6 @@ public:
 #endif WITH_EDITOR
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Misc", meta = (Categories = "GameplayCue.Damage"))
-	FGameplayTag GameplayCueTag;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
 	FGameplayEffectAttributeCaptureDefinition BaseDamageAttributeDef;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")

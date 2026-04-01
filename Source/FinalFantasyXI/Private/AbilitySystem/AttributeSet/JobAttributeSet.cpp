@@ -19,7 +19,7 @@ void UJobAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, SubJobLevel, COND_None, REPNOTIFY_Always);
 }
 
-void UJobAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UJobAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetMainJobLevelAttribute())
 	{

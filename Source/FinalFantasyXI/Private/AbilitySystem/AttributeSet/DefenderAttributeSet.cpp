@@ -20,7 +20,7 @@ void UDefenderAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Resistance, COND_None, REPNOTIFY_Always);
 }
 
-void UDefenderAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UDefenderAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetDefenseAttribute())
 	{

@@ -25,7 +25,7 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, GuardDamageReduction);
 	
 protected:
-	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
+	virtual void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	
 	UFUNCTION()
 	void OnRep_GuardSkill(const FGameplayAttributeData& OldValue);

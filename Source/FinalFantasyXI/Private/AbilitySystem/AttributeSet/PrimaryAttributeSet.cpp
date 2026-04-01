@@ -31,7 +31,7 @@ void UPrimaryAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Charisma, COND_None, REPNOTIFY_Always);
 }
 
-void UPrimaryAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UPrimaryAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	// Ensure none of these attributes can drop below 0.
 	NewValue = FMath::Max(NewValue, .0f);

@@ -26,7 +26,7 @@ protected:
 	UFUNCTION()
 	void OnRep_BarrierPoints(const FGameplayAttributeData& OldValue);
 	
-	virtual void ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const override;
+	virtual void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	virtual void HandleDamage(const FGameplayEffectModCallbackData& Data, float Magnitude) override;
 	
 private:
@@ -34,6 +34,6 @@ private:
 	/**
 	 * The current points that can be absorbed attribute. Damage will be inflicted to this attribute before being passed onto Health.
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BarrierPoints, Category = "Crim Ability System|HitPoints", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BarrierPoints, Category = "Attribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData BarrierPoints;
 };

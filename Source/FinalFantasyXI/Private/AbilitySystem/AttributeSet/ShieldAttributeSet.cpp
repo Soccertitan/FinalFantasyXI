@@ -16,9 +16,9 @@ void UShieldAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ShieldSkill, COND_None, REPNOTIFY_Always);
 }
 
-void UShieldAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UShieldAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	Super::ClampAttributes(Attribute, NewValue);
+	Super::ClampAttribute(Attribute, NewValue);
 	
 	if (Attribute == GetBlockDamageReductionAttribute())
 	{

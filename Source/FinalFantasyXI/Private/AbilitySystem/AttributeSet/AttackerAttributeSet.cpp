@@ -24,9 +24,9 @@ void UAttackerAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, AutoAttackDelay, COND_OwnerOnly, REPNOTIFY_Always);
 }
 
-void UAttackerAttributeSet::ClampAttributes(const FGameplayAttribute& Attribute, float& NewValue) const
+void UAttackerAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	Super::ClampAttributes(Attribute, NewValue);
+	Super::ClampAttribute(Attribute, NewValue);
 	
 	if (Attribute == GetAttackAttribute())
 	{
