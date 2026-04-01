@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "NativeGameplayTags.h"
 
 /**
  * Singleton containing native gameplay tags.
@@ -111,6 +112,11 @@ public:
 	 * Enhanced Input Modes
 	 */
 	FGameplayTag EnhancedInput_Modes_UI;
+	
+	/**
+	 * Gameplay Cues
+	 */
+	FGameplayTag GameplayCue_Damage;
 
 	/**
 	 * Item GameplayTags
@@ -127,3 +133,8 @@ public:
 	 */
 	FGameplayTag Message_CharacterNameUpdated;
 };
+
+namespace TestNativeTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_DamageTest);
+}

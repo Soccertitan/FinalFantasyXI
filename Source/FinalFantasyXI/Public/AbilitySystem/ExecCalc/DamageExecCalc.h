@@ -6,6 +6,7 @@
 #include "GameplayEffectExecutionCalculation.h"
 #include "DamageExecCalc.generated.h"
 
+struct FDamageGameplayContext;
 /**
  * 
  */
@@ -25,6 +26,9 @@ public:
 #endif WITH_EDITOR
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Misc", meta = (Categories = "GameplayCue.Damage"))
+	FGameplayTag GameplayCueTag;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
 	FGameplayEffectAttributeCaptureDefinition BaseDamageAttributeDef;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
@@ -132,7 +136,7 @@ protected:
 	/** Called in the constructor and PostEditChangeProperty. */
 	virtual void UpdateAggregatedRelevantAttributesToCapture();
 	
-	virtual float CalculateDamage(const float BaseDamage, const bool bCriticalHit, const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const;
+	virtual float CalculateDamage(const float BaseDamage, FDamageGameplayContext* DamageGameplayContext, const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const;
 	
 	bool IsHit(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const;
 	bool IsCriticalHit(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const;

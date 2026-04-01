@@ -103,6 +103,11 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.EquipSlot_Special = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("EquipSlot.Special"), FString("Special slot for unique tools (instruments, throwing, etc.)."));
 	
 	/**
+	 * Gameplay Cues
+	 */
+	GameplayTags.GameplayCue_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Damage"), FString("This cue is called from the DamageExecCalc."));
+	
+	/**
 	 * Item Gameplay Tags
 	 */
 	GameplayTags.Item_Type = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Item.Type"), FString("Defines the type of an item. I.e Weapon, Unit, Mag, etc."));
@@ -116,4 +121,9 @@ void FCrysGameplayTags::InitializeNativeGameplayTags()
 	 * Message Gameplay Tags
 	 */
 	GameplayTags.Message_CharacterNameUpdated = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message.CharacterNameUpdated"), FString(""));
+}
+
+namespace TestNativeTags
+{
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_GameplayCue_DamageTest, "GameplayCue.Damage.Test", "asdfdsadsf")
 }

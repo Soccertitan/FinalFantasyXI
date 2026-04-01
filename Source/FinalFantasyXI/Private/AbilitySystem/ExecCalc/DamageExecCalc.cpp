@@ -3,9 +3,11 @@
 
 #include "AbilitySystem/ExecCalc/DamageExecCalc.h"
 
+#include "CrimGameplayEffectContext.h"
 #include "CrimMathStatics.h"
 #include "CrysGameplayTags.h"
 #include "NativeGameplayTags.h"
+#include "AbilitySystem/AbilityTypes.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/CrysHitPointsAttributeSet.h"
@@ -80,32 +82,39 @@ UDamageExecCalc::UDamageExecCalc()
 
 	PerfectCriticalHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_CriticalHit);
 	ImmuneCriticalHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Immune_CriticalHit);
+	
+	GameplayCueTag = TestNativeTags::TAG_GameplayCue_DamageTest;
 }
 
 void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
+	OutExecutionOutput.MarkGameplayCuesHandledManually();
+	FGameplayCueParameters GCParams(ExecutionParams.GetOwningSpec());
+	
 	FGameplayEffectSpec* Spec = ExecutionParams.GetOwningSpecForPreExecuteMod();
+	FCrimGameplayEffectContext* Context = static_cast<FCrimGameplayEffectContext*>(Spec->GetContext().Get());
+	FDamageGameplayContext* DamageGameplayContext = Context->AddCustomDataFragment(FDamageGameplayContext());
 	
 	FAggregatorEvaluateParameters EvaluateParams;
 	EvaluateParams.SourceTags = Spec->CapturedSourceTags.GetAggregatedTags();
 	EvaluateParams.TargetTags = Spec->CapturedTargetTags.GetAggregatedTags();
 
-	const bool bHit = IsHit(ExecutionParams, OutExecutionOutput, EvaluateParams);
+	DamageGameplayContext->bHit = IsHit(ExecutionParams, OutExecutionOutput, EvaluateParams);
 	
-	if (bHit)
+	if (DamageGameplayContext->bHit)
 	{
-		const bool bParried = IsParried(ExecutionParams, OutExecutionOutput, EvaluateParams);
-		if (!bParried)
+		DamageGameplayContext->bParried = IsParried(ExecutionParams, OutExecutionOutput, EvaluateParams);
+		if (!DamageGameplayContext->bParried)
 		{
 			float BaseDamage = 0.f;
 			ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BaseDamageAttributeDef, EvaluateParams, BaseDamage);
 			BaseDamage = FMath::Floor(BaseDamage);
 			
-			const bool bCriticalHit = IsCriticalHit(ExecutionParams, OutExecutionOutput, EvaluateParams);
-			float Damage = FMath::Floor(CalculateDamage(BaseDamage, bCriticalHit, ExecutionParams, OutExecutionOutput, EvaluateParams));
+			DamageGameplayContext->bCriticalHit = IsCriticalHit(ExecutionParams, OutExecutionOutput, EvaluateParams);
+			float Damage = FMath::Floor(CalculateDamage(BaseDamage, DamageGameplayContext, ExecutionParams, OutExecutionOutput, EvaluateParams));
 			
-			const bool bBlocked = IsBlocked(ExecutionParams, OutExecutionOutput, EvaluateParams);
-			if (bBlocked)
+			DamageGameplayContext->bBlocked = IsBlocked(ExecutionParams, OutExecutionOutput, EvaluateParams);
+			if (DamageGameplayContext->bBlocked)
 			{
 				float BlockDamageReduction = 0.f;
 				ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(BlockDamageReductionAttributeDef, EvaluateParams, BlockDamageReduction);
@@ -114,11 +123,13 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 			
 			ExecutionParams.AttemptCalculateCapturedAttributeMagnitudeWithBase(IncomingDamageAttributeDef, EvaluateParams, Damage, Damage);
 			Damage = FMath::Floor(Damage);
-			
+			GCParams.RawMagnitude = Damage;
 			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, Damage));
-			OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
 		}
 	}
+	GCParams.EffectContext = Spec->GetContext();
+	ExecutionParams.GetTargetAbilitySystemComponent()->ExecuteGameplayCue(GameplayCueTag, GCParams);
+	OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
 }
 
 const TArray<FGameplayEffectAttributeCaptureDefinition>& UDamageExecCalc::GetAttributeCaptureDefinitions() const
@@ -169,7 +180,7 @@ void UDamageExecCalc::UpdateAggregatedRelevantAttributesToCapture()
 	AggregatedRelevantAttributesToCapture.Append(RelevantAttributesToCapture);
 }
 
-float UDamageExecCalc::CalculateDamage(const float BaseDamage, const bool bCriticalHit, const FGameplayEffectCustomExecutionParameters& ExecutionParams,
+float UDamageExecCalc::CalculateDamage(const float BaseDamage, FDamageGameplayContext* DamageGameplayContext, const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
 {
 	float Attack = 0.f;
@@ -187,13 +198,14 @@ float UDamageExecCalc::CalculateDamage(const float BaseDamage, const bool bCriti
 	float DamageRatio = FMath::Min(Attack/Defense, DamageRatioCap);
 	
 	float DamageRatioCritBonus = 0.f;
-	if (bCriticalHit)
+	if (DamageGameplayContext->bCriticalHit)
 	{
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CriticalHitBonusAttributeDef, EvaluateParams, DamageRatioCritBonus);
 	}
 	
 	float GuardDamageReduction = 0.f;
-	if (IsGuarded(ExecutionParams, OutExecutionOutput, EvaluateParams))
+	DamageGameplayContext->bGuarded = IsGuarded(ExecutionParams, OutExecutionOutput, EvaluateParams);
+	if (DamageGameplayContext->bGuarded)
 	{
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GuardDamageReductionAttributeDef, EvaluateParams, GuardDamageReduction);
 	}
@@ -205,7 +217,10 @@ float UDamageExecCalc::CalculateDamage(const float BaseDamage, const bool bCriti
 	float Resistance = 0.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ResistanceAttributeDef, EvaluateParams, Resistance);
 	
-	return BaseDamage * DamageMultiplier * DamageRatio * (1 - Resistance);
+	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	float DamageRandomizerMultiplier = FMath::FRandRange(DamageRandomizerMin.GetValueAtLevel(Spec.GetLevel()), DamageRandomizerMax.GetValueAtLevel(Spec.GetLevel()));
+	
+	return BaseDamage * DamageMultiplier * DamageRatio * (1 - Resistance) * DamageRandomizerMultiplier;
 }
 
 bool UDamageExecCalc::IsHit(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
