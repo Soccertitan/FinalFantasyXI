@@ -1,0 +1,73 @@
+﻿// Copyright Soccertitan 2025
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "NativeGameplayTags.h"
+
+namespace Crys::NativeGameplayTag
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_GameplayEvent_AutoAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_GameplayEvent_Damage_Mana);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_GameplayEvent_Healing_Mana);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Block);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_CombatStance);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_DualWield);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_DualWielding);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Guard);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_MovementRooted);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Parry);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_PauseAutoAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Ignore);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Ignore_Block);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Ignore_Evasion);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Ignore_Guard);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Ignore_Parry);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Perfect);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Perfect_Evasion);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Perfect_Hit);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Perfect_CriticalHit);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Immune_CriticalHit);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Level);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Strength);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Vitality);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Dexterity);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Agility);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Intelligence);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Mind);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Charisma);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Attack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Accuracy);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_CriticalHitChance);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Defense);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Evasion);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_EvasionSkill);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_MoveSpeedMultiplier);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(CharacterRace);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DamageType);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EnhancedInput_Modes_UI);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot_Hand);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot_Hand_Main);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot_Hand_Sub);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot_Special);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(ItemContainer_Abilities);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Job);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(MagicSkill);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(MessageVerb);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_CharacterNameUpdated);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(WeaponSkill);
+}

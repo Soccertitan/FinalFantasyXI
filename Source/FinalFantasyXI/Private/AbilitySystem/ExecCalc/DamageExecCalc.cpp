@@ -5,8 +5,7 @@
 
 #include "CrimGameplayEffectContext.h"
 #include "CrimMathStatics.h"
-#include "CrysGameplayTags.h"
-#include "NativeGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/AbilityTypes.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
@@ -16,13 +15,6 @@
 #include "AbilitySystem/AttributeSet/ParryAttributeSet.h"
 #include "AbilitySystem/AttributeSet/ShieldAttributeSet.h"
 
-namespace DamageExecCalcTag
-{
-	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_Evasion, "Ability.State.Perfect.Evasion")
-	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_Hit, "Ability.State.Perfect.Hit")
-	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Perfect_CriticalHit, "Ability.State.Perfect.CriticalHit")
-	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Immune_CriticalHit, "Ability.State.Immune.CriticalHit")
-}
 
 UDamageExecCalc::UDamageExecCalc()
 {
@@ -77,13 +69,11 @@ UDamageExecCalc::UDamageExecCalc()
 	
 	UpdateAggregatedRelevantAttributesToCapture();
 	
-	PerfectEvasionTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_Evasion);
-	PerfectHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_Hit);
+	PerfectEvasionTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Perfect_Evasion);
+	PerfectHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Perfect_Hit);
 
-	PerfectCriticalHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Perfect_CriticalHit);
-	ImmuneCriticalHitTagContainer.AddTag(DamageExecCalcTag::Ability_State_Immune_CriticalHit);
-	
-	GameplayCueTag = TestNativeTags::TAG_GameplayCue_DamageTest;
+	PerfectCriticalHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Perfect_CriticalHit);
+	ImmuneCriticalHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Immune_CriticalHit);
 }
 
 void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -265,10 +255,10 @@ bool UDamageExecCalc::IsCriticalHit(const FGameplayEffectCustomExecutionParamete
 bool UDamageExecCalc::IsParried(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
 {
 	FGameplayTagContainer RequiredTargetTags;
-	RequiredTargetTags.AddTag(FCrysGameplayTags::Get().Ability_State_Parry);
-	RequiredTargetTags.AddTag(FCrysGameplayTags::Get().Ability_State_CombatStance);
+	RequiredTargetTags.AddTag(Crys::NativeGameplayTag::Ability_State_Parry);
+	RequiredTargetTags.AddTag(Crys::NativeGameplayTag::Ability_State_CombatStance);
 	
-	if (EvaluateParams.SourceTags->HasTag(FCrysGameplayTags::Get().Ability_State_Ignore_Parry) == false ||
+	if (EvaluateParams.SourceTags->HasTag(Crys::NativeGameplayTag::Ability_State_Ignore_Parry) == false ||
 		EvaluateParams.TargetTags->HasAll(RequiredTargetTags))
 	{
 		AActor* SourceActor = ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor();
@@ -294,10 +284,10 @@ bool UDamageExecCalc::IsParried(const FGameplayEffectCustomExecutionParameters& 
 bool UDamageExecCalc::IsGuarded(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
 {
 	FGameplayTagContainer RequiredTargetTags;
-	RequiredTargetTags.AddTag(FCrysGameplayTags::Get().Ability_State_Guard);
-	RequiredTargetTags.AddTag(FCrysGameplayTags::Get().Ability_State_CombatStance);
+	RequiredTargetTags.AddTag(Crys::NativeGameplayTag::Ability_State_Guard);
+	RequiredTargetTags.AddTag(Crys::NativeGameplayTag::Ability_State_CombatStance);
 
-	if (EvaluateParams.SourceTags->HasTag(FCrysGameplayTags::Get().Ability_State_Ignore_Guard) == false ||
+	if (EvaluateParams.SourceTags->HasTag(Crys::NativeGameplayTag::Ability_State_Ignore_Guard) == false ||
 		EvaluateParams.TargetTags->HasAll(RequiredTargetTags))
 	{
 		AActor* SourceActor = ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor();
@@ -322,8 +312,8 @@ bool UDamageExecCalc::IsGuarded(const FGameplayEffectCustomExecutionParameters& 
 
 bool UDamageExecCalc::IsBlocked(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput, const FAggregatorEvaluateParameters& EvaluateParams) const
 {
-	if (EvaluateParams.SourceTags->HasTag(FCrysGameplayTags::Get().Ability_State_Ignore_Block) == false ||
-		EvaluateParams.TargetTags->HasTag(FCrysGameplayTags::Get().Ability_State_Block))
+	if (EvaluateParams.SourceTags->HasTag(Crys::NativeGameplayTag::Ability_State_Ignore_Block) == false ||
+		EvaluateParams.TargetTags->HasTag(Crys::NativeGameplayTag::Ability_State_Block))
 	{
 		AActor* SourceActor = ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor();
 		AActor* TargetActor = ExecutionParams.GetTargetAbilitySystemComponent()->GetAvatarActor();

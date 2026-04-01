@@ -3,7 +3,7 @@
 
 #include "Character/CrysCharacter.h"
 
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
 #include "AI/CrysAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -156,6 +156,6 @@ void ACrysCharacter::BroadcastCharacterName()
 	Message.CharacterName = GetCharacterName();
 
 	UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(this);
-	MessageSystem.BroadcastMessage(FCrysGameplayTags::Get().Message_CharacterNameUpdated, Message);
+	MessageSystem.BroadcastMessage(Crys::NativeGameplayTag::Message_CharacterNameUpdated, Message);
 }
 

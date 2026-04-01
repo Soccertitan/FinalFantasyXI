@@ -5,7 +5,7 @@
 
 #include "GameplayEffectExtension.h"
 #include "CrimAbilitySystemComponent.h"
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 UManaPointsAttributeSet::UManaPointsAttributeSet()
@@ -104,7 +104,7 @@ void UManaPointsAttributeSet::HandleDamage(const FGameplayEffectModCallbackData&
 	const float LocalDamage = FMath::Abs(Magnitude);
 
 	SetCurrentPoints(FMath::Clamp(GetCurrentPoints() - LocalDamage, 0.f, GetMaxPoints()));
-	SendGameplayEvent(Data, FCrysGameplayTags::Get().Ability_GameplayEvent_Damage_Mana);
+	SendGameplayEvent(Data, Crys::NativeGameplayTag::Ability_GameplayEvent_Damage_Mana);
 }
 
 void UManaPointsAttributeSet::HandleHealing(const FGameplayEffectModCallbackData& Data, float Magnitude)
@@ -112,5 +112,5 @@ void UManaPointsAttributeSet::HandleHealing(const FGameplayEffectModCallbackData
 	const float LocalHealing = FMath::Abs(Magnitude);
 
 	SetCurrentPoints(FMath::Clamp(GetCurrentPoints() + LocalHealing, 0.f, GetMaxPoints()));
-	SendGameplayEvent(Data, FCrysGameplayTags::Get().Ability_GameplayEvent_Healing_Mana);
+	SendGameplayEvent(Data, Crys::NativeGameplayTag::Ability_GameplayEvent_Healing_Mana);
 }

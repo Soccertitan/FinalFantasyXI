@@ -4,7 +4,7 @@
 #include "AbilitySystem/Ability/Combat/CombatGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "Character/CrysCharacter.h"
 
 UCombatAnimationData* UCombatGameplayAbility::GetPrimaryCombatAnimationData() const
@@ -21,7 +21,7 @@ void UCombatGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 	
-	const FGameplayTag& DualWieldTag = FCrysGameplayTags::Get().Ability_State_DualWielding;
+	const FGameplayTag& DualWieldTag = Crys::NativeGameplayTag::Ability_State_DualWielding;
 	FOnGameplayEffectTagCountChanged::FDelegate Delegate = FOnGameplayEffectTagCountChanged::FDelegate::CreateWeakLambda(this,
 		[this](const FGameplayTag Tag, int32 NewCount)
 		{

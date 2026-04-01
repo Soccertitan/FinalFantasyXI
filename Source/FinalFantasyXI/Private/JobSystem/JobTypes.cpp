@@ -3,7 +3,7 @@
 
 #include "JobSystem/JobTypes.h"
 
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "JobSystem/JobManagerComponent.h"
 #include "JobSystem/RaceDefinition.h"
 #include "JobSystem/JobSystemBlueprintFunctionLibrary.h"

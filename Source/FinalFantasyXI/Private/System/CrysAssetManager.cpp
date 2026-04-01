@@ -3,7 +3,7 @@
 
 #include "System/CrysAssetManager.h"
 
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "CrysLogChannels.h"
 
 UCrysAssetManager& UCrysAssetManager::Get()
@@ -24,8 +24,6 @@ UCrysAssetManager& UCrysAssetManager::Get()
 void UCrysAssetManager::StartInitialLoading()
 {
 	Super::StartInitialLoading();
-
-	FCrysGameplayTags::InitializeNativeGameplayTags();
 }
 
 void UCrysAssetManager::DumpLoadedAssets()

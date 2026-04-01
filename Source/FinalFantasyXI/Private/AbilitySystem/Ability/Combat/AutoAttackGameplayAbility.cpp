@@ -4,14 +4,10 @@
 #include "AbilitySystem/Ability/Combat/AutoAttackGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
-#include "NativeGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
 
-namespace AutoAttackTag
-{
-	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_GameplayEvent_AutoAttack, "Ability.GameplayEvent.AutoAttack")
-}
 
 UAutoAttackGameplayAbility::UAutoAttackGameplayAbility()
 {
@@ -22,7 +18,7 @@ UAutoAttackGameplayAbility::UAutoAttackGameplayAbility()
 	{
 		// Add the ability trigger tag as default to the CDO.
 		FAbilityTriggerData TriggerData;
-		TriggerData.TriggerTag = AutoAttackTag::Ability_GameplayEvent_AutoAttack;
+		TriggerData.TriggerTag = Crys::NativeGameplayTag::Ability_GameplayEvent_AutoAttack;
 		TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 		AbilityTriggers.Add(TriggerData);
 	}

@@ -3,7 +3,7 @@
 
 #include "EquipmentSystem/ItemFragment_Equipment.h"
 
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 
 
 UEquipmentManagerComponent* FItemShard_Equipment::GetEquipmentManagerComponent() const
@@ -45,8 +45,8 @@ void FItemFragment_Equipment::PostSerialize(const FArchive& Ar)
 
 	if (!StaticStruct()->IsChildOf(FItemFragment_Weapon::StaticStruct()))
 	{
-		if (EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand_Main ||
-			EquipSlot == FCrysGameplayTags::Get().EquipSlot_Hand)
+		if (EquipSlot == Crys::NativeGameplayTag::EquipSlot_Hand_Main ||
+			EquipSlot == Crys::NativeGameplayTag::EquipSlot_Hand)
 		{
 			EquipSlot = FGameplayTag();
 		}
@@ -58,9 +58,9 @@ void FItemFragment_Weapon::PostSerialize(const FArchive& Ar)
 	Super::PostSerialize(Ar);
 
 	// Ensure weapons can only have the Hand.Main or Hand tag.
-	if (EquipSlot != FCrysGameplayTags::Get().EquipSlot_Hand_Main ||
-		EquipSlot != FCrysGameplayTags::Get().EquipSlot_Hand)
+	if (EquipSlot != Crys::NativeGameplayTag::EquipSlot_Hand_Main ||
+		EquipSlot != Crys::NativeGameplayTag::EquipSlot_Hand)
 	{
-		EquipSlot = FCrysGameplayTags::Get().EquipSlot_Hand;
+		EquipSlot = Crys::NativeGameplayTag::EquipSlot_Hand;
 	}
 }

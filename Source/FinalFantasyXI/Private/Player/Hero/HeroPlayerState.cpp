@@ -5,7 +5,7 @@
 
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "InventoryManagerComponent.h"
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/AttributeSet/AbilityAttributeSet.h"
@@ -100,7 +100,7 @@ AActor* AHeroPlayerState::GetAbilityTarget_Implementation(const FGameplayTagCont
 
 FWeaponData AHeroPlayerState::GetPrimaryWeaponData_Implementation() const
 {
-	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_Hand_Main).WeaponData;
+	FWeaponData Result = EquipmentManagerComponent->GetEquippedItem(Crys::NativeGameplayTag::EquipSlot_Hand_Main).WeaponData;
 	if (!Result.IsValid())
 	{
 		Result = EquipmentManagerComponent->GetBareHandedWeaponData();
@@ -110,7 +110,7 @@ FWeaponData AHeroPlayerState::GetPrimaryWeaponData_Implementation() const
 
 FWeaponData AHeroPlayerState::GetSecondaryWeaponData_Implementation() const
 {
-	return EquipmentManagerComponent->GetEquippedItem(FCrysGameplayTags::Get().EquipSlot_Hand_Sub).WeaponData;
+	return EquipmentManagerComponent->GetEquippedItem(Crys::NativeGameplayTag::EquipSlot_Hand_Sub).WeaponData;
 }
 
 AActor* AHeroPlayerState::GetTargetActor_Implementation()

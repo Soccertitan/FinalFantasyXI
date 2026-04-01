@@ -4,7 +4,7 @@
 #include "Character/CrysCharacterMovementComponent.h"
 
 #include "CrimAbilitySystemComponent.h"
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 
@@ -39,7 +39,7 @@ void UCrysCharacterMovementComponent::InitializeWithAbilitySystem_Implementation
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->RegisterGameplayTagEvent(
-			FCrysGameplayTags::Get().Ability_State_MovementRooted,
+			Crys::NativeGameplayTag::Ability_State_MovementRooted,
 			EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
 	}
 
@@ -48,10 +48,10 @@ void UCrysCharacterMovementComponent::InitializeWithAbilitySystem_Implementation
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->RegisterGameplayTagEvent(
-		   FCrysGameplayTags::Get().Ability_State_MovementRooted,
+		   Crys::NativeGameplayTag::Ability_State_MovementRooted,
 		   EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UCrysCharacterMovementComponent::OnGameplayTagMovementRootedUpdated);
 		
-		bMovementRooted = AbilitySystemComponent->HasMatchingGameplayTag(FCrysGameplayTags::Get().Ability_State_MovementRooted);
+		bMovementRooted = AbilitySystemComponent->HasMatchingGameplayTag(Crys::NativeGameplayTag::Ability_State_MovementRooted);
 		
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UMovementAttributeSet::GetMovementSpeedMultiplierAttribute())
 		.AddUObject(this, &UCrysCharacterMovementComponent::OnMovementSpeedMultiplierUpdated);

@@ -4,7 +4,7 @@
 #include "Player/CrysPlayerController.h"
 
 #include "CrimEnhancedInputComponent.h"
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
 #include "UINavPCComponent.h"
 #include "UINavWidget.h"
@@ -70,7 +70,7 @@ void ACrysPlayerController::OnRootWidgetAdded_Implementation()
 {
 	IUINavPCReceiver::OnRootWidgetAdded_Implementation();
 
-	EnhancedInputSubsystem->AddTagToInputMode(FCrysGameplayTags::Get().EnhancedInput_Modes_UI);
+	EnhancedInputSubsystem->AddTagToInputMode(Crys::NativeGameplayTag::EnhancedInput_Modes_UI);
 
 	if (bRestrictMovement)
 	{
@@ -83,7 +83,7 @@ void ACrysPlayerController::OnRootWidgetRemoved_Implementation()
 {
 	IUINavPCReceiver::OnRootWidgetRemoved_Implementation();
 	
-	EnhancedInputSubsystem->RemoveTagFromInputMode(FCrysGameplayTags::Get().EnhancedInput_Modes_UI);
+	EnhancedInputSubsystem->RemoveTagFromInputMode(Crys::NativeGameplayTag::EnhancedInput_Modes_UI);
 
 	SetIgnoreLookInput(false);
 	SetIgnoreMoveInput(false);

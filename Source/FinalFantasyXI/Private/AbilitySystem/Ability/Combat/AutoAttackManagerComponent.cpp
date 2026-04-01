@@ -3,10 +3,10 @@
 
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 
-#include "AbilityGameplayTags.h"
+#include "CrimAbilityNativeGameplayTags.h"
 #include "CrimAbilitySystemComponent.h"
 #include "CrysBlueprintFunctionLibrary.h"
-#include "CrysGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
@@ -63,17 +63,17 @@ void UAutoAttackManagerComponent::InitializeWithAbilitySystem_Implementation(UCr
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UAttackerAttributeSet::GetAutoAttackDelayAttribute()).
 			AddUObject(this, &UAutoAttackManagerComponent::OnAutoAttackDelayAttributeChanged);
 		
-		const FGameplayTag& PauseAutoAttack = FCrysGameplayTags::Get().Ability_State_PauseAutoAttack;
+		const FGameplayTag& PauseAutoAttack = Crys::NativeGameplayTag::Ability_State_PauseAutoAttack;
 		OnPauseAutoAttackTagChanged(PauseAutoAttack, AbilitySystemComponent->GetGameplayTagCount(PauseAutoAttack));
 		AbilitySystemComponent->RegisterGameplayTagEvent(PauseAutoAttack, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnPauseAutoAttackTagChanged);
 	
-		const FGameplayTag& CombatStance = FCrysGameplayTags::Get().Ability_State_CombatStance;
+		const FGameplayTag& CombatStance = Crys::NativeGameplayTag::Ability_State_CombatStance;
 		OnCombatStanceTagChanged(CombatStance, AbilitySystemComponent->GetGameplayTagCount(CombatStance));
 		AbilitySystemComponent->RegisterGameplayTagEvent(CombatStance, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnCombatStanceTagChanged);
 		
-		const FGameplayTag& Death = FAbilityGameplayTags::Get().Ability_State_Death;
+		const FGameplayTag& Death = CrimAbility::NativeGameplayTag::Ability_State_Death;
 		OnDeathTagChanged(Death, AbilitySystemComponent->GetGameplayTagCount(Death));
 		AbilitySystemComponent->RegisterGameplayTagEvent(Death, EGameplayTagEventType::NewOrRemoved).
 			AddUObject(this, &UAutoAttackManagerComponent::OnDeathTagChanged);
@@ -170,9 +170,9 @@ void UAutoAttackManagerComponent::ActivateAutoAttackAbility()
 	if (AbilitySystemComponent)
 	{
 		FGameplayEventData Payload;
-		Payload.EventTag = FCrysGameplayTags::Get().Ability_GameplayEvent_AutoAttack;
+		Payload.EventTag = Crys::NativeGameplayTag::Ability_GameplayEvent_AutoAttack;
 		Payload.Instigator = AbilitySystemComponent->GetAvatarActor();
-		Payload.Target = UCrysBlueprintFunctionLibrary::GetAbilityTarget(AbilitySystemComponent->GetOwner(), FCrysGameplayTags::Get().Ability_GameplayEvent_AutoAttack.GetSingleTagContainer());
+		Payload.Target = UCrysBlueprintFunctionLibrary::GetAbilityTarget(AbilitySystemComponent->GetOwner(), Crys::NativeGameplayTag::Ability_GameplayEvent_AutoAttack.GetTag().GetSingleTagContainer());
 		// The RandomStream Seed.
 		Payload.EventMagnitude = FMath::RandRange(1, MAX_int32);
 		

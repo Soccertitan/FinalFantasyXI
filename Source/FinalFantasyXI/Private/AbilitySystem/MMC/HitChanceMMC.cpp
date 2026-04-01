@@ -3,15 +3,11 @@
 
 #include "AbilitySystem/MMC/HitChanceMMC.h"
 
-#include "NativeGameplayTags.h"
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/DefenderAttributeSet.h"
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
 
-namespace HitChanceMMCTag
-{
-	UE_DEFINE_GAMEPLAY_TAG_STATIC(Ability_State_Ignore_Evasion, "Ability.State.Ignore.Evasion")
-}
 
 UHitChanceMMC::UHitChanceMMC()
 {
@@ -27,7 +23,7 @@ UHitChanceMMC::UHitChanceMMC()
 	
 	UpdateAggregatedRelevantAttributesToCapture();
 	
-	IgnoreEvasionAttributeTagContainer.AddTag(HitChanceMMCTag::Ability_State_Ignore_Evasion);
+	IgnoreEvasionAttributeTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Ignore_Evasion);
 }
 
 float UHitChanceMMC::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
