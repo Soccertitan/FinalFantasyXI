@@ -77,6 +77,8 @@ void ACrysPlayerController::OnRootWidgetAdded_Implementation()
 		SetIgnoreLookInput(true);
 		SetIgnoreMoveInput(true);
 	}
+	
+	OnRootWidgetAddedDelegate.Broadcast();
 }
 
 void ACrysPlayerController::OnRootWidgetRemoved_Implementation()
@@ -89,6 +91,8 @@ void ACrysPlayerController::OnRootWidgetRemoved_Implementation()
 	SetIgnoreMoveInput(false);
 	
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+	
+	OnRootWidgetRemovedDelegate.Broadcast();
 }
 
 void ACrysPlayerController::ApplyDefaultInputActionMap()

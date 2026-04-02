@@ -74,12 +74,13 @@ UDamageExecCalc::UDamageExecCalc()
 
 	PerfectCriticalHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Perfect_CriticalHit);
 	ImmuneCriticalHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Immune_CriticalHit);
+	
+	DamageGameplayCue = Crys::NativeGameplayTag::GameplayCue_Damage;
 }
 
 void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	OutExecutionOutput.MarkGameplayCuesHandledManually();
-	FGameplayCueParameters GCParams(ExecutionParams.GetOwningSpec());
 	
 	FGameplayEffectSpec* Spec = ExecutionParams.GetOwningSpecForPreExecuteMod();
 	FCrimGameplayEffectContext* Context = static_cast<FCrimGameplayEffectContext*>(Spec->GetContext().Get());
@@ -113,12 +114,9 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 			
 			ExecutionParams.AttemptCalculateCapturedAttributeMagnitudeWithBase(IncomingDamageAttributeDef, EvaluateParams, Damage, Damage);
 			Damage = FMath::Floor(Damage);
-			GCParams.RawMagnitude = Damage;
 			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, Damage));
 		}
 	}
-	GCParams.EffectContext = Spec->GetContext();
-	// ExecutionParams.GetTargetAbilitySystemComponent()->ExecuteGameplayCue(GameplayCueTag, GCParams);
 	OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
 }
 

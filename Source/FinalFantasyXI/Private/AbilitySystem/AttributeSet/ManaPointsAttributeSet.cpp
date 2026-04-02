@@ -10,8 +10,8 @@
 
 UManaPointsAttributeSet::UManaPointsAttributeSet()
 {
-	CurrentPoints = 1.f;
-	MaxPoints = 1.f;
+	InitCurrentPoints(0.f);
+	InitMaxPoints(0.f);
 }
 
 void UManaPointsAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

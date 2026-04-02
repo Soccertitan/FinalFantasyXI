@@ -13,6 +13,8 @@ class UInputActionListenerMap;
 class UWidget;
 class UUINavPCComponent;
 
+DECLARE_MULTICAST_DELEGATE(FCrysPlayerControllerGenericSignature);
+
 /**
  * 
  */
@@ -43,7 +45,10 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "PlayerController|Crys")
 	void AddUINavWidgetToViewport(UUINavWidget* InWidget, UWidget* InWidgetToFocus, bool bInRestrictMovement = true);
-
+	
+	FCrysPlayerControllerGenericSignature OnRootWidgetAddedDelegate;
+	FCrysPlayerControllerGenericSignature OnRootWidgetRemovedDelegate;
+	
 	// UINavPCReceiver Interface
 	virtual void OnRootWidgetAdded_Implementation() override;
 	virtual void OnRootWidgetRemoved_Implementation() override;

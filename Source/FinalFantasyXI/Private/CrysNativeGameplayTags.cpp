@@ -60,6 +60,8 @@ namespace Crys::NativeGameplayTag
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(EquipSlot_Hand_Sub, "EquipSlot.Hand.Sub", "Sub Hand slot for dual wielding, shield, ammo, or some other sub hand equipment");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(EquipSlot_Special, "EquipSlot.Special", "Special slot for unique tools (instruments, throwing, etc.).");
 	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Damage, "GameplayCue.Damage", "Broadcasts info on a damage effect.");
+	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Item, "Item", "Root GameplayTag for items.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Item_Type, "Item.Type", "Defines categories of items. (weapon, armor, accessory, spell, etc.)");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(ItemContainer_Abilities, "ItemContainer.Abilities", "ItemContainer that holds abilities.");
