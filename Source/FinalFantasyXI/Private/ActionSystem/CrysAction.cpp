@@ -3,8 +3,11 @@
 
 #include "ActionSystem/CrysAction.h"
 
+#include "UI/ViewModel/ActionSystem/ActionViewModel.h"
+
 UCrysAction::UCrysAction()
 {
+	ActionViewModel = UActionViewModel::StaticClass();
 }
 
 bool UCrysAction::TryActivateAction()

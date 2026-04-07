@@ -4,21 +4,56 @@
 #include "UI/ViewModel/ActionSystem/ActionManagerViewModel.h"
 
 #include "CrysLogChannels.h"
+#include "ActionSystem/CrysAction.h"
 #include "ActionSystem/CrysActionManagerComponent.h"
-#include "UI/ViewModel/ActionSystem/ActionItemViewModel.h"
+#include "System/CrysAssetManager.h"
+#include "UI/ViewModel/ActionSystem/ActionViewModel.h"
 
-UActionItemViewModel* UActionManagerViewModel::FindOrCreateActionBarItemViewModel(const FGameplayTag& InputTag)
+UActionViewModel* UActionManagerViewModel::FindOrCreateActionViewModel(const FGameplayTag& InputTag, int32 Index)
+{
+	if (InputTag.IsValid() && Index >= 0)
+	{
+		if (!ActionViewModelContainers.IsValidIndex(Index))
+		{
+			ActionViewModelContainers.SetNum(Index + 1, EAllowShrinking::No);
+		}
+		
+		for (const FActionViewModelItem& Item : ActionViewModelContainers[Index].Items)
+		{
+			if (Item.InputTag == InputTag)
+			{
+				return Item.ViewModel;
+			}
+		}
+		
+		UActionViewModel* ViewModel = InternalCreateActionViewModel(InputTag, Index);
+		FActionViewModelItem Item;
+		Item.InputTag = InputTag;
+		Item.ViewModel = ViewModel;
+		ActionViewModelContainers[Index].Items.Add(Item);
+		return ViewModel;
+	}
+	return nullptr;
+}
+
+UActionViewModel* UActionManagerViewModel::FindOrCreateActiveActionViewModel(const FGameplayTag& InputTag)
 {
 	if (InputTag.IsValid())
 	{
-		for (UActionItemViewModel* ViewModel : ActionBarItemViewModels)
+		for (const FActionViewModelItem& Item : ActiveActionViewModels)
 		{
-			if (ViewModel->InputTag == InputTag)
+			if (Item.InputTag == InputTag)
 			{
-				return ViewModel;
+				return Item.ViewModel;
 			}
 		}
-		return InternalCreateActionBarItemViewModel(InputTag);
+		
+		UActionViewModel* ViewModel = InternalCreateActionViewModel(InputTag, ActiveActionSetIndex);
+		FActionViewModelItem Item;
+		Item.InputTag = InputTag;
+		Item.ViewModel = ViewModel;
+		ActiveActionViewModels.Add(Item);
+		return ViewModel;
 	}
 	return nullptr;
 }
@@ -53,39 +88,69 @@ void UActionManagerViewModel::SetActiveActionSetIndex(int32 Index)
 {
 	if (UE_MVVM_SET_PROPERTY_VALUE(ActiveActionSetIndex, Index))
 	{
+		ActionViewModelUpdated.Index = Index;
 		if (ActionManagerComponent)
 		{
-			for (UActionItemViewModel* ViewModel : ActionBarItemViewModels)
+			for (FActionViewModelItem& Item : ActiveActionViewModels)
 			{
-				ViewModel->SetAction(ActionManagerComponent->FindAction(ViewModel->GetInputTag(), ActiveActionSetIndex));
+				ActionViewModelUpdated.InputTag = Item.InputTag;
+				Item.ViewModel = InternalCreateActionViewModel(Item.InputTag, Index);
+				ActionViewModelUpdated.ViewModel = Item.ViewModel;
+				UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnActionViewModelUpdated);
 			}
 		}
+		ActionViewModelUpdated = FActionViewModelUpdated();
 	}
 }
 
-UActionItemViewModel* UActionManagerViewModel::InternalCreateActionBarItemViewModel(const FGameplayTag& InputTag)
+UActionViewModel* UActionManagerViewModel::InternalCreateActionViewModel(const FGameplayTag& InputTag, int32 Index)
 {
-	UActionItemViewModel* NewVM = NewObject<UActionItemViewModel>(this);
-	NewVM->SetInputTag(InputTag);
+	UActionViewModel* NewVM = nullptr;
 	if (ActionManagerComponent)
 	{
-		NewVM->SetAction(ActionManagerComponent->FindAction(InputTag, ActionManagerComponent->GetActionSetIndex()));
+		if (UCrysAction* Action = ActionManagerComponent->FindAction(InputTag, Index))
+		{
+			UCrysAssetManager::Get().GetStreamableManager().RequestAsyncLoad(
+				{Action->GetActionViewModel().ToSoftObjectPath()})->WaitUntilComplete();
+			NewVM = NewObject<UActionViewModel>(this, Action->GetActionViewModel().Get());
+			NewVM->SetAction(Action);
+		}
+		else
+		{
+			NewVM = NewObject<UActionViewModel>(this);
+		}
 	}
-	ActionBarItemViewModels.Add(NewVM);
 	return NewVM;
 }
 
 void UActionManagerViewModel::OnActionMapUpdated(UCrysAction* Action, const FGameplayTag& InputTag, int32 Index)
 {
+	ActionViewModelUpdated.Index = Index;
+	ActionViewModelUpdated.InputTag = InputTag;
+	ActionViewModelUpdated.ViewModel = InternalCreateActionViewModel(InputTag, Index);
 	if (ActiveActionSetIndex == Index)
 	{
-		for (int32 Idx = 0; Idx < ActionBarItemViewModels.Num(); Idx++)
+		for (FActionViewModelItem& Item : ActiveActionViewModels)
 		{
-			if (ActionBarItemViewModels[Idx]->InputTag == InputTag)
+			if (Item.InputTag == InputTag)
 			{
-				ActionBarItemViewModels[Idx]->SetAction(Action);
+				Item.ViewModel = ActionViewModelUpdated.ViewModel;
 				break;
 			}
 		}
 	}
+	
+	if (ActionViewModelContainers.IsValidIndex(Index))
+	{
+		for (FActionViewModelItem& Item : ActionViewModelContainers[Index].Items)
+		{
+			if (Item.InputTag == InputTag)
+			{
+				Item.ViewModel = ActionViewModelUpdated.ViewModel;
+			}
+		}
+	}
+	
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnActionViewModelUpdated);
+	ActionViewModelUpdated = FActionViewModelUpdated();
 }

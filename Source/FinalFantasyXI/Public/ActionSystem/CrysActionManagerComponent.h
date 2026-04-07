@@ -26,7 +26,6 @@ class FINALFANTASYXI_API UCrysActionManagerComponent : public UActorComponent
 
 public:
 	UCrysActionManagerComponent();
-	virtual void OnRegister() override;
 	
 	/** Called whenever an action map is changed/added/removed. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnActionMapUpdated")
@@ -93,6 +92,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "CrysActionManager")
 	bool IsActionSetEmpty(const int32 Index) const;
+	
+protected:
+	virtual void OnRegister() override;
 	
 private:
 	/** 
