@@ -7,55 +7,80 @@
 #include "ActionSystem/CrysAction.h"
 #include "ActionSystem/CrysActionManagerComponent.h"
 #include "System/CrysAssetManager.h"
+#include "UI/ViewModel/ActionSystem/ActionSlotViewModel.h"
 #include "UI/ViewModel/ActionSystem/ActionViewModel.h"
 
-UActionViewModel* UActionManagerViewModel::FindOrCreateActionViewModel(const FGameplayTag& InputTag, int32 Index)
+UActionSlotViewModel* UActionManagerViewModel::FindOrCreateActionSlotViewModel(const FGameplayTag& InputTag, int32 Index)
 {
 	if (InputTag.IsValid() && Index >= 0)
 	{
-		if (!ActionViewModelContainers.IsValidIndex(Index))
+		if (!ActionSlotViewModelContainers.IsValidIndex(Index))
 		{
-			ActionViewModelContainers.SetNum(Index + 1, EAllowShrinking::No);
+			ActionSlotViewModelContainers.SetNum(Index + 1, EAllowShrinking::No);
 		}
 		
-		for (const FActionViewModelItem& Item : ActionViewModelContainers[Index].Items)
+		for (UActionSlotViewModel* Item : ActionSlotViewModelContainers[Index].Items)
 		{
-			if (Item.InputTag == InputTag)
+			if (Item->InputTag == InputTag)
 			{
-				return Item.ViewModel;
+				return Item;
 			}
 		}
 		
-		UActionViewModel* ViewModel = InternalCreateActionViewModel(InputTag, Index);
-		FActionViewModelItem Item;
-		Item.InputTag = InputTag;
-		Item.ViewModel = ViewModel;
-		ActionViewModelContainers[Index].Items.Add(Item);
-		return ViewModel;
+		UActionViewModel* ActionViewModel = InternalCreateActionViewModel(InputTag, Index);
+		UActionSlotViewModel* ActionSlotViewModel = NewObject<UActionSlotViewModel>(this);
+		ActionSlotViewModel->InputTag = InputTag;
+		ActionSlotViewModel->SetActionViewModel(ActionViewModel);
+		ActionSlotViewModelContainers[Index].Items.Add(ActionSlotViewModel);
+		return ActionSlotViewModel;
 	}
 	return nullptr;
 }
 
-UActionViewModel* UActionManagerViewModel::FindOrCreateActiveActionViewModel(const FGameplayTag& InputTag)
+UActionSlotViewModel* UActionManagerViewModel::FindOrCreateActiveActionSlotViewModel(const FGameplayTag& InputTag)
 {
 	if (InputTag.IsValid())
 	{
-		for (const FActionViewModelItem& Item : ActiveActionViewModels)
+		for (UActionSlotViewModel* Item : ActiveActionSlotViewModels)
 		{
-			if (Item.InputTag == InputTag)
+			if (Item->InputTag == InputTag)
 			{
-				return Item.ViewModel;
+				return Item;
 			}
 		}
 		
-		UActionViewModel* ViewModel = InternalCreateActionViewModel(InputTag, ActiveActionSetIndex);
-		FActionViewModelItem Item;
-		Item.InputTag = InputTag;
-		Item.ViewModel = ViewModel;
-		ActiveActionViewModels.Add(Item);
-		return ViewModel;
+		UActionViewModel* ActionViewModel = InternalCreateActionViewModel(InputTag, ActiveActionSetIndex);
+		UActionSlotViewModel* ActionSlotViewModel = NewObject<UActionSlotViewModel>(this);
+		ActionSlotViewModel->InputTag = InputTag;
+		ActionSlotViewModel->SetActionViewModel(ActionViewModel);
+		ActiveActionSlotViewModels.Add(ActionSlotViewModel);
+		return ActionSlotViewModel;
 	}
 	return nullptr;
+}
+
+void UActionManagerViewModel::SetAction(const FGameplayTag& InputTag, const int32 Index, const TSoftClassPtr<UCrysAction> ActionClass)
+{
+	if (ActionManagerComponent && !ActionClass.IsNull())
+	{
+		TSubclassOf<UCrysAction> CrysActionClass = ActionClass.Get();
+		if (!CrysActionClass)
+		{
+			CrysActionClass = UCrysAssetManager::GetSubclass(ActionClass, false);
+		}
+		if (CrysActionClass)
+		{
+			ActionManagerComponent->SetAction(InputTag, Index, CrysActionClass);
+		}
+	}
+}
+
+void UActionManagerViewModel::ClearAction(const FGameplayTag& InputTag, const int32 Index)
+{
+	if (ActionManagerComponent)
+	{
+		ActionManagerComponent->ClearAction(InputTag, Index);
+	}
 }
 
 void UActionManagerViewModel::OnInitializeViewModel(APlayerController* PlayerController)
@@ -88,18 +113,13 @@ void UActionManagerViewModel::SetActiveActionSetIndex(int32 Index)
 {
 	if (UE_MVVM_SET_PROPERTY_VALUE(ActiveActionSetIndex, Index))
 	{
-		ActionViewModelUpdated.Index = Index;
 		if (ActionManagerComponent)
 		{
-			for (FActionViewModelItem& Item : ActiveActionViewModels)
+			for (UActionSlotViewModel* Item : ActiveActionSlotViewModels)
 			{
-				ActionViewModelUpdated.InputTag = Item.InputTag;
-				Item.ViewModel = InternalCreateActionViewModel(Item.InputTag, Index);
-				ActionViewModelUpdated.ViewModel = Item.ViewModel;
-				UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnActionViewModelUpdated);
+				Item->SetActionViewModel(InternalCreateActionViewModel(Item->InputTag, Index));
 			}
 		}
-		ActionViewModelUpdated = FActionViewModelUpdated();
 	}
 }
 
@@ -125,32 +145,28 @@ UActionViewModel* UActionManagerViewModel::InternalCreateActionViewModel(const F
 
 void UActionManagerViewModel::OnActionMapUpdated(UCrysAction* Action, const FGameplayTag& InputTag, int32 Index)
 {
-	ActionViewModelUpdated.Index = Index;
-	ActionViewModelUpdated.InputTag = InputTag;
-	ActionViewModelUpdated.ViewModel = InternalCreateActionViewModel(InputTag, Index);
+	UActionViewModel* NewVM = InternalCreateActionViewModel(InputTag, Index);
 	if (ActiveActionSetIndex == Index)
 	{
-		for (FActionViewModelItem& Item : ActiveActionViewModels)
+		for (UActionSlotViewModel* Item : ActiveActionSlotViewModels)
 		{
-			if (Item.InputTag == InputTag)
+			if (Item->InputTag == InputTag)
 			{
-				Item.ViewModel = ActionViewModelUpdated.ViewModel;
+				Item->SetActionViewModel(NewVM);
 				break;
 			}
 		}
 	}
 	
-	if (ActionViewModelContainers.IsValidIndex(Index))
+	if (ActionSlotViewModelContainers.IsValidIndex(Index))
 	{
-		for (FActionViewModelItem& Item : ActionViewModelContainers[Index].Items)
+		for (UActionSlotViewModel* Item : ActionSlotViewModelContainers[Index].Items)
 		{
-			if (Item.InputTag == InputTag)
+			if (Item->InputTag == InputTag)
 			{
-				Item.ViewModel = ActionViewModelUpdated.ViewModel;
+				Item->SetActionViewModel(NewVM);
+				break;
 			}
 		}
 	}
-	
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnActionViewModelUpdated);
-	ActionViewModelUpdated = FActionViewModelUpdated();
 }

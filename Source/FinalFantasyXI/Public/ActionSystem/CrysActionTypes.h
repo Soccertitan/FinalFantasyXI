@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Item/ItemDefinition.h"
 #include "CrysActionTypes.generated.h"
 
 class UCrysAction;
@@ -26,4 +27,14 @@ struct FCrysActionMapInstance
 	
 	UPROPERTY(BlueprintReadOnly)
 	TMap<FGameplayTag, TObjectPtr<UCrysAction>> ActionMap;
+};
+
+/** Information on an action that can be used or mapped. */
+USTRUCT(BlueprintType)
+struct FItemFragment_Action : public FItemFragment
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<UCrysAction> Action;
 };

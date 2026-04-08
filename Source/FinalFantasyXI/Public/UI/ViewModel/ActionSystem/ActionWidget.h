@@ -10,7 +10,7 @@ class UActionViewModel;
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class FINALFANTASYXI_API UActionWidget : public UCrysUserWidget
 {
 	GENERATED_BODY()

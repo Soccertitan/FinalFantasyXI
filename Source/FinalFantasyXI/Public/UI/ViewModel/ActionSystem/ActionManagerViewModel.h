@@ -10,6 +10,7 @@
 
 
 class UActionViewModel;
+class UActionSlotViewModel;
 class UCrysAction;
 class UCrysActionManagerComponent;
 
@@ -22,19 +23,22 @@ class FINALFANTASYXI_API UActionManagerViewModel : public UCrysViewModel
 	GENERATED_BODY()
 
 public:
-
-	UFUNCTION(BlueprintPure, FieldNotify)
-	FActionViewModelUpdated OnActionViewModelUpdated() const { return ActionViewModelUpdated; }
 	
 	int32 GetActiveActionSetIndex() const { return ActiveActionSetIndex; }
 	
 	/** Finds or creates an ActionVM from InputTag and Index. */
 	UFUNCTION(BlueprintCallable, Category = "Viewmodel|ActionBar")
-	UActionViewModel* FindOrCreateActionViewModel(const FGameplayTag& InputTag, int32 Index = 0);
+	UActionSlotViewModel* FindOrCreateActionSlotViewModel(const FGameplayTag& InputTag, int32 Index = 0);
 	
 	/** Finds or creates an ActionVM from InputTag from the ActiveActionSetIndex. */
 	UFUNCTION(BlueprintCallable, Category = "Viewmodel|ActionBar")
-	UActionViewModel* FindOrCreateActiveActionViewModel(const FGameplayTag& InputTag);
+	UActionSlotViewModel* FindOrCreateActiveActionSlotViewModel(const FGameplayTag& InputTag);
+	
+	UFUNCTION(BlueprintCallable, Category = "Viewmodel|ActionBar")
+	void SetAction(const FGameplayTag& InputTag, const int32 Index, const TSoftClassPtr<UCrysAction> ActionClass);
+	
+	UFUNCTION(BlueprintCallable, Category = "CrysActionManager")
+	void ClearAction(const FGameplayTag& InputTag, const int32 Index);
 
 protected:
 	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
@@ -49,14 +53,10 @@ private:
 	TObjectPtr<UCrysActionManagerComponent> ActionManagerComponent;
 	
 	UPROPERTY()
-	TArray<FActionViewModelContainer> ActionViewModelContainers;
+	TArray<FActionViewModelContainer> ActionSlotViewModelContainers;
 	
 	UPROPERTY()
-	TArray<FActionViewModelItem> ActiveActionViewModels;
-	
-	/** Information on the most recent change. */
-	UPROPERTY()
-	FActionViewModelUpdated ActionViewModelUpdated;
+	TArray<TObjectPtr<UActionSlotViewModel>> ActiveActionSlotViewModels;
 	
 	/** The current set that is mapped to the InputActions. */
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Category = "Viewmodel|ActionBar", meta = (AllowPrivateAccess = true))

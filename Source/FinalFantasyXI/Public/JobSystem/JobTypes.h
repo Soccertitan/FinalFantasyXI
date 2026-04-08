@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "ScalableFloat.h"
+#include "Item/ItemDefinition.h"
 #include "Net/Serialization/FastArraySerializer.h"
 #include "JobTypes.generated.h"
 
+class UGameplayEffect;
 class UJobDefinition;
 class URaceDefinition;
 
@@ -189,4 +191,22 @@ struct FPrimaryAttributesCalculated
 	int32 Mind = 1;
 	UPROPERTY(BlueprintReadOnly)
 	int32 Charisma = 1;
+};
+
+/** Gameplay effect to grants to a job. */
+USTRUCT(BlueprintType)
+struct FItemFragment_JobAbility : public FItemFragment
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0))
+	int32 LevelRequirement = 0;
+	
+	/** If empty, all jobs receive the effect. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Job"))
+	FGameplayTagContainer AllowedJobs;
+	
+	/** The effect to grant. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<UGameplayEffect> GameplayEffect;
 };

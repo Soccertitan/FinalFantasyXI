@@ -34,6 +34,8 @@ class FINALFANTASYXI_API UJobManagerComponent : public UActorComponent, public I
 public:
 	UJobManagerComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void BeginPlay() override;
+	virtual void PreNetReceive() override;
 	virtual void InitializeWithAbilitySystem_Implementation(UCrimAbilitySystemComponent* NewAbilitySystemComponent) override;
 
 	/** [Client + Server] Whenever the JobManagerData is updated. */
@@ -137,8 +139,10 @@ public:
 	bool HasAuthority() const;
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void PreNetReceive() override;
+	/** The item containers to grant abilities from. */
+	// UPROPERTY(EditDefaultsOnly)
+	// TArray<FGameplayTag> ItemContainerTags;
+	
 	virtual void OnRegister() override;
 
 	UFUNCTION()
