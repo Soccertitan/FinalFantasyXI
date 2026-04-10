@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CrysItemInstanceViewModel.h"
-#include "EquipmentItemInstanceViewModel.generated.h"
+#include "CrysItemViewModel.h"
+#include "EquipmentItemViewModel.generated.h"
 
 class UCrysGameplayTagViewModel;
+
 /**
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UEquipmentItemInstanceViewModel : public UCrysItemInstanceViewModel
+class FINALFANTASYXI_API UEquipmentItemViewModel : public UCrysItemViewModel
 {
 	GENERATED_BODY()
 	
@@ -27,8 +28,8 @@ protected:
 	void SetAllowedJobViewModels(TArray<UCrysGameplayTagViewModel*> Value);
 	void SetEquipSlotViewModels(UCrysGameplayTagViewModel* Value);
 	
-	virtual void OnItemInstanceSet() override;
-	virtual void OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition) override;
+	virtual void OnItemSet(const TInstancedStruct<FItem>& Item) override;
+	virtual void OnItemDefinitionSet(const UItemDefinition* ItemDefinition) override;
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, meta = (AllowPrivateAccess = "true"))

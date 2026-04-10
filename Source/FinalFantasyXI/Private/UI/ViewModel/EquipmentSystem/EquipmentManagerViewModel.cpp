@@ -155,7 +155,8 @@ void UEquipmentManagerViewModel::OnItemUnequipped(const FEquippedItem& EquippedI
 	{
 		if (ViewModel->GetEquipSlot() == EquippedItem.EquipSlot)
 		{
-			UItemInstanceViewModel* ItemInstanceViewModel = NewObject<UItemInstanceViewModel>(this);
+			UItemInstanceViewModel* ItemInstanceViewModel = UInventoryViewModelBlueprintFunctionLibrary::CreateItemInstanceViewModel(
+				this, FItemInstance());
 			ViewModel->SetItemInstanceViewModel(ItemInstanceViewModel);
 			break;
 		}

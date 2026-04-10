@@ -1,35 +1,34 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "UI/ViewModel/InventorySystem/EquipmentItemInstanceViewModel.h"
+#include "UI/ViewModel/InventorySystem/EquipmentItemViewModel.h"
 
 #include "InventoryBlueprintFunctionLibrary.h"
 #include "EquipmentSystem/EquipmentManagerComponent.h"
 #include "EquipmentSystem/ItemFragment_Equipment.h"
 #include "UI/ViewModel/CrysGameplayTagViewModel.h"
 
-void UEquipmentItemInstanceViewModel::SetLevelRequirement(int32 Value)
+void UEquipmentItemViewModel::SetLevelRequirement(int32 Value)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(LevelRequirement, Value);
 }
 
-void UEquipmentItemInstanceViewModel::SetAllowedJobViewModels(TArray<UCrysGameplayTagViewModel*> Value)
+void UEquipmentItemViewModel::SetAllowedJobViewModels(TArray<UCrysGameplayTagViewModel*> Value)
 {
 	AllowedJobViewModels = Value;
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAllowedJobViewModels);
 }
 
-void UEquipmentItemInstanceViewModel::SetEquipSlotViewModels(UCrysGameplayTagViewModel* Value)
+void UEquipmentItemViewModel::SetEquipSlotViewModels(UCrysGameplayTagViewModel* Value)
 {
 	EquipSlotViewModel = Value;
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetEquipSlotViewModels);
 }
 
-void UEquipmentItemInstanceViewModel::OnItemInstanceSet()
+void UEquipmentItemViewModel::OnItemSet(const TInstancedStruct<FItem>& Item)
 {
-	Super::OnItemInstanceSet();
-	
-	const TInstancedStruct<FItem>& Item = GetItemInstance().GetItem();
+	Super::OnItemSet(Item);
+
 	if (const FItemShard_Equipment* ItemShard = Item.Get<FItem>().FindShardByType<FItemShard_Equipment>())
 	{
 		SetUpgradeLevel(ItemShard->Level);
@@ -41,9 +40,9 @@ void UEquipmentItemInstanceViewModel::OnItemInstanceSet()
 	}
 }
 
-void UEquipmentItemInstanceViewModel::OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition)
+void UEquipmentItemViewModel::OnItemDefinitionSet(const UItemDefinition* ItemDefinition)
 {
-	Super::OnItemDefinitionLoaded(ItemDefinition);
+	Super::OnItemDefinitionSet(ItemDefinition);
 	
 	if (const FItemFragment_Equipment* ItemFragment = ItemDefinition->FindFragmentByType<FItemFragment_Equipment>())
 	{

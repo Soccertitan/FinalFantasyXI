@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EquipmentItemInstanceViewModel.h"
+#include "EquipmentItemViewModel.h"
 #include "ScalableFloat.h"
-#include "WeaponItemInstanceViewModel.generated.h"
+#include "WeaponItemViewModel.generated.h"
 
 class UCrysGameplayTagViewModel;
 
@@ -13,7 +13,7 @@ class UCrysGameplayTagViewModel;
  * 
  */
 UCLASS()
-class FINALFANTASYXI_API UWeaponItemInstanceViewModel : public UEquipmentItemInstanceViewModel
+class FINALFANTASYXI_API UWeaponItemViewModel : public UEquipmentItemViewModel
 {
 	GENERATED_BODY()
 	
@@ -31,8 +31,8 @@ protected:
 	void SetWeaponSkillViewModel(UCrysGameplayTagViewModel* Value);
 	void SetDamageTypeViewModel(UCrysGameplayTagViewModel* Value);
 	
-	virtual void OnItemInstanceSet() override;
-	virtual void OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition) override;
+	virtual void OnItemSet(const TInstancedStruct<FItem>& Item) override;
+	virtual void OnItemDefinitionSet(const UItemDefinition* ItemDefinition) override;
 	
 private:
 	UPROPERTY(EditAnywhere)
