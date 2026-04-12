@@ -27,8 +27,8 @@ protected:
 	void SetAllowedJobViewModels(TArray<UCrysGameplayTagViewModel*> Value);
 	void SetEquipSlotViewModels(UCrysGameplayTagViewModel* Value);
 	
-	virtual void OnItemInstanceSet() override;
-	virtual void OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition) override;
+	virtual void OnItemSet_Implementation(const TInstancedStruct<FItem>& Item) override;
+	virtual void OnItemDefinitionSet_Implementation(const UItemDefinition* ItemDefinition) override;
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, FieldNotify, Getter, meta = (AllowPrivateAccess = "true"))

@@ -29,17 +29,17 @@ void UWeaponItemInstanceViewModel::SetDamageTypeViewModel(UCrysGameplayTagViewMo
 	UE_MVVM_SET_PROPERTY_VALUE(DamageTypeViewModel, Value);
 }
 
-void UWeaponItemInstanceViewModel::OnItemInstanceSet()
+void UWeaponItemInstanceViewModel::OnItemSet_Implementation(const TInstancedStruct<FItem>& Item)
 {
-	Super::OnItemInstanceSet();
+	Super::OnItemSet_Implementation(Item);
 	
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetDamage);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAutoAttackDelay);
 }
 
-void UWeaponItemInstanceViewModel::OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition)
+void UWeaponItemInstanceViewModel::OnItemDefinitionSet_Implementation(const UItemDefinition* ItemDefinition)
 {
-	Super::OnItemDefinitionLoaded(ItemDefinition);
+	Super::OnItemDefinitionSet_Implementation(ItemDefinition);
 	
 	if (const FItemFragment_Weapon* Fragment = ItemDefinition->FindFragmentByType<FItemFragment_Weapon>())
 	{

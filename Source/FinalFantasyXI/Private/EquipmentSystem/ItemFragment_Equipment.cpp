@@ -17,13 +17,17 @@ bool FItemShard_Equipment::IsMatching(const TInstancedStruct<FItemShard>& Shard)
 	{
 		if (const FItemShard_Equipment* Ptr = Shard.GetPtr<FItemShard_Equipment>())
 		{
-			if (Ptr->Level == Level)
+			if (Ptr->Level != Level)
 			{
-				return true;
+				return false;
 			}
-		}	
+		}
+		else
+		{
+			return false;
+		}
 	}
-	return false;
+	return true;
 }
 
 FItemFragment_Equipment::FItemFragment_Equipment()

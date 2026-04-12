@@ -33,10 +33,5 @@ bool UItemInstanceViewModelFilter_EquipableItems::DoesItemInstanceViewModelPassF
 		return false;
 	}
 
-	if (!Cast<UEquipmentManagerComponent>(Context)->CanEquipItem(EquipSlot, ViewModel->GetItemInstance().GetItem()))
-	{
-		return false;
-	}
-
-	return true;
+	return Cast<UEquipmentManagerComponent>(Context)->CanEquipItem(EquipSlot, ViewModel->GetItem());
 }

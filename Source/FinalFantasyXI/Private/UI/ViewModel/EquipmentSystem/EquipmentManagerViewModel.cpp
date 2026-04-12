@@ -64,7 +64,7 @@ void UEquipmentManagerViewModel::TryEquipItem(FGameplayTag EquipSlot, UItemInsta
 {
 	if (EquipmentManagerComponent && ItemInstanceViewModel)
 	{
-		EquipmentManagerComponent->TryEquipItem(EquipSlot, ItemInstanceViewModel->GetItemInstance().GetGuid());
+		EquipmentManagerComponent->TryEquipItem(EquipSlot, ItemInstanceViewModel->GetGuid());
 	}
 }
 
@@ -166,7 +166,7 @@ void UEquipmentManagerViewModel::OnItemChanged(const FItemInstance& ItemInstance
 {
 	for (UEquippedItemViewModel* ViewModel : EquippedItemViewModels)
 	{
-		if (ViewModel->GetItemInstanceViewModel()->GetItemInstance() == ItemInstance)
+		if (ViewModel->GetItemInstanceViewModel()->GetGuid() == ItemInstance.GetGuid())
 		{
 			ViewModel->GetItemInstanceViewModel()->SetItemInstance(ItemInstance);
 		}

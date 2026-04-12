@@ -25,11 +25,10 @@ void UEquipmentItemInstanceViewModel::SetEquipSlotViewModels(UCrysGameplayTagVie
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetEquipSlotViewModels);
 }
 
-void UEquipmentItemInstanceViewModel::OnItemInstanceSet()
+void UEquipmentItemInstanceViewModel::OnItemSet_Implementation(const TInstancedStruct<FItem>& Item)
 {
-	Super::OnItemInstanceSet();
+	Super::OnItemSet_Implementation(Item);
 	
-	const TInstancedStruct<FItem>& Item = GetItemInstance().GetItem();
 	if (const FItemShard_Equipment* ItemShard = Item.Get<FItem>().FindShardByType<FItemShard_Equipment>())
 	{
 		SetUpgradeLevel(ItemShard->Level);
@@ -37,13 +36,14 @@ void UEquipmentItemInstanceViewModel::OnItemInstanceSet()
 	}
 	else
 	{
+		SetUpgradeLevel(0);
 		SetIsEquipped(false);
 	}
 }
 
-void UEquipmentItemInstanceViewModel::OnItemDefinitionLoaded(const UItemDefinition* ItemDefinition)
+void UEquipmentItemInstanceViewModel::OnItemDefinitionSet_Implementation(const UItemDefinition* ItemDefinition)
 {
-	Super::OnItemDefinitionLoaded(ItemDefinition);
+	Super::OnItemDefinitionSet_Implementation(ItemDefinition);
 	
 	if (const FItemFragment_Equipment* ItemFragment = ItemDefinition->FindFragmentByType<FItemFragment_Equipment>())
 	{
