@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "AbilitySystem/AttributeTagRelationship.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CrysBlueprintFunctionLibrary.generated.h"
@@ -39,4 +40,7 @@ public:
 	static AActor* GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& AbilityTags);
 	
 	static FAttributeRelationshipItem FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound = false);
+	
+	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary")
+	static ETeamAttitude::Type GetAttitudeTowardsActor(AActor* Instigator, AActor* Target);
 };

@@ -7,6 +7,8 @@
 
 namespace Crys::NativeGameplayTag
 {
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Combat_CombatStance, "Ability.Combat.CombatStance", "Triggers an ability to enter/exit combat stance.");
+	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_AutoAttack, "Ability.GameplayEvent.AutoAttack", "Triggers an auto attack gameplay ability.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Damage_Mana, "Ability.GameplayEvent.Damage.Mana", "Sends a gameplay event when mana is damaged.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Healing_Mana, "Ability.GameplayEvent.Healing.Mana", "Sends a Gameplay event when mana is healed.");

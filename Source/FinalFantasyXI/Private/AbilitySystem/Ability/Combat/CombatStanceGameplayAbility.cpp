@@ -3,7 +3,13 @@
 
 #include "AbilitySystem/Ability/Combat/CombatStanceGameplayAbility.h"
 
+#include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
+
+UCombatStanceGameplayAbility::UCombatStanceGameplayAbility()
+{
+	SetAssetTags(Crys::NativeGameplayTag::Ability_Combat_CombatStance.GetTag().GetSingleTagContainer());
+}
 
 UAnimMontage* UCombatStanceGameplayAbility::GetPrimaryEnterCombatAnim() const
 {

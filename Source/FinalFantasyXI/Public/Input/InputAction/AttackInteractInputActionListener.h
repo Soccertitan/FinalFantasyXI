@@ -1,0 +1,60 @@
+﻿// Copyright Soccertitan 2025
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "CrysInputActionListener.h"
+#include "GameplayTagContainer.h"
+#include "AttackInteractInputActionListener.generated.h"
+
+class UCrimAbilitySystemComponent;
+class UAutoAttackManagerComponent;
+class IGenericTeamAgentInterface;
+class UInteractorComponent;
+class UTargetingSystemComponent;
+
+/**
+ * Starts the auto attack timer if the current target is an enemy. Otherwise, it will try to interact with objects.
+ */
+UCLASS()
+class FINALFANTASYXI_API UAttackInteractInputActionListener : public UCrysInputActionListener
+{
+	GENERATED_BODY()
+	
+public:
+	UAttackInteractInputActionListener();
+	
+protected:
+	virtual void OnInitializeListener() override;
+	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
+	virtual void OnInputActionCompleted(const FInputActionValue& Value) override;
+	virtual void OnInputActionCanceled(const FInputActionValue& Value) override;
+	
+	UFUNCTION()
+	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
+	
+	void SetControlledPawn(APawn* NewPawn);
+	
+private:
+	/** Cached from the controlled pawn. */
+	UPROPERTY()
+	TObjectPtr<UTargetingSystemComponent> TargetingSystemComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UInteractorComponent> InteractorComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManagerComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
+	
+	UPROPERTY()
+	TObjectPtr<APawn> ControlledPawn;
+	
+	FDelegateHandle CombatTagDelegateHandle;
+	void OnCombatStanceGameplayTagCountChanged(FGameplayTag Tag, int32 NewCount);
+	
+	bool bCombatStance = false;
+	bool bWaitingForCombatStance = false;
+};

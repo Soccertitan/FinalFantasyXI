@@ -7,6 +7,8 @@
 
 namespace Crys::NativeGameplayTag
 {
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Combat_CombatStance);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_GameplayEvent_AutoAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_GameplayEvent_Damage_Mana);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_GameplayEvent_Healing_Mana);

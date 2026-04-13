@@ -102,3 +102,9 @@ FAttributeRelationshipItem UCrysBlueprintFunctionLibrary::FindAttributeRelations
 
 	return AttributeTagRelationship->FindAttributeRelationshipItem(AttributeTag, bLogNotFound);
 }
+
+ETeamAttitude::Type UCrysBlueprintFunctionLibrary::GetAttitudeTowardsActor(AActor* Instigator, AActor* Target)
+{
+	const IGenericTeamAgentInterface* AgentInterface = Cast<const IGenericTeamAgentInterface>(Instigator);
+	return AgentInterface ? AgentInterface->GetTeamAttitudeTowards(*Target) : ETeamAttitude::Neutral;
+}

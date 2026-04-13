@@ -17,6 +17,9 @@ class FINALFANTASYXI_API UCombatStanceGameplayAbility : public UCombatGameplayAb
 	GENERATED_BODY()
 	
 public:
+	UCombatStanceGameplayAbility();
+	
+protected:
 	UFUNCTION(BlueprintPure, Category = "ToggleCombatState")
 	UAnimMontage* GetPrimaryEnterCombatAnim() const;
 	UFUNCTION(BlueprintPure, Category = "ToggleCombatState")
