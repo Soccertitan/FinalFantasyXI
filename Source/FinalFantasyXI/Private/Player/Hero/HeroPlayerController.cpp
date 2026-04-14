@@ -70,24 +70,6 @@ UTargetingSystemComponent* AHeroPlayerController::GetTargetingSystemComponent_Im
 	return TargetSystemComponent;
 }
 
-void AHeroPlayerController::OnTargetedPointUpdated(UTargetPointComponent* TargetPointComponent)
-{
-	if (TargetPointComponent)
-	{
-		if (EnhancedInputSubsystem)
-		{
-			EnhancedInputSubsystem->AddMappingContext(TargetedPointInputMappingContext, TargetedPointInputMappingContextPriority);
-		}
-	}
-	else
-	{
-		if (EnhancedInputSubsystem)
-		{
-			EnhancedInputSubsystem->RemoveMappingContext(TargetedPointInputMappingContext);
-		}
-	}
-}
-
 void AHeroPlayerController::TryInitOverlay()
 {
 	if (AbilitySystemComponent)
@@ -108,20 +90,5 @@ void AHeroPlayerController::InitializeAbilitySystemComponent()
 
 void AHeroPlayerController::InitializeTargetSystemComponent()
 {
-	if (TargetSystemComponent)
-	{
-		TargetSystemComponent->OnTargetedPointUpdatedDelegate.RemoveAll(this);
-	}
-
-	TargetSystemComponent = nullptr;
-	if (GetPawn())
-	{
-		TargetSystemComponent = GetPawn()->FindComponentByClass<UTargetingSystemComponent>();
-	}
-	
-	if (TargetSystemComponent)
-	{
-		OnTargetedPointUpdated(TargetSystemComponent->GetTargetedPoint());
-		TargetSystemComponent->OnTargetedPointUpdatedDelegate.AddUniqueDynamic(this, &ThisClass::OnTargetedPointUpdated);
-	}
+	TargetSystemComponent = GetPawn() ? GetPawn()->FindComponentByClass<UTargetingSystemComponent>() : nullptr;
 }

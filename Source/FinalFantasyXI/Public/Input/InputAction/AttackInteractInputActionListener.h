@@ -25,15 +25,11 @@ public:
 	UAttackInteractInputActionListener();
 	
 protected:
-	virtual void OnInitializeListener() override;
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
 	virtual void OnInputActionCompleted(const FInputActionValue& Value) override;
 	virtual void OnInputActionCanceled(const FInputActionValue& Value) override;
 	
-	UFUNCTION()
-	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
-	
-	void SetControlledPawn(APawn* NewPawn);
+	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn) override;
 	
 private:
 	/** Cached from the controlled pawn. */

@@ -32,8 +32,6 @@ public:
 	//-----------------------------------------------------------------------------------------
 	// Class overrides
 	//-----------------------------------------------------------------------------------------
-	virtual void BeginPlay() override;
-	virtual void OnPossess(APawn* InPawn) override;
 	virtual void AcknowledgePossession(class APawn* P) override;
 	virtual void OnRep_PlayerState() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -49,15 +47,10 @@ public:
 	virtual UTargetingSystemComponent* GetTargetingSystemComponent_Implementation() const override;
 	
 protected:
-	UFUNCTION()
-	virtual void OnTargetedPointUpdated(UTargetPointComponent* TargetPointComponent);
+	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
 private:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UInputMappingContext> TargetedPointInputMappingContext;
-	UPROPERTY(EditAnywhere)
-	int32 TargetedPointInputMappingContextPriority = 1;
-	
 	/** Cached reference to the PlayerStates ASC. */
 	UPROPERTY()
 	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;

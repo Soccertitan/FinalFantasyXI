@@ -28,9 +28,15 @@ public:
 	bool IsPressed() const { return bPressed; }
 
 protected:
+	virtual void OnInitializeListener() override;
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
 	virtual void OnInputActionCanceled(const FInputActionValue& Value) override;
 	virtual void OnInputActionCompleted(const FInputActionValue& Value) override;
+	
+	UFUNCTION()
+	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPossedPawnChanged")
+	void K2_OnPossesedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 	
 private:
 	UPROPERTY()

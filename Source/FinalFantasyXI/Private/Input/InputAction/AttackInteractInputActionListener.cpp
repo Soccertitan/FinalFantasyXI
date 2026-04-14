@@ -8,6 +8,7 @@
 #include "CrysBlueprintFunctionLibrary.h"
 #include "CrysNativeGameplayTags.h"
 #include "GenericTeamAgentInterface.h"
+#include "InputActionValue.h"
 #include "InteractionSystemBlueprintFunctionLibrary.h"
 #include "InteractorComponent.h"
 #include "TargetingSystemBlueprintFunctionLibrary.h"
@@ -19,20 +20,14 @@ UAttackInteractInputActionListener::UAttackInteractInputActionListener()
 {
 }
 
-void UAttackInteractInputActionListener::OnInitializeListener()
-{
-	Super::OnInitializeListener();
-	
-	if (GetPlayerController())
-	{
-		GetPlayerController()->OnPossessedPawnChanged.AddUniqueDynamic(this, &UAttackInteractInputActionListener::OnPossessedPawnChanged);
-		SetControlledPawn(GetPlayerController()->GetPawn());
-	}
-}
-
 void UAttackInteractInputActionListener::OnInputActionTriggered(const FInputActionValue& Value)
 {
 	Super::OnInputActionTriggered(Value);
+	
+	if (Value.Get<bool>() == false)
+	{
+		return;
+	}
 	
 	if (TargetingSystemComponent && AutoAttackManagerComponent)
 	{
@@ -83,11 +78,8 @@ void UAttackInteractInputActionListener::OnInputActionCanceled(const FInputActio
 
 void UAttackInteractInputActionListener::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 {
-	SetControlledPawn(NewPawn);
-}
-
-void UAttackInteractInputActionListener::SetControlledPawn(APawn* NewPawn)
-{
+	Super::OnPossessedPawnChanged(OldPawn, NewPawn);
+	
 	TargetingSystemComponent = UTargetingSystemBlueprintFunctionLibrary::GetTargetingSystemComponent(NewPawn);
 	InteractorComponent = UInteractionSystemBlueprintFunctionLibrary::GetInteractorComponent(NewPawn);
 	ControlledPawn = NewPawn;
@@ -126,7 +118,15 @@ void UAttackInteractInputActionListener::OnCombatStanceGameplayTagCountChanged(F
 		if (bWaitingForCombatStance && AutoAttackManagerComponent)
 		{
 			bWaitingForCombatStance = false;
-			AutoAttackManagerComponent->StartAutoAttack();
+			FTimerDelegate Delegate;
+			Delegate.BindWeakLambda(this, [this]()
+			{
+				if (AutoAttackManagerComponent)
+				{
+					AutoAttackManagerComponent->StartAutoAttack();
+				}
+			});
+			GetWorld()->GetTimerManager().SetTimerForNextTick(Delegate);
 		}
 	}
 	else

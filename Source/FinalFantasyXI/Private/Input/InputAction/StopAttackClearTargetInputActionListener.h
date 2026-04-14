@@ -1,0 +1,32 @@
+﻿// Copyright Soccertitan 2025
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Input/InputAction/CrysInputActionListener.h"
+#include "StopAttackClearTargetInputActionListener.generated.h"
+
+class UTargetingSystemComponent;
+class UAutoAttackManagerComponent;
+/**
+ * If AutoAttacking, stop auto attacking. Else if targeting an actor, clear the target.
+ */
+UCLASS()
+class FINALFANTASYXI_API UStopAttackClearTargetInputActionListener : public UCrysInputActionListener
+{
+	GENERATED_BODY()
+	
+public:
+	
+protected:
+	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn) override;
+	
+	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
+	
+private:
+	UPROPERTY()
+	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManagerComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UTargetingSystemComponent> TargetingSystemComponent;
+};
