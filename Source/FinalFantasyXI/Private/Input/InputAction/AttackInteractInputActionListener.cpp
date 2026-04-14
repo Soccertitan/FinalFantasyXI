@@ -20,6 +20,14 @@ UAttackInteractInputActionListener::UAttackInteractInputActionListener()
 {
 }
 
+void UAttackInteractInputActionListener::OnInitializeListener()
+{
+	Super::OnInitializeListener();
+	
+	GetAutoAttackManagerComponent();
+	GetAbilitySystemComponent();
+}
+
 void UAttackInteractInputActionListener::OnInputActionTriggered(const FInputActionValue& Value)
 {
 	Super::OnInputActionTriggered(Value);
@@ -29,7 +37,7 @@ void UAttackInteractInputActionListener::OnInputActionTriggered(const FInputActi
 		return;
 	}
 	
-	if (TargetingSystemComponent && AutoAttackManagerComponent)
+	if (TargetingSystemComponent && GetAutoAttackManagerComponent())
 	{
 		AActor* TargetedActor = TargetingSystemComponent->GetTargetedActor();
 		ETeamAttitude::Type Attitude = UCrysBlueprintFunctionLibrary::GetAttitudeTowardsActor(ControlledPawn, TargetedActor);
@@ -41,7 +49,7 @@ void UAttackInteractInputActionListener::OnInputActionTriggered(const FInputActi
 				bWaitingForCombatStance = false;
 				AutoAttackManagerComponent->StartAutoAttack();
 			}
-			else if (AbilitySystemComponent)
+			else if (GetAbilitySystemComponent())
 			{
 				bWaitingForCombatStance = true;
 				AbilitySystemComponent->TryActivateAbilitiesByTag(Crys::NativeGameplayTag::Ability_Combat_CombatStance.GetTag().GetSingleTagContainer());
@@ -83,30 +91,37 @@ void UAttackInteractInputActionListener::OnPossessedPawnChanged(APawn* OldPawn, 
 	TargetingSystemComponent = UTargetingSystemBlueprintFunctionLibrary::GetTargetingSystemComponent(NewPawn);
 	InteractorComponent = UInteractionSystemBlueprintFunctionLibrary::GetInteractorComponent(NewPawn);
 	ControlledPawn = NewPawn;
+}
+
+UAutoAttackManagerComponent* UAttackInteractInputActionListener::GetAutoAttackManagerComponent()
+{
+	if (!AutoAttackManagerComponent)
+	{
+		if (GetPlayerController() && GetPlayerController()->GetPlayerState<APlayerState>())
+		{
+			AutoAttackManagerComponent = GetPlayerController()->GetPlayerState<APlayerState>()->FindComponentByClass<UAutoAttackManagerComponent>();
+		}
+	}
 	
-	if (ControlledPawn)
+	return AutoAttackManagerComponent;
+}
+
+UCrimAbilitySystemComponent* UAttackInteractInputActionListener::GetAbilitySystemComponent()
+{
+	if (!AbilitySystemComponent)
 	{
-		APlayerState* PlayerState = ControlledPawn->GetPlayerState();
-		AutoAttackManagerComponent = PlayerState ? PlayerState->GetComponentByClass<UAutoAttackManagerComponent>() : nullptr;
-	}
-	else
-	{
-		AutoAttackManagerComponent = nullptr;
+		AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(GetPlayerController()->GetPlayerState<APlayerState>());
+		
+		if (AbilitySystemComponent)
+		{
+			AbilitySystemComponent->RegisterGameplayTagEvent(Crys::NativeGameplayTag::Ability_State_CombatStance, 
+				EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UAttackInteractInputActionListener::OnCombatStanceGameplayTagCountChanged);
+			OnCombatStanceGameplayTagCountChanged(Crys::NativeGameplayTag::Ability_State_CombatStance, 
+				AbilitySystemComponent->GetGameplayTagCount(Crys::NativeGameplayTag::Ability_State_CombatStance));
+		}
 	}
 	
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->UnregisterGameplayTagEvent(CombatTagDelegateHandle, 
-			Crys::NativeGameplayTag::Ability_State_CombatStance, EGameplayTagEventType::NewOrRemoved);
-	}
-	AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(NewPawn);
-	if (AbilitySystemComponent)
-	{
-		CombatTagDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(Crys::NativeGameplayTag::Ability_State_CombatStance, 
-			EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UAttackInteractInputActionListener::OnCombatStanceGameplayTagCountChanged);
-		OnCombatStanceGameplayTagCountChanged(Crys::NativeGameplayTag::Ability_State_CombatStance, 
-			AbilitySystemComponent->GetGameplayTagCount(Crys::NativeGameplayTag::Ability_State_CombatStance));
-	}
+	return AbilitySystemComponent;
 }
 
 void UAttackInteractInputActionListener::OnCombatStanceGameplayTagCountChanged(FGameplayTag Tag, int32 NewCount)
@@ -115,13 +130,13 @@ void UAttackInteractInputActionListener::OnCombatStanceGameplayTagCountChanged(F
 	{
 		bCombatStance = true;
 		
-		if (bWaitingForCombatStance && AutoAttackManagerComponent)
+		if (bWaitingForCombatStance && GetAutoAttackManagerComponent())
 		{
 			bWaitingForCombatStance = false;
 			FTimerDelegate Delegate;
 			Delegate.BindWeakLambda(this, [this]()
 			{
-				if (AutoAttackManagerComponent)
+				if (GetAutoAttackManagerComponent())
 				{
 					AutoAttackManagerComponent->StartAutoAttack();
 				}

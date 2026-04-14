@@ -19,9 +19,12 @@ class FINALFANTASYXI_API UStopAttackClearTargetInputActionListener : public UCry
 public:
 	
 protected:
+	virtual void OnInitializeListener() override;
 	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn) override;
 	
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
+	
+	UAutoAttackManagerComponent* GetAutoAttackManagerComponent();
 	
 private:
 	UPROPERTY()

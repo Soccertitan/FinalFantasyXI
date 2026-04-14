@@ -25,11 +25,15 @@ public:
 	UAttackInteractInputActionListener();
 	
 protected:
+	virtual void OnInitializeListener() override;
 	virtual void OnInputActionTriggered(const FInputActionValue& Value) override;
 	virtual void OnInputActionCompleted(const FInputActionValue& Value) override;
 	virtual void OnInputActionCanceled(const FInputActionValue& Value) override;
 	
 	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn) override;
+	
+	UAutoAttackManagerComponent* GetAutoAttackManagerComponent();
+	UCrimAbilitySystemComponent* GetAbilitySystemComponent();
 	
 private:
 	/** Cached from the controlled pawn. */
@@ -48,7 +52,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<APawn> ControlledPawn;
 	
-	FDelegateHandle CombatTagDelegateHandle;
 	void OnCombatStanceGameplayTagCountChanged(FGameplayTag Tag, int32 NewCount);
 	
 	bool bCombatStance = false;

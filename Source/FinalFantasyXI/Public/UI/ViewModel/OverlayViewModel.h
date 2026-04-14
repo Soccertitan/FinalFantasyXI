@@ -6,6 +6,7 @@
 #include "CrysViewModel.h"
 #include "OverlayViewModel.generated.h"
 
+class UAutoAttackManagerComponent;
 class UTargetPointViewModel;
 class UTargetPointComponent;
 class UTargetingSystemComponent;
@@ -27,6 +28,7 @@ public:
 	FMVVMEventField OnTargetCleared() const { return FMVVMEventField {};}
 	
 	bool IsRootWidgetAdded() const { return bRootWidgetAdded; }
+	bool IsAutoAttacking() const { return bAutoAttacking; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -44,6 +46,8 @@ protected:
 	void K2_OnTargetPointSet(UTargetPointComponent* NewTarget);
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnTargetPointRemoved")
 	void K2_OnTargetPointRemoved();
+	UFUNCTION()
+	void SetAutoAttacking(bool Value);
 	
 	void OnRootWidgetAdded();
 	void OnRootWidgetRemoved();
@@ -53,6 +57,9 @@ protected:
 private:
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter=IsRootWidgetAdded, meta = (AllowPrivateAccess = true))
 	bool bRootWidgetAdded = false;
+	
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter=IsAutoAttacking, meta = (AllowPrivateAccess = true))
+	bool bAutoAttacking = false;
 
 	/** The AbilitySystemComponent of the controlled pawn. */
 	UPROPERTY()
@@ -60,4 +67,7 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UTargetingSystemComponent> TargetingSystemComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UAutoAttackManagerComponent> AutoAttackManagerComponent;
 };

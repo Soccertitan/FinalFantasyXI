@@ -1,7 +1,7 @@
 ﻿// Copyright Soccertitan 2025
 
 
-#include "StopAttackClearTargetInputActionListener.h"
+#include "Input/InputAction/StopAttackClearTargetInputActionListener.h"
 
 #include "InputActionValue.h"
 #include "TargetingSystemBlueprintFunctionLibrary.h"
@@ -10,21 +10,18 @@
 #include "GameFramework/PlayerState.h"
 
 
+void UStopAttackClearTargetInputActionListener::OnInitializeListener()
+{
+	Super::OnInitializeListener();
+	
+	GetAutoAttackManagerComponent();
+}
+
 void UStopAttackClearTargetInputActionListener::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 {
 	Super::OnPossessedPawnChanged(OldPawn, NewPawn);
 	
 	TargetingSystemComponent = UTargetingSystemBlueprintFunctionLibrary::GetTargetingSystemComponent(NewPawn);
-	
-	if (NewPawn)
-	{
-		APlayerState* PlayerState = NewPawn->GetPlayerState();
-		AutoAttackManagerComponent = PlayerState ? PlayerState->GetComponentByClass<UAutoAttackManagerComponent>() : nullptr;
-	}
-	else
-	{
-		AutoAttackManagerComponent = nullptr;
-	}
 }
 
 void UStopAttackClearTargetInputActionListener::OnInputActionTriggered(const FInputActionValue& Value)
@@ -36,7 +33,7 @@ void UStopAttackClearTargetInputActionListener::OnInputActionTriggered(const FIn
 		return;
 	}
 	
-	if (AutoAttackManagerComponent && AutoAttackManagerComponent->IsAutoAttacking())
+	if (GetAutoAttackManagerComponent() && AutoAttackManagerComponent->IsAutoAttacking())
 	{
 		AutoAttackManagerComponent->StopAutoAttack();
 		return;
@@ -55,4 +52,17 @@ void UStopAttackClearTargetInputActionListener::OnInputActionTriggered(const FIn
 			return;
 		}
 	}
+}
+
+UAutoAttackManagerComponent* UStopAttackClearTargetInputActionListener::GetAutoAttackManagerComponent()
+{
+	if (!AutoAttackManagerComponent)
+	{
+		if (GetPlayerController() && GetPlayerController()->GetPlayerState<APlayerState>())
+		{
+			AutoAttackManagerComponent = GetPlayerController()->GetPlayerState<APlayerState>()->FindComponentByClass<UAutoAttackManagerComponent>();
+		}
+	}
+	
+	return AutoAttackManagerComponent;
 }

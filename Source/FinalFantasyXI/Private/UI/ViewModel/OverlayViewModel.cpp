@@ -7,6 +7,7 @@
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "TargetingSystemBlueprintFunctionLibrary.h"
 #include "TargetingSystemComponent.h"
+#include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "Player/CrysPlayerController.h"
 #include "Player/CrysPlayerState.h"
 #include "UI/ViewModel/TargetPointViewModel.h"
@@ -30,6 +31,13 @@ void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerControlle
 		CrysPC->OnRootWidgetAddedDelegate.AddUObject(this, &UOverlayViewModel::OnRootWidgetAdded);
 		CrysPC->OnRootWidgetRemovedDelegate.AddUObject(this, &UOverlayViewModel::OnRootWidgetRemoved);
 	}
+	
+	AutoAttackManagerComponent = PlayerController->GetPlayerState<ACrysPlayerState>()->FindComponentByClass<UAutoAttackManagerComponent>();
+	if (AutoAttackManagerComponent)
+	{
+		AutoAttackManagerComponent->OnAutoAttackStateChangedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::SetAutoAttacking);
+		SetAutoAttacking(AutoAttackManagerComponent->IsAutoAttacking());
+	}
 }
 
 void UOverlayViewModel::OnTargetPointUpdated(UTargetPointComponent* NewTarget)
@@ -43,6 +51,11 @@ void UOverlayViewModel::OnTargetPointUpdated(UTargetPointComponent* NewTarget)
 		K2_OnTargetPointRemoved();
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnTargetCleared);
 	}
+}
+
+void UOverlayViewModel::SetAutoAttacking(bool Value)
+{
+	UE_MVVM_SET_PROPERTY_VALUE(bAutoAttacking, Value);
 }
 
 void UOverlayViewModel::OnRootWidgetAdded()
