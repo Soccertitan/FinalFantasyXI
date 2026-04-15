@@ -35,15 +35,10 @@ void UAttackerAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, 
 		return;
 	}
 	
-	if (Attribute == GetAutoAttackDelayAttribute())
-	{
-		NewValue = FMath::Max(NewValue, 0.1f);
-		return;
-	}
-	
 	if (Attribute == GetCriticalHitChanceAttribute() ||
 		Attribute == GetCriticalHitBonusAttribute() ||
-		Attribute == GetAttackDefenseRatioCapAttribute())
+		Attribute == GetAttackDefenseRatioCapAttribute() ||
+		Attribute == GetAutoAttackDelayAttribute())
 	{
 		NewValue = FMath::Max(NewValue, 0.f);
 	}

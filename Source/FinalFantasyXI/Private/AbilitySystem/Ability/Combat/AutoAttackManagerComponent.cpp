@@ -92,15 +92,23 @@ void UAutoAttackManagerComponent::StartAutoAttack()
 		Server_StartAutoAttack();
 		return;
 	}
-
-	GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
-	if (bAutoAttackTimerPaused)
-	{
-		GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
-	}
+	
 	bAutoAttacking = true;
 	OnAutoAttackStateChangedDelegate.Broadcast(bAutoAttacking);
 	OnRep_AutoAttacking();
+
+	if (AutoAttackDelay > 0.f)
+	{
+		GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
+		if (bAutoAttackTimerPaused)
+		{
+			GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+		}
+	}
+	else
+	{
+		ActivateAutoAttackAbility();	
+	}
 }
 
 void UAutoAttackManagerComponent::StopAutoAttack()
@@ -127,10 +135,18 @@ void UAutoAttackManagerComponent::RestartAutoAttackTimer()
 	if (IsAutoAttacking() && HasAuthority())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(AutoAttackTimer);
-		GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
-		if (bAutoAttackTimerPaused)
+		
+		if (AutoAttackDelay > 0.f)
 		{
-			GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+			GetWorld()->GetTimerManager().SetTimer(AutoAttackTimer, this, &UAutoAttackManagerComponent::ActivateAutoAttackAbility, AutoAttackDelay, false);
+			if (bAutoAttackTimerPaused)
+			{
+				GetWorld()->GetTimerManager().PauseTimer(AutoAttackTimer);
+			}
+		}
+		else
+		{
+			ActivateAutoAttackAbility();
 		}
 	}
 }

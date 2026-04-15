@@ -64,7 +64,7 @@ protected:
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem;
 
 	/**
-	 * Calls InitializeHUD() from the DreamHUD class. This will only call it once, setting up the widget and ViewModel.
+	 * Calls InitializeHUD() from the CrysHUD class. This will only call it once, setting up the widget and ViewModel.
 	 * Call this when ready to set up the HUD.
 	 */
 	UFUNCTION(BlueprintCallable)

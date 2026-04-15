@@ -3,10 +3,12 @@
 
 #include "AbilitySystem/Ability/Combat/AutoAttackGameplayAbility.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/Ability/Combat/AutoAttackManagerComponent.h"
 #include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
+#include "EquipmentSystem/EquipmentManagerComponent.h"
 
 
 UAutoAttackGameplayAbility::UAutoAttackGameplayAbility()
@@ -47,6 +49,20 @@ UAnimMontage* UAutoAttackGameplayAbility::GetRandomSecondaryAttackMontage() cons
 	return nullptr;
 }
 
+FWeaponData UAutoAttackGameplayAbility::GetWeaponData(const FGameplayTag EquipSlot) const
+{
+	if (EquipmentManagerComponent)
+	{
+		FEquippedItem EquippedItem = EquipmentManagerComponent->GetEquippedItem(EquipSlot);
+		if (EquippedItem.WeaponData.IsValid())
+		{
+			return EquippedItem.WeaponData;
+		}
+		return EquipmentManagerComponent->GetBareHandedWeaponData();
+	}
+	return FWeaponData();
+}
+
 int32 UAutoAttackGameplayAbility::CalculateNumberOfAttacks_Implementation() const
 {
 	return 1;
@@ -57,6 +73,9 @@ void UAutoAttackGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	Super::OnGiveAbility(ActorInfo, Spec);
 	
 	InitAutoAttackManager(ActorInfo);
+	
+	EquipmentManagerComponent = ActorInfo->OwnerActor->FindComponentByClass<UEquipmentManagerComponent>();
+	ensure(EquipmentManagerComponent);
 }
 
 void UAutoAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -76,6 +95,28 @@ void UAutoAttackGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Han
 		AutoAttackManager->RestartAutoAttackTimer();
 	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UAutoAttackGameplayAbility::AttackTarget(const FWeaponData& WeaponData, AActor* TargetActor, AActor* EffectCauser)
+{
+	if (!K2_HasAuthority() && !WeaponData.AutoAttackGameplayEffectClass)
+	{
+		return;
+	}
+	
+	if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+	{
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(WeaponData.AutoAttackGameplayEffectClass, WeaponData.Level);
+		if (EffectCauser)
+		{
+			SpecHandle.Data.Get()->GetContext().Get()->SetEffectCauser(EffectCauser);
+		}
+		SpecHandle.Data.Get()->AddDynamicAssetTag(WeaponData.WeaponSkill);
+		SpecHandle.Data.Get()->SetSetByCallerMagnitude(Crys::NativeGameplayTag::SetByCaller_WeaponDamage, 
+			WeaponData.Damage.GetValueAtLevel(WeaponData.Level));
+		
+		TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	}
 }
 
 void UAutoAttackGameplayAbility::InitAutoAttackManager(const FGameplayAbilityActorInfo* ActorInfo)

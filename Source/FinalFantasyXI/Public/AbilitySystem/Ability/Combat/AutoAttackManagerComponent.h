@@ -24,7 +24,6 @@ class FINALFANTASYXI_API UAutoAttackManagerComponent : public UActorComponent, p
 public:
 	UAutoAttackManagerComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void OnRegister() override;
 	virtual void BeginPlay() override;
 	virtual void PreNetReceive() override;
 	
@@ -56,6 +55,8 @@ public:
 	bool HasAuthority() const;
 	
 protected:
+	virtual void OnRegister() override;
+	
 	UFUNCTION()
 	void OnRep_AutoAttacking();
 	
