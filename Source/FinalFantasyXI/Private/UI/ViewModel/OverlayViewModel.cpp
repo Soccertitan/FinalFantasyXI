@@ -13,17 +13,13 @@
 #include "UI/ViewModel/TargetPointViewModel.h"
 
 
-void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerController)
+void UOverlayViewModel::InitializeViewModel(APlayerController* PlayerController)
 {
-	Super::OnInitializeViewModel(PlayerController);
+	Super::InitializeViewModel(PlayerController);
 
-	AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(PlayerController->GetPlayerState<ACrysPlayerState>());
-	TargetingSystemComponent = UTargetingSystemBlueprintFunctionLibrary::GetTargetingSystemComponent(PlayerController);
-	
-	if (TargetingSystemComponent)
+	if (UCrimAbilitySystemComponent* AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(PlayerController->GetPlayerState<ACrysPlayerState>()))
 	{
-		OnTargetPointUpdated(TargetingSystemComponent->GetTargetedPoint());
-		TargetingSystemComponent->OnTargetedPointUpdatedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::OnTargetPointUpdated);
+		OnAbilitySystemComponentRetrieved(AbilitySystemComponent);
 	}
 	
 	if (ACrysPlayerController* CrysPC = Cast<ACrysPlayerController>(PlayerController))
@@ -35,40 +31,50 @@ void UOverlayViewModel::OnInitializeViewModel(APlayerController* PlayerControlle
 	AutoAttackManagerComponent = PlayerController->GetPlayerState<ACrysPlayerState>()->FindComponentByClass<UAutoAttackManagerComponent>();
 	if (AutoAttackManagerComponent)
 	{
-		AutoAttackManagerComponent->OnAutoAttackStateChangedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::SetAutoAttacking);
-		SetAutoAttacking(AutoAttackManagerComponent->IsAutoAttacking());
+		AutoAttackManagerComponent->OnAutoAttackStateChangedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::SetIsAutoAttacking);
+		SetIsAutoAttacking(AutoAttackManagerComponent->IsAutoAttacking());
 	}
 }
 
-void UOverlayViewModel::OnTargetPointUpdated(UTargetPointComponent* NewTarget)
-{
-	if (NewTarget)
-	{
-		K2_OnTargetPointSet(NewTarget);
-	}
-	else
-	{
-		K2_OnTargetPointRemoved();
-		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnTargetCleared);
-	}
-}
-
-void UOverlayViewModel::SetAutoAttacking(bool Value)
+void UOverlayViewModel::SetIsAutoAttacking(bool Value)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(bAutoAttacking, Value);
 }
 
 void UOverlayViewModel::OnRootWidgetAdded()
 {
-	SetRootWidgetAdded(true);
+	SetIsRootWidgetAdded(true);
 }
 
 void UOverlayViewModel::OnRootWidgetRemoved()
 {
-	SetRootWidgetAdded(false);
+	SetIsRootWidgetAdded(false);
 }
 
-void UOverlayViewModel::SetRootWidgetAdded(bool Value)
+void UOverlayViewModel::SetIsRootWidgetAdded(bool Value)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(bRootWidgetAdded, Value);
+}
+
+void UOverlayViewModel::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
+{
+	Super::OnPossessedPawnChanged(OldPawn, NewPawn);
+	
+	InitTargetingSystemComponent(NewPawn);
+}
+
+void UOverlayViewModel::InitTargetingSystemComponent(APawn* NewPawn)
+{
+	if (TargetingSystemComponent)
+	{
+		TargetingSystemComponent->OnTargetedPointUpdatedDelegate.RemoveAll(this);
+	}
+	
+	TargetingSystemComponent = UTargetingSystemBlueprintFunctionLibrary::GetTargetingSystemComponent(NewPawn);
+	
+	if (TargetingSystemComponent)
+	{
+		OnTargetPointUpdated(TargetingSystemComponent->GetTargetedPoint());
+		TargetingSystemComponent->OnTargetedPointUpdatedDelegate.AddUniqueDynamic(this, &UOverlayViewModel::OnTargetPointUpdated);
+	}
 }

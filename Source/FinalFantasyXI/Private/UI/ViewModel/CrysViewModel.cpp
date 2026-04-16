@@ -7,8 +7,14 @@ void UCrysViewModel::InitializeViewModel(APlayerController* PlayerController)
 {
 	if (IsValid(PlayerController))
 	{
-		OnInitializeViewModel(PlayerController);
 		K2_OnInitializeViewModel(PlayerController);
-		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnViewModelInitialized);
+		
+		PlayerController->OnPossessedPawnChanged.AddUniqueDynamic(this, &UCrysViewModel::OnPossessedPawnChanged);
+		OnPossessedPawnChanged(nullptr, PlayerController->GetPawn());
 	}
+}
+
+void UCrysViewModel::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
+{
+	K2_OnPossessedPawnChanged(OldPawn, NewPawn);
 }

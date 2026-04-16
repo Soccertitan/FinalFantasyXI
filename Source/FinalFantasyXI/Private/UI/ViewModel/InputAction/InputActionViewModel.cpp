@@ -8,6 +8,13 @@
 #include "Input/InputAction/CrysInputActionListener.h"
 #include "UI/ViewModel/InputAction/InputActionListenerViewModel.h"
 
+void UInputActionViewModel::InitializeViewModel(APlayerController* PlayerController)
+{
+	Super::InitializeViewModel(PlayerController);
+	
+	InitEnhancedInputComponent(PlayerController);
+}
+
 UInputActionListenerViewModel* UInputActionViewModel::FindOrCreateInputActionListenerViewModel(UInputAction* InputAction)
 {
 	if (InputAction)
@@ -22,13 +29,6 @@ UInputActionListenerViewModel* UInputActionViewModel::FindOrCreateInputActionLis
 		return InternalCreateInputActionListenerViewModel(InputAction);
 	}
 	return nullptr;
-}
-
-void UInputActionViewModel::OnInitializeViewModel(APlayerController* PlayerController)
-{
-	Super::OnInitializeViewModel(PlayerController);
-	
-	InitEnhancedInputComponent(PlayerController);
 }
 
 void UInputActionViewModel::InitEnhancedInputComponent(APlayerController* PlayerController)

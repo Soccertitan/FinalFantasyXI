@@ -6,9 +6,12 @@
 #include "CrimAbilitySystemBlueprintFunctionLibrary.h"
 #include "Player/CrysPlayerState.h"
 
-void UHeroAttributesViewModel::OnInitializeViewModel(APlayerController* PlayerController)
+void UHeroAttributesViewModel::InitializeViewModel(APlayerController* PlayerController)
 {
-	Super::OnInitializeViewModel(PlayerController);
+	Super::InitializeViewModel(PlayerController);
 	
-	AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(PlayerController->GetPlayerState<ACrysPlayerState>());
+	if (UCrimAbilitySystemComponent* AbilitySystemComponent = UCrimAbilitySystemBlueprintFunctionLibrary::GetAbilitySystemComponent(PlayerController->GetPlayerState<ACrysPlayerState>()))
+	{
+		OnAbilitySystemComponentRetrieved(AbilitySystemComponent);
+	}
 }

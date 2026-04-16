@@ -17,15 +17,10 @@ class FINALFANTASYXI_API UHeroAttributesViewModel : public UCrysViewModel
 	GENERATED_BODY()
 	
 public:
+	virtual void InitializeViewModel(APlayerController* PlayerController) override;
 	
 protected:
-	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
-	
-	/** The AbilitySystemComponent of the controlled pawn. */
-	UFUNCTION(BlueprintPure, Category = "Viewmodel|Attribute")
-	UCrimAbilitySystemComponent* GetAbilitySystemComponent() const {return AbilitySystemComponent;}
-	
-private:
-	UPROPERTY()
-	TObjectPtr<UCrimAbilitySystemComponent> AbilitySystemComponent;
+	/** The AbilitySystemComponent from the player state. */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAbilitySystemComponentRetrieved(UCrimAbilitySystemComponent* AbilitySystemComponent);
 };

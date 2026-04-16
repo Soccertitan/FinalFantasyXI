@@ -27,6 +27,8 @@ class FINALFANTASYXI_API UEquipmentManagerViewModel : public UCrysViewModel
 public:
 	UEquipmentManagerViewModel();
 	
+	virtual void InitializeViewModel(APlayerController* PlayerController) override;
+	
 	/** Finds or creates an ActionBarItem VM from InputTag. */
 	UFUNCTION(BlueprintCallable, Category = "Viewmodel|EquipSystem")
 	UEquippedItemViewModel* FindOrCreateEquippedItemViewModel(UPARAM(meta = (Categories = "EquipSlot")) const FGameplayTag EquipSlot);
@@ -44,7 +46,6 @@ public:
 	void TryUnequipItem(UPARAM(meta = (Categories = "EquipSlot")) FGameplayTag EquipSlot);
 	
 protected:
-	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Instanced, NoClear)

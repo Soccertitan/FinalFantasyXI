@@ -20,22 +20,20 @@ public:
 	/**
 	 * If a valid PlayerController is passed in it will call OnInitializeViewModel.
 	 */
-	void InitializeViewModel(APlayerController* PlayerController);
-
-	UFUNCTION(BlueprintPure, FieldNotify)
-	FMVVMEventField OnViewModelInitialized() const { return{}; }
+	virtual void InitializeViewModel(APlayerController* PlayerController);
 
 protected:
-
-	/**
-	 * Called when the view model is ready to be initialized. PlayerController is guaranteed to be valid.  
-	 */
-	virtual void OnInitializeViewModel(APlayerController* PlayerController) {}
 	
 	/**
 	 * Called when the view model is ready to be initialized. Called after the C++ version.
 	 * PlayerController is guaranteed to be valid.
 	 */
-	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnInitializeViewModel")
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "InitializeViewModel")
 	void K2_OnInitializeViewModel(APlayerController* PlayerController);
+	
+	UFUNCTION()
+	virtual void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
+	
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPossessedPawnChanged")
+	void K2_OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 };

@@ -18,13 +18,13 @@ class FINALFANTASYXI_API UInputActionViewModel : public UCrysViewModel
 	GENERATED_BODY()
 	
 public:
+	virtual void InitializeViewModel(APlayerController* PlayerController) override;
 	
 	/** Finds or creates an InputActionListener VM from an InputAction. */
 	UFUNCTION(BlueprintCallable, Category = "Viewmodel|InputAction")
 	UInputActionListenerViewModel* FindOrCreateInputActionListenerViewModel(UInputAction* InputAction);
 	
 protected:
-	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
 	void InitEnhancedInputComponent(APlayerController* PlayerController);
 	
 private:

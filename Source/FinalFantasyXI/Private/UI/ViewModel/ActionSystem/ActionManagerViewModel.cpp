@@ -10,6 +10,13 @@
 #include "UI/ViewModel/ActionSystem/ActionSlotViewModel.h"
 #include "UI/ViewModel/ActionSystem/ActionViewModel.h"
 
+void UActionManagerViewModel::InitializeViewModel(APlayerController* PlayerController)
+{
+	Super::InitializeViewModel(PlayerController);
+	
+	InitActionManager(PlayerController);
+}
+
 UActionSlotViewModel* UActionManagerViewModel::FindOrCreateActionSlotViewModel(const FGameplayTag& InputTag, int32 Index)
 {
 	if (InputTag.IsValid() && Index >= 0)
@@ -81,13 +88,6 @@ void UActionManagerViewModel::ClearAction(const FGameplayTag& InputTag, const in
 	{
 		ActionManagerComponent->ClearAction(InputTag, Index);
 	}
-}
-
-void UActionManagerViewModel::OnInitializeViewModel(APlayerController* PlayerController)
-{
-	Super::OnInitializeViewModel(PlayerController);
-	
-	InitActionManager(PlayerController);
 }
 
 void UActionManagerViewModel::InitActionManager(APlayerController* PlayerController)

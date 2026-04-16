@@ -24,6 +24,8 @@ class FINALFANTASYXI_API UJobManagerViewModel : public UCrysViewModel
 	GENERATED_BODY()
 
 public:
+	virtual void InitializeViewModel(APlayerController* PlayerController) override;
+	
 	UFUNCTION(BlueprintPure, FieldNotify, Category = "Viewmodel|Job")
 	FMVVMEventField JobsLoaded() const { return {}; }
 	
@@ -68,7 +70,6 @@ public:
 	void TrySetSubJob(UJobViewModel* JobViewModel);
 
 protected:
-	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
 
 	void SetMainJobViewModel(UJobViewModel* InValue);
 	void SetSubJobViewModel(UJobViewModel* InValue);

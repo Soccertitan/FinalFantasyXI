@@ -22,6 +22,54 @@ UEquipmentManagerViewModel::UEquipmentManagerViewModel()
 	EquippableItemsFilter = CreateDefaultSubobject<UItemInstanceViewModelFilter_EquipableItems>("Filter");
 }
 
+void UEquipmentManagerViewModel::InitializeViewModel(APlayerController* PlayerController)
+{
+	Super::InitializeViewModel(PlayerController);
+	
+	EquipmentManagerComponent = UEquipmentSystemBlueprintFunctionLibrary::GetEquipmentManagerComponent(PlayerController->GetPlayerState<APlayerState>());
+	
+	if (EquipmentManagerComponent)
+	{
+		EquipmentManagerComponent->OnItemEquippedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemEquipped);
+		EquipmentManagerComponent->OnItemUnequippedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemUnequipped);
+	}
+	
+	InventoryManagerComponent = UInventoryBlueprintFunctionLibrary::GetInventoryManagerComponent(PlayerController->GetPlayerState<APlayerState>());
+	if (InventoryManagerComponent)
+	{
+		InventoryManagerComponent->OnItemAddedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemChanged);
+		InventoryManagerComponent->OnItemChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemChanged);
+	}
+	
+	if (EquipmentManagerComponent && InventoryManagerComponent)
+	{
+		TArray<FGameplayTag> AllowedItemContainers = EquipmentManagerComponent->GetAllowedItemContainers();
+		UInventoryUISubsystem* UISubsystem = GetWorld()->GetSubsystem<UInventoryUISubsystem>();
+		for (const FItemContainerInstance& ItemContainerInstance : InventoryManagerComponent->GetItemContainers())
+		{
+			if (UItemContainer* ItemContainer = ItemContainerInstance.GetItemContainer())
+			{
+				bool bAllowed = AllowedItemContainers.Num() == 0;
+				for (const FGameplayTag& AllowedTag : AllowedItemContainers)
+				{
+					if (ItemContainer->GetItemContainerTag() == AllowedTag)
+					{
+						bAllowed = true;
+					}
+				}
+				
+				if (bAllowed)
+				{
+					if (UItemContainerViewModel* ItemContainerViewModel = UISubsystem->CreateItemContainerViewModel(ItemContainer))
+					{
+						AllowedItemContainerViewModels.Add(ItemContainerViewModel);
+					}
+				}
+			}
+		}
+	}
+}
+
 UEquippedItemViewModel* UEquipmentManagerViewModel::FindOrCreateEquippedItemViewModel(const FGameplayTag EquipSlot)
 {
 	if (EquipSlot.IsValid())
@@ -73,54 +121,6 @@ void UEquipmentManagerViewModel::TryUnequipItem(FGameplayTag EquipSlot)
 	if (EquipmentManagerComponent)
 	{
 		EquipmentManagerComponent->TryUnequipItem(EquipSlot);
-	}
-}
-
-void UEquipmentManagerViewModel::OnInitializeViewModel(APlayerController* PlayerController)
-{
-	Super::OnInitializeViewModel(PlayerController);
-	
-	EquipmentManagerComponent = UEquipmentSystemBlueprintFunctionLibrary::GetEquipmentManagerComponent(PlayerController->GetPlayerState<APlayerState>());
-	
-	if (EquipmentManagerComponent)
-	{
-		EquipmentManagerComponent->OnItemEquippedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemEquipped);
-		EquipmentManagerComponent->OnItemUnequippedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemUnequipped);
-	}
-	
-	InventoryManagerComponent = UInventoryBlueprintFunctionLibrary::GetInventoryManagerComponent(PlayerController->GetPlayerState<APlayerState>());
-	if (InventoryManagerComponent)
-	{
-		InventoryManagerComponent->OnItemAddedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemChanged);
-		InventoryManagerComponent->OnItemChangedDelegate.AddUniqueDynamic(this, &UEquipmentManagerViewModel::OnItemChanged);
-	}
-	
-	if (EquipmentManagerComponent && InventoryManagerComponent)
-	{
-		TArray<FGameplayTag> AllowedItemContainers = EquipmentManagerComponent->GetAllowedItemContainers();
-		UInventoryUISubsystem* UISubsystem = GetWorld()->GetSubsystem<UInventoryUISubsystem>();
-		for (const FItemContainerInstance& ItemContainerInstance : InventoryManagerComponent->GetItemContainers())
-		{
-			if (UItemContainer* ItemContainer = ItemContainerInstance.GetItemContainer())
-			{
-				bool bAllowed = AllowedItemContainers.Num() == 0;
-				for (const FGameplayTag& AllowedTag : AllowedItemContainers)
-				{
-					if (ItemContainer->GetItemContainerTag() == AllowedTag)
-					{
-						bAllowed = true;
-					}
-				}
-				
-				if (bAllowed)
-				{
-					if (UItemContainerViewModel* ItemContainerViewModel = UISubsystem->CreateItemContainerViewModel(ItemContainer))
-					{
-						AllowedItemContainerViewModels.Add(ItemContainerViewModel);
-					}
-				}
-			}
-		}
 	}
 }
 

@@ -23,6 +23,7 @@ class FINALFANTASYXI_API UActionManagerViewModel : public UCrysViewModel
 	GENERATED_BODY()
 
 public:
+	virtual void InitializeViewModel(APlayerController* PlayerController) override;
 	
 	int32 GetActiveActionSetIndex() const { return ActiveActionSetIndex; }
 	
@@ -41,8 +42,6 @@ public:
 	void ClearAction(const FGameplayTag& InputTag, const int32 Index);
 
 protected:
-	virtual void OnInitializeViewModel(APlayerController* PlayerController) override;
-	
 	void InitActionManager(APlayerController* PlayerController);
 	
 	UFUNCTION()

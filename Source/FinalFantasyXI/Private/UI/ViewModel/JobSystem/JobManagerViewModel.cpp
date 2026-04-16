@@ -10,6 +10,26 @@
 #include "JobSystem/RaceDefinition.h"
 #include "UI/ViewModel/JobSystem/JobViewModel.h"
 
+void UJobManagerViewModel::InitializeViewModel(APlayerController* PlayerController)
+{
+	Super::InitializeViewModel(PlayerController);
+	
+	JobManagerComponent = UJobSystemBlueprintFunctionLibrary::GetJobManagerComponent(PlayerController->GetPlayerState<APlayerState>());
+
+	if (JobManagerComponent)
+	{
+		JobManagerComponent->OnMainJobChangedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnMainJobChanged);
+		JobManagerComponent->OnSubJobChangedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnSubJobChanged);
+		JobManagerComponent->OnTrySetJobDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnTrySetJob);
+		JobManagerComponent->OnJobProgressUpdatedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnJobProgressUpdated);
+		JobManagerComponent->OnJobManagerDataUpdatedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnJobManagerDataUpdated);
+		OnJobManagerDataUpdated();
+		CreateJobViewModel(JobManagerComponent->GetMainJob());
+		CreateJobViewModel(JobManagerComponent->GetSubJob());
+		LoadJobs();
+	}
+}
+
 bool UJobManagerViewModel::IsSubJobEquipped() const
 {
 	return SubJobViewModel ? true : false;
@@ -109,24 +129,6 @@ void UJobManagerViewModel::TrySetSubJob(UJobViewModel* JobViewModel)
 	else
 	{
 		JobManagerComponent->TrySetJobs( JobManagerComponent->GetMainJob(), JobViewModel->GetJob());
-	}
-}
-
-void UJobManagerViewModel::OnInitializeViewModel(APlayerController* PlayerController)
-{
-	JobManagerComponent = UJobSystemBlueprintFunctionLibrary::GetJobManagerComponent(PlayerController->GetPlayerState<APlayerState>());
-
-	if (JobManagerComponent)
-	{
-		JobManagerComponent->OnMainJobChangedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnMainJobChanged);
-		JobManagerComponent->OnSubJobChangedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnSubJobChanged);
-		JobManagerComponent->OnTrySetJobDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnTrySetJob);
-		JobManagerComponent->OnJobProgressUpdatedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnJobProgressUpdated);
-		JobManagerComponent->OnJobManagerDataUpdatedDelegate.AddUniqueDynamic(this, &UJobManagerViewModel::OnJobManagerDataUpdated);
-		OnJobManagerDataUpdated();
-		CreateJobViewModel(JobManagerComponent->GetMainJob());
-		CreateJobViewModel(JobManagerComponent->GetSubJob());
-		LoadJobs();
 	}
 }
 
