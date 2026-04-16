@@ -80,8 +80,6 @@ UDamageExecCalc::UDamageExecCalc()
 
 void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	OutExecutionOutput.MarkGameplayCuesHandledManually();
-	
 	FGameplayEffectSpec* Spec = ExecutionParams.GetOwningSpecForPreExecuteMod();
 	FCrimGameplayEffectContext* Context = static_cast<FCrimGameplayEffectContext*>(Spec->GetContext().Get());
 	FDamageGameplayContext* DamageGameplayContext = Context->AddCustomDataFragment(FDamageGameplayContext());
@@ -89,11 +87,20 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 	FAggregatorEvaluateParameters EvaluateParams;
 	EvaluateParams.SourceTags = Spec->CapturedSourceTags.GetAggregatedTags();
 	EvaluateParams.TargetTags = Spec->CapturedTargetTags.GetAggregatedTags();
+	
+	FGameplayCueParameters GCParams(Spec->GetContext());
+	FGameplayEventData EventData;
+	EventData.ContextHandle = Spec->GetContext();
+	EventData.Instigator = ExecutionParams.GetSourceAbilitySystemComponent()->GetOwnerActor();
+	EventData.Target = ExecutionParams.GetTargetAbilitySystemComponent()->GetOwnerActor();
+	EventData.InstigatorTags = *EvaluateParams.SourceTags;
+	EventData.TargetTags = *EvaluateParams.TargetTags;
 
 	DamageGameplayContext->bHit = IsHit(ExecutionParams, OutExecutionOutput, EvaluateParams);
 	
 	if (DamageGameplayContext->bHit)
 	{
+		OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
 		DamageGameplayContext->bParried = IsParried(ExecutionParams, OutExecutionOutput, EvaluateParams);
 		if (!DamageGameplayContext->bParried)
 		{
@@ -114,10 +121,18 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 			
 			ExecutionParams.AttemptCalculateCapturedAttributeMagnitudeWithBase(IncomingDamageAttributeDef, EvaluateParams, Damage, Damage);
 			Damage = FMath::Floor(Damage);
+			GCParams.RawMagnitude = Damage;
+			DamageGameplayContext->DamagedAttribute = IncomingDamageAttributeDef.AttributeToCapture;
+			EventData.EventMagnitude = Damage;
 			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, Damage));
 		}
 	}
-	OutExecutionOutput.MarkConditionalGameplayEffectsToTrigger();
+	
+	ExecutionParams.GetSourceAbilitySystemComponent()->HandleGameplayEvent(Crys::NativeGameplayTag::Ability_GameplayEvent_DamageSource, &EventData);
+	ExecutionParams.GetTargetAbilitySystemComponent()->HandleGameplayEvent(Crys::NativeGameplayTag::Ability_GameplayEvent_DamageTarget, &EventData);
+	
+	ExecutionParams.GetSourceAbilitySystemComponent()->ExecuteGameplayCue(Crys::NativeGameplayTag::GameplayCue_Damage, GCParams);
+	OutExecutionOutput.MarkGameplayCuesHandledManually();
 }
 
 const TArray<FGameplayEffectAttributeCaptureDefinition>& UDamageExecCalc::GetAttributeCaptureDefinitions() const

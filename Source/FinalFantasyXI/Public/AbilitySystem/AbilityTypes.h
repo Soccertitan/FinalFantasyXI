@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AttributeSet.h"
 #include "AbilityTypes.generated.h"
 
 /**
@@ -27,4 +28,7 @@ struct FDamageGameplayContext
 	
 	UPROPERTY(BlueprintReadOnly)
 	bool bBlocked = false;
+	
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayAttribute DamagedAttribute;
 };

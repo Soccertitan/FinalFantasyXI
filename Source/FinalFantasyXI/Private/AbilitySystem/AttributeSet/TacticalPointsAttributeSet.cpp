@@ -100,7 +100,6 @@ void UTacticalPointsAttributeSet::HandleDamage(const FGameplayEffectModCallbackD
 	const float LocalDamage = FMath::Abs(Magnitude);
 
 	SetCurrentPoints(FMath::Clamp(GetCurrentPoints() - LocalDamage, 0.f, GetMaxPoints()));
-	SendGameplayEvent(Data, Crys::NativeGameplayTag::Ability_GameplayEvent_Damage_TacticalPoints);
 }
 
 void UTacticalPointsAttributeSet::HandleHealing(const FGameplayEffectModCallbackData& Data, float Magnitude)
@@ -108,5 +107,4 @@ void UTacticalPointsAttributeSet::HandleHealing(const FGameplayEffectModCallback
 	const float LocalHealing = FMath::Abs(Magnitude);
 
 	SetCurrentPoints(FMath::Clamp(GetCurrentPoints() + LocalHealing, 0.f, GetMaxPoints()));
-	SendGameplayEvent(Data, Crys::NativeGameplayTag::Ability_GameplayEvent_Healing_TacticalPoints);
 }

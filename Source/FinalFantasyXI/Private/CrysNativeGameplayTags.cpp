@@ -10,10 +10,10 @@ namespace Crys::NativeGameplayTag
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Combat_CombatStance, "Ability.Combat.CombatStance", "Triggers an ability to enter/exit combat stance.");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_AutoAttack, "Ability.GameplayEvent.AutoAttack", "Triggers an auto attack gameplay ability.");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Damage_Mana, "Ability.GameplayEvent.Damage.Mana", "Sends a gameplay event when mana is damaged.");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Healing_Mana, "Ability.GameplayEvent.Healing.Mana", "Sends a Gameplay event when mana is healed.");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Damage_TacticalPoints, "Ability.GameplayEvent.Damage.TacticalPoints", "Sends a Gameplay event when TP is damaged.");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_Healing_TacticalPoints, "Ability.GameplayEvent.Healing.TacticalPoints", "Sends a Gameplay event when TP is healed.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_DamageSource, "Ability.GameplayEvent.DamageSource", "Sends a gameplay event to the source after damage is taken.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_DamageTarget, "Ability.GameplayEvent.DamageTarget", "Sends a Gameplay event to the target after the DamageExec calc is ran.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_HealingSource, "Ability.GameplayEvent.HealingSource", "Sends a gameplay event to the source after the HealingExec calc is ran.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_GameplayEvent_HealingTarget, "Ability.GameplayEvent.HealingTarget", "Sends a Gameplay event to the target after the HealingExec calc is ran.");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_State_Block, "Ability.State.Block", "A character can block attacks with this tag.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_State_CombatStance, "Ability.State.CombatStance", "A character with this tag are able to start the auto attack timer.");
