@@ -83,6 +83,7 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 	FGameplayEffectSpec* Spec = ExecutionParams.GetOwningSpecForPreExecuteMod();
 	FCrimGameplayEffectContext* Context = static_cast<FCrimGameplayEffectContext*>(Spec->GetContext().Get());
 	FDamageGameplayContext* DamageGameplayContext = Context->AddCustomDataFragment(FDamageGameplayContext());
+	DamageGameplayContext->DamagedAttribute = IncomingDamageAttributeDef.AttributeToCapture;
 	
 	FAggregatorEvaluateParameters EvaluateParams;
 	EvaluateParams.SourceTags = Spec->CapturedSourceTags.GetAggregatedTags();
@@ -122,7 +123,6 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 			ExecutionParams.AttemptCalculateCapturedAttributeMagnitudeWithBase(IncomingDamageAttributeDef, EvaluateParams, Damage, Damage);
 			Damage = FMath::Floor(Damage);
 			GCParams.RawMagnitude = Damage;
-			DamageGameplayContext->DamagedAttribute = IncomingDamageAttributeDef.AttributeToCapture;
 			EventData.EventMagnitude = Damage;
 			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(IncomingDamageAttributeDef.AttributeToCapture, EGameplayModOp::Override, Damage));
 		}
