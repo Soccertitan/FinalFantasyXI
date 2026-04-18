@@ -138,6 +138,10 @@
 		{
 			"Name": "CrimEnhancedInputSystem",
 			"Enabled": true
+		},
+		{
+			"Name": "CrimNiagaraText",
+			"Enabled": true
 		}
 	]
 }

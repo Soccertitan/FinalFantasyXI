@@ -22,3 +22,6 @@
 [submodule "Plugins/CrimEnhancedInputSystem"]
 	path = Plugins/CrimEnhancedInputSystem
 	url = https://github.com/Soccertitan/CrimEnhancedInputSystem
+[submodule "Plugins/CrimNiagaraText"]
+	path = Plugins/CrimNiagaraText
+	url = https://github.com/Soccertitan/CrimNiagaraText
