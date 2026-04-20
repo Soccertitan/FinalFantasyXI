@@ -140,7 +140,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "CrimNiagaraText",
+			"Name": "NiagaraTextToolkit",
 			"Enabled": true
 		}
 	]

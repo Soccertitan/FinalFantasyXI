@@ -131,7 +131,7 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 	ExecutionParams.GetSourceAbilitySystemComponent()->HandleGameplayEvent(Crys::NativeGameplayTag::Ability_GameplayEvent_DamageSource, &EventData);
 	ExecutionParams.GetTargetAbilitySystemComponent()->HandleGameplayEvent(Crys::NativeGameplayTag::Ability_GameplayEvent_DamageTarget, &EventData);
 	
-	ExecutionParams.GetSourceAbilitySystemComponent()->ExecuteGameplayCue(Crys::NativeGameplayTag::GameplayCue_Damage, GCParams);
+	ExecutionParams.GetTargetAbilitySystemComponent()->ExecuteGameplayCue(Crys::NativeGameplayTag::GameplayCue_Damage, GCParams);
 	OutExecutionOutput.MarkGameplayCuesHandledManually();
 }
 
