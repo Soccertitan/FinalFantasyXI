@@ -8,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CrysBlueprintFunctionLibrary.generated.h"
 
+class UCombatTextComponent;
 class ACrysCharacter;
 class UCrimGameplayAbility;
 class ACrysPlayerState;
@@ -35,9 +36,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
 	static ACrysCharacter* GetCrysCharacter(AActor* Actor);
 	
-	/** Returns an Actor that implements the AbilityTargetInterface */
+	/** Returns an Actor that is targeted if the source Actor implements the AbilityTargetInterface */
 	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
 	static AActor* GetAbilityTarget(const AActor* Actor, const FGameplayTagContainer& AbilityTags);
+	
+	/** Tries to retrieve the CombatTextComponent from the Actor. */
+	UFUNCTION(BlueprintPure, Category = "CrysFunctionLibrary", meta = (DefaultToSelf = Actor))
+	static UCombatTextComponent* GetCombatTextComponent(AActor* Actor);
 	
 	static FAttributeRelationshipItem FindAttributeRelationshipItem(const FGameplayTag& AttributeTag, bool bLogNotFound = false);
 	

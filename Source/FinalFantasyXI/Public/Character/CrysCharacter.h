@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "CrysCharacter.generated.h"
 
+class UCombatTextComponent;
 class UAbilityAnimationData;
 class UCombatAnimationData;
 class UAnimationTagRelationship;
@@ -30,6 +31,10 @@ UCLASS()
 class FINALFANTASYXI_API ACrysCharacter : public ACharacter
 {
 	GENERATED_BODY()
+	
+	/** Displays combat text. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CombatText, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCombatTextComponent> CombatTextComponent;
 
 public:
 	ACrysCharacter(const FObjectInitializer& ObjectInitializer);
@@ -62,6 +67,9 @@ public:
 	void SetPrimaryCombatAnimationData(UCombatAnimationData* AnimationData);
 	UFUNCTION(BlueprintCallable, Category = "CrysCharacter|Animation")
 	void SetSecondaryCombatAnimationData(UCombatAnimationData* AnimationData);
+	
+	UFUNCTION(BlueprintPure, Category = "CrysCharacter")
+	UCombatTextComponent* GetCombatTextComponent() const { return CombatTextComponent; }
 	
 	void DisableMovement();
 	void EnableMovement();

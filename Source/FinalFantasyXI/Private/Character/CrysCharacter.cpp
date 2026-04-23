@@ -6,6 +6,7 @@
 #include "CrysNativeGameplayTags.h"
 #include "AbilitySystem/Ability/Combat/CombatAnimationData.h"
 #include "AI/CrysAIController.h"
+#include "Character/CombatTextComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
@@ -19,6 +20,9 @@ ACrysCharacter::ACrysCharacter(const FObjectInitializer& ObjectInitializer)
 	bUseControllerRotationYaw = false;
 
 	AIControllerClass = ACrysAIController::StaticClass();
+	
+	CombatTextComponent = CreateDefaultSubobject<UCombatTextComponent>(TEXT("CombatText"));
+	CombatTextComponent->SetupAttachment(RootComponent);
 }
 
 void ACrysCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -5,6 +5,7 @@
 
 #include "CrysLogChannels.h"
 #include "AbilitySystem/AbilityTargetInterface.h"
+#include "Character/CombatTextComponent.h"
 #include "Character/CrysCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Player/CrysPlayerController.h"
@@ -84,6 +85,19 @@ AActor* UCrysBlueprintFunctionLibrary::GetAbilityTarget(const AActor* Actor, con
 	if (Actor && Actor->Implements<UAbilityTargetInterface>())
 	{
 		return IAbilityTargetInterface::Execute_GetAbilityTarget(Actor, AbilityTags);
+	}
+	return nullptr;
+}
+
+UCombatTextComponent* UCrysBlueprintFunctionLibrary::GetCombatTextComponent(AActor* Actor)
+{
+	if (Actor)
+	{
+		if (ACrysCharacter* Character = GetCrysCharacter(Actor))
+		{
+			return Character->GetCombatTextComponent();
+		}
+		return Actor->FindComponentByClass<UCombatTextComponent>();
 	}
 	return nullptr;
 }
