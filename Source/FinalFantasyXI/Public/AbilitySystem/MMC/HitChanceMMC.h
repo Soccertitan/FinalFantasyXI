@@ -18,11 +18,6 @@ public:
 	UHitChanceMMC();
 	
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const override;
-	virtual const TArray<FGameplayEffectAttributeCaptureDefinition>& GetAttributeCaptureDefinitions() const override;
-	
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif WITH_EDITOR
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
@@ -37,17 +32,12 @@ protected:
 	/** Modifies the accuracy of the attacker based on the level difference. (AttackerLevel - DefenderLevel) * LevelModifierAccuracy */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Calculation")
 	FScalableFloat LevelModifierAccuracy = 4.f;
-	/** (Accuracy - Evasion) * AccuracyEvasionHitChance */
+	/** (Accuracy - Evasion) * AccuracyEvasionHitChanceMultiplier */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Calculation")
-	FScalableFloat AccuracyEvasionHitChance = 0.005f;
+	FScalableFloat AccuracyEvasionHitChanceMultiplier = 0.005f;
 	/** If the source has any of these tags, ignore the evasion attribute on the target. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Calculation")
 	FGameplayTagContainer IgnoreEvasionAttributeTagContainer;
 	
-	//** Combines the Relevant Attributes to Capture with the other attributes defined in this class. */
-	UPROPERTY()
-	TArray<FGameplayEffectAttributeCaptureDefinition> AggregatedRelevantAttributesToCapture;
-	
-	/** Called in the constructor and PostEditChangeProperty. */
-	virtual void UpdateAggregatedRelevantAttributesToCapture();
+	virtual void UpdateAggregatedRelevantAttributesToCapture() override;
 };

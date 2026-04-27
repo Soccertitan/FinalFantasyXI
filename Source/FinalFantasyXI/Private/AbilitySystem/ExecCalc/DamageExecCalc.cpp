@@ -75,7 +75,7 @@ UDamageExecCalc::UDamageExecCalc()
 	PerfectCriticalHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Perfect_CriticalHit);
 	ImmuneCriticalHitTagContainer.AddTag(Crys::NativeGameplayTag::Ability_State_Immune_CriticalHit);
 	
-	DamageGameplayCue = Crys::NativeGameplayTag::GameplayCue_Damage;
+	// DamageGameplayCue = Crys::NativeGameplayTag::GameplayCue_Damage;
 }
 
 void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const

@@ -47,29 +47,15 @@ float UHitChanceMMC::CalculateBaseMagnitude_Implementation(const FGameplayEffect
 	
 	Accuracy = Accuracy + (AttackerLevel - DefenderLevel) * LevelModifierAccuracy.GetValueAtLevel(Spec.GetLevel());
 	
-	return (Accuracy - Evasion) * AccuracyEvasionHitChance.GetValueAtLevel(Spec.GetLevel());
-}
-
-const TArray<FGameplayEffectAttributeCaptureDefinition>& UHitChanceMMC::GetAttributeCaptureDefinitions() const
-{
-	return AggregatedRelevantAttributesToCapture;
-}
-
-void UHitChanceMMC::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-	
-	UpdateAggregatedRelevantAttributesToCapture();
+	return (Accuracy - Evasion) * AccuracyEvasionHitChanceMultiplier.GetValueAtLevel(Spec.GetLevel());
 }
 
 void UHitChanceMMC::UpdateAggregatedRelevantAttributesToCapture()
 {
-	AggregatedRelevantAttributesToCapture.Empty();
+	Super::UpdateAggregatedRelevantAttributesToCapture();
 	
 	AggregatedRelevantAttributesToCapture.Add(AttackerLevelAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(DefenderLevelAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(AccuracyAttributeDef);
 	AggregatedRelevantAttributesToCapture.Add(EvasionAttributeDef);
-	
-	AggregatedRelevantAttributesToCapture.Append(RelevantAttributesToCapture);
 }
