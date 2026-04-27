@@ -11,6 +11,7 @@
 #include "InventoryBlueprintFunctionLibrary.h"
 #include "InventoryGameplayTags.h"
 #include "InventoryManagerComponent.h"
+#include "InventoryTypes.h"
 #include "AbilitySystem/AttributeSet/AttackerAttributeSet.h"
 #include "AbilitySystem/AttributeSet/JobAttributeSet.h"
 #include "AbilitySystem/AttributeSet/PrimaryAttributeSet.h"
@@ -26,7 +27,7 @@ UEquipmentManagerComponent::UEquipmentManagerComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
 	
-	AllowedItemContainers.Add(FInventoryGameplayTags::Get().ItemContainer_Default);
+	AllowedItemContainers.AddTag(FInventoryGameplayTags::Get().ItemContainer_Default);
 }
 
 void UEquipmentManagerComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -75,14 +76,14 @@ void UEquipmentManagerComponent::InitializeWithAbilitySystem_Implementation(UCri
 	}
 }
 
-void UEquipmentManagerComponent::TryEquipItem(FGameplayTag EquipSlot, FGuid ItemGuid)
+void UEquipmentManagerComponent::TryEquipItem(FGameplayTag EquipSlot, const FItemInstanceHandle& Handle)
 {
-	if (!EquipSlot.IsValid() || !ItemGuid.IsValid() || !InventoryManagerComponent)
+	if (!EquipSlot.IsValid() || !Handle.IsValid() || !InventoryManagerComponent)
 	{
 		return;
 	}
 
-	FItemInstance* ItemInstance = FindItemByGuid(ItemGuid);
+	FItemInstance* ItemInstance = FindItem(Handle);
 	if (!ItemInstance)
 	{
 		return;
@@ -95,7 +96,7 @@ void UEquipmentManagerComponent::TryEquipItem(FGameplayTag EquipSlot, FGuid Item
 
 	if (!HasAuthority())
 	{
-		Server_TryEquipItem(EquipSlot, ItemGuid);
+		Server_TryEquipItem(EquipSlot, Handle);
 		return;
 	}
 
@@ -105,10 +106,10 @@ void UEquipmentManagerComponent::TryEquipItem(FGameplayTag EquipSlot, FGuid Item
 	FItemShard_Equipment* ItemShard_Equipment = ItemInstance->GetItemPtr()->GetMutablePtr<FItem>()->FindMutableShardByType<FItemShard_Equipment>();
 	if (UEquipmentManagerComponent* EquippedTo = ItemShard_Equipment->GetEquipmentManagerComponent())
 	{
-		EquippedTo->Internal_UnequipItem(ItemInstance);
+		EquippedTo->UnequipItemInternal(ItemInstance);
 	}
 	
-	Internal_EquipItem(EquipSlot, ItemInstance);
+	EquipItemInternal(EquipSlot, ItemInstance);
 }
 
 void UEquipmentManagerComponent::TryUnequipItem(FGameplayTag EquipSlot)
@@ -126,9 +127,9 @@ void UEquipmentManagerComponent::TryUnequipItem(FGameplayTag EquipSlot)
 
 	if (FEquippedItem* EquippedItem = EquippedItemsContainer.FindItemByEquipSlot(EquipSlot))
 	{
-		if (FItemInstance* ItemInstance = InventoryManagerComponent->FindItemByGuid(EquippedItem->ItemGuid))
+		if (FItemInstance* ItemInstance = InventoryManagerComponent->FindItem(EquippedItem->ItemInstanceHandle))
 		{
-			Internal_UnequipItem(ItemInstance);
+			UnequipItemInternal(ItemInstance);
 		}
 	}
 }
@@ -148,7 +149,7 @@ FItemInstance* UEquipmentManagerComponent::GetEquippedItemInstance(const FGamepl
 	{
 		if (InventoryManagerComponent)
 		{
-			return InventoryManagerComponent->FindItemByGuid(EquippedItem->ItemGuid);
+			return InventoryManagerComponent->FindItem(EquippedItem->ItemInstanceHandle);
 		}
 	}
 	return nullptr;
@@ -265,11 +266,11 @@ bool UEquipmentManagerComponent::IsEquipSlotBlocked(const FGameplayTag EquipSlot
 	return false;
 }
 
-bool UEquipmentManagerComponent::CanEquipItemByItemGuid(FGameplayTag EquipSlot, FGuid ItemGuid) const
+bool UEquipmentManagerComponent::CanEquipItemByHandle(FGameplayTag EquipSlot, const FItemInstanceHandle& Handle) const
 {
 	if (IsReadyToManageEquipment())
 	{
-		if (FItemInstance* ItemInstance = FindItemByGuid(ItemGuid))
+		if (FItemInstance* ItemInstance = FindItem(Handle))
 		{
 			return CanEquipItem(EquipSlot, ItemInstance->GetItem());
 		}
@@ -317,11 +318,11 @@ void UEquipmentManagerComponent::OnMainJobChanged()
 		for (int32 idx = EquippedItemsContainer.Items.Num() - 1; idx >= 0; idx--)
 		{
 			FEquippedItem& EquippedItem = EquippedItemsContainer.Items[idx];
-			if (FItemInstance* ItemInstance = FindItemByGuid(EquippedItem.ItemGuid))
+			if (FItemInstance* ItemInstance = FindItem(EquippedItem.ItemInstanceHandle))
 			{
 				if (!CanEquipItem(EquippedItem.EquipSlot, ItemInstance->GetItem()))
 				{
-					Internal_UnequipItem(ItemInstance);
+					UnequipItemInternal(ItemInstance);
 				}
 			}
 		}
@@ -338,12 +339,12 @@ void UEquipmentManagerComponent::OnItemRemovedFromInventory(const FItemInstance&
 			{
 				if (FItemInstance* EquippedItemInstance = MovedToItemContainer->FindItemByGuid(ItemInstance.GetGuid()))
 				{
-					Internal_UnequipItem(EquippedItemInstance);
+					UnequipItemInternal(EquippedItemInstance);
 				}
 			}
 			else
 			{
-				Internal_UnequipItem(EquippedItem->EquipSlot);
+				UnequipItemInternal(EquippedItem->EquipSlot);
 			}
 		}
 	}
@@ -387,31 +388,29 @@ void UEquipmentManagerComponent::OnLevelChanged(const FOnAttributeChangeData& Da
 	}
 }
 
-FItemInstance* UEquipmentManagerComponent::FindItemByGuid(const FGuid& ItemGuid) const
+FItemInstance* UEquipmentManagerComponent::FindItem(const FItemInstanceHandle& Handle) const
 {
-	if (AllowedItemContainers.IsEmpty())
+	if (Handle.IsValid() && InventoryManagerComponent == Handle.GetItemContainer()->GetInventoryManagerComponent())
 	{
-		return InventoryManagerComponent->FindItemByGuid(ItemGuid);
-	}
-	
-	for (const FGameplayTag& ItemContainerTag : AllowedItemContainers)
-	{
-		if (UItemContainer* ItemContainer = InventoryManagerComponent->FindItemContainerByTag(ItemContainerTag))
+		if (AllowedItemContainers.IsEmpty())
 		{
-			if (FItemInstance* ItemInstance = ItemContainer->FindItemByGuid(ItemGuid))
-			{
-				return ItemInstance;
-			}
+			return InventoryManagerComponent->FindItem(Handle);
+		}
+
+		UItemContainer* ItemContainer = Handle.GetItemContainer();
+		if (AllowedItemContainers.HasTag(ItemContainer->GetItemContainerTag()))
+		{
+			return InventoryManagerComponent->FindItem(Handle);
 		}
 	}
 	
 	return nullptr;
 }
 
-void UEquipmentManagerComponent::Internal_EquipItem(const FGameplayTag& EquipSlot, FItemInstance* ItemInstance)
+void UEquipmentManagerComponent::EquipItemInternal(const FGameplayTag& EquipSlot, FItemInstance* ItemInstance)
 {
 	FEquippedItem& NewEquippedItem = EquippedItemsContainer.Items.AddDefaulted_GetRef();
-	NewEquippedItem.ItemGuid = ItemInstance->GetGuid();
+	NewEquippedItem.ItemInstanceHandle = FItemInstanceHandle(*ItemInstance);
 	NewEquippedItem.EquipSlot = EquipSlot;
 	NewEquippedItem.GameplayEffectHandle = ApplyEquipmentGameplayEffect(ItemInstance->GetItem());
 	NewEquippedItem.BlockedEquipSlots = UInventoryBlueprintFunctionLibrary::GetItemDefinition(ItemInstance->GetItem())->FindFragmentByType<FItemFragment_Equipment>()->BlockEquipSlots;
@@ -425,12 +424,12 @@ void UEquipmentManagerComponent::Internal_EquipItem(const FGameplayTag& EquipSlo
 	EquippedItemsContainer.MarkItemDirty(NewEquippedItem);
 }
 
-void UEquipmentManagerComponent::Internal_UnequipItem(FItemInstance* ItemInstance)
+void UEquipmentManagerComponent::UnequipItemInternal(FItemInstance* ItemInstance)
 {
 	for (int32 idx = EquippedItemsContainer.Items.Num() - 1; idx >= 0; idx--)
 	{
 		FEquippedItem TempItem = EquippedItemsContainer.Items[idx];
-		if (TempItem.ItemGuid == ItemInstance->GetGuid())
+		if (TempItem.ItemInstanceHandle.GetGuid() == ItemInstance->GetGuid())
 		{
 			EquippedItemsContainer.Items.RemoveAt(idx);
 			
@@ -444,7 +443,7 @@ void UEquipmentManagerComponent::Internal_UnequipItem(FItemInstance* ItemInstanc
 	}
 }
 
-void UEquipmentManagerComponent::Internal_UnequipItem(const FGameplayTag& EquipSlot)
+void UEquipmentManagerComponent::UnequipItemInternal(const FGameplayTag& EquipSlot)
 {
 	for (int32 idx = EquippedItemsContainer.Items.Num() - 1; idx >= 0; idx--)
 	{
@@ -565,9 +564,9 @@ void UEquipmentManagerComponent::ApplyBaseAttackDelay()
 	AbilitySystemComponent->ApplyGameplayEffectToSelf(AttackDelayGE, 1.0f, AbilitySystemComponent->MakeEffectContext());
 }
 
-void UEquipmentManagerComponent::Server_TryEquipItem_Implementation(FGameplayTag EquipSlot, FGuid ItemGuid)
+void UEquipmentManagerComponent::Server_TryEquipItem_Implementation(FGameplayTag EquipSlot, const FItemInstanceHandle& Handle)
 {
-	TryEquipItem(EquipSlot, ItemGuid);
+	TryEquipItem(EquipSlot, Handle);
 }
 
 void UEquipmentManagerComponent::Server_TryUnequipItem_Implementation(FGameplayTag EquipSlot)

@@ -3,6 +3,7 @@
 
 #include "EquipmentSystem/EquipmentTypes.h"
 
+#include "InventoryTypes.h"
 #include "EquipmentSystem/EquipmentManagerComponent.h"
 
 
@@ -18,7 +19,7 @@ void FEquippedItem::PreReplicatedRemove(const FEquippedItemsContainer& Container
 
 bool FEquippedItem::IsValid() const
 {
-	return EquipSlot.IsValid() && ItemGuid.IsValid();
+	return EquipSlot.IsValid() && ItemInstanceHandle.IsValid();
 }
 
 FEquippedItem* FEquippedItemsContainer::FindItemByEquipSlot(const FGameplayTag& EquipSlot) const
@@ -37,7 +38,7 @@ FEquippedItem* FEquippedItemsContainer::FindItemByItemGuid(const FGuid& ItemGuid
 {
 	for (const FEquippedItem& EquippedItem : Items)
 	{
-		if (EquippedItem.ItemGuid == ItemGuid)
+		if (EquippedItem.ItemInstanceHandle.GetGuid() == ItemGuid)
 		{
 			return const_cast<FEquippedItem*>(&EquippedItem);
 		}

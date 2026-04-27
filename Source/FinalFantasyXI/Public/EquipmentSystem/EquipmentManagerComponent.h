@@ -32,7 +32,9 @@ class FINALFANTASYXI_API UEquipmentManagerComponent : public UActorComponent, pu
 public:
 	UEquipmentManagerComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+protected:
 	virtual void OnRegister() override;
+public:
 	virtual void BeginPlay() override;
 	virtual void PreNetReceive() override;
 
@@ -51,10 +53,10 @@ public:
 	 * Tries to equip an Item at the specified EquipSlot. Will call TryUnequipItem to ensure two items are not equipped
 	 * in the same slot.
 	 * @param EquipSlot The slot to equip the item.
-	 * @param ItemGuid The guid for the item in the owner's InventoryManager.
+	 * @param Handle The ItemInstance Handle for the item in the owner's InventoryManager.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "EquipmentManager")
-	void TryEquipItem(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, FGuid ItemGuid);
+	void TryEquipItem(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, const FItemInstanceHandle& Handle);
 
 	/**
 	 * Unequips an item from the specified equip slot.
@@ -64,6 +66,7 @@ public:
 	void TryUnequipItem(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot);
 
 	/** Retrieves a copy of the ItemEquipped in slot. */
+	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
 	FEquippedItem GetEquippedItem(const FGameplayTag& EquipSlot) const;
 	
 	/** Retrieves a pointer to an ItemInstance */
@@ -92,13 +95,13 @@ public:
 	 * Will check the equip requirements of the item.
 	 */
 	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
-	bool CanEquipItemByItemGuid(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, FGuid ItemGuid) const;
+	bool CanEquipItemByHandle(UPARAM(meta=(Categories="EquipSlot")) FGameplayTag EquipSlot, const FItemInstanceHandle& Handle) const;
 
 	/** Returns true if items can be (un)equipped. Bind to OnEquipmentManagerInitializedDelegate to be notified when ready. */
 	bool IsReadyToManageEquipment() const;
 	
 	// If empty, all ItemContainers are allowed.
-	const TArray<FGameplayTag>& GetAllowedItemContainers() const {return AllowedItemContainers;}
+	const FGameplayTagContainer& GetAllowedItemContainers() const {return AllowedItemContainers;}
 	
 	/* Returns true if this Component's Owner Actor has authority. */
 	UFUNCTION(BlueprintPure, Category = "EquipmentManager")
@@ -122,8 +125,8 @@ protected:
 
 private:
 	/** If empty, will check all ItemContainers in the Inventory Manager.*/
-	UPROPERTY(EditAnywhere, meta = (Categories = "ItemContainer", NoElementDuplicate))
-	TArray<FGameplayTag> AllowedItemContainers;
+	UPROPERTY(EditAnywhere, meta = (Categories = "ItemContainer"))
+	FGameplayTagContainer AllowedItemContainers;
 	
 	/** WeaponData to use when no weapon is equipped in the MainHand. Scales with character level. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
@@ -155,12 +158,12 @@ private:
 	friend struct FEquippedItem;
 	
 	/** Checks the allowed ItemContainers for the ItemInstance. */
-	FItemInstance* FindItemByGuid(const FGuid& ItemGuid) const;
+	FItemInstance* FindItem(const FItemInstanceHandle& Handle) const;
 
-	void Internal_EquipItem(const FGameplayTag& EquipSlot, FItemInstance* ItemInstance);
+	void EquipItemInternal(const FGameplayTag& EquipSlot, FItemInstance* ItemInstance);
 	/** Unequips the item and updates the ItemInstance. */
-	void Internal_UnequipItem(FItemInstance* ItemInstance);
-	void Internal_UnequipItem(const FGameplayTag& EquipSlot);
+	void UnequipItemInternal(FItemInstance* ItemInstance);
+	void UnequipItemInternal(const FGameplayTag& EquipSlot);
 
 	FActiveGameplayEffectHandle ApplyEquipmentGameplayEffect(const TInstancedStruct<FItem>& Item);
 	void ClearEquipmentManagerFromItemInstance(FItemInstance* ItemInstance);
@@ -178,7 +181,7 @@ private:
 	void ApplyBaseAttackDelay();
 
 	UFUNCTION(Server, Reliable)
-	void Server_TryEquipItem(FGameplayTag EquipSlot, FGuid ItemGuid);
+	void Server_TryEquipItem(FGameplayTag EquipSlot, const FItemInstanceHandle& Handle);
 
 	UFUNCTION(Server, Reliable)
 	void Server_TryUnequipItem(FGameplayTag EquipSlot);

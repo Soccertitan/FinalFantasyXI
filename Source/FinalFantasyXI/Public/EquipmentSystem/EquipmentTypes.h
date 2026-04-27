@@ -8,6 +8,7 @@
 #include "GameplayTagContainer.h"
 #include "ScalableFloat.h"
 #include "AbilitySystem/Ability/Combat/CombatTypes.h"
+#include "InventoryTypes.h"
 #include "Net/Serialization/FastArraySerializer.h"
 
 #include "EquipmentTypes.generated.h"
@@ -30,7 +31,7 @@ struct FEquippedItem : public FFastArraySerializerItem
 
 	/** The equipped item identifier. */
 	UPROPERTY(BlueprintReadOnly)
-	FGuid ItemGuid;
+	FItemInstanceHandle ItemInstanceHandle;
 	
 	/** Equip slots the equipped item blocks. */
 	UPROPERTY(BlueprintReadOnly)

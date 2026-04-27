@@ -43,27 +43,24 @@ void UEquipmentManagerViewModel::InitializeViewModel(APlayerController* PlayerCo
 	
 	if (EquipmentManagerComponent && InventoryManagerComponent)
 	{
-		TArray<FGameplayTag> AllowedItemContainers = EquipmentManagerComponent->GetAllowedItemContainers();
+		FGameplayTagContainer AllowedItemContainers = EquipmentManagerComponent->GetAllowedItemContainers();
 		UInventoryUISubsystem* UISubsystem = GetWorld()->GetSubsystem<UInventoryUISubsystem>();
-		for (const FItemContainerInstance& ItemContainerInstance : InventoryManagerComponent->GetItemContainers())
+		for (UItemContainer* ItemContainer : InventoryManagerComponent->GetItemContainers())
 		{
-			if (UItemContainer* ItemContainer = ItemContainerInstance.GetItemContainer())
+			bool bAllowed = AllowedItemContainers.Num() == 0;
+			for (const FGameplayTag& AllowedTag : AllowedItemContainers)
 			{
-				bool bAllowed = AllowedItemContainers.Num() == 0;
-				for (const FGameplayTag& AllowedTag : AllowedItemContainers)
+				if (ItemContainer->GetItemContainerTag() == AllowedTag)
 				{
-					if (ItemContainer->GetItemContainerTag() == AllowedTag)
-					{
-						bAllowed = true;
-					}
+					bAllowed = true;
 				}
-				
-				if (bAllowed)
+			}
+			
+			if (bAllowed)
+			{
+				if (UItemContainerViewModel* ItemContainerViewModel = UISubsystem->CreateItemContainerViewModel(ItemContainer))
 				{
-					if (UItemContainerViewModel* ItemContainerViewModel = UISubsystem->CreateItemContainerViewModel(ItemContainer))
-					{
-						AllowedItemContainerViewModels.Add(ItemContainerViewModel);
-					}
+					AllowedItemContainerViewModels.Add(ItemContainerViewModel);
 				}
 			}
 		}
@@ -112,7 +109,7 @@ void UEquipmentManagerViewModel::TryEquipItem(FGameplayTag EquipSlot, UItemInsta
 {
 	if (EquipmentManagerComponent && ItemInstanceViewModel)
 	{
-		EquipmentManagerComponent->TryEquipItem(EquipSlot, ItemInstanceViewModel->GetGuid());
+		EquipmentManagerComponent->TryEquipItem(EquipSlot, ItemInstanceViewModel->GetHandle());
 	}
 }
 
@@ -166,7 +163,7 @@ void UEquipmentManagerViewModel::OnItemChanged(const FItemInstance& ItemInstance
 {
 	for (UEquippedItemViewModel* ViewModel : EquippedItemViewModels)
 	{
-		if (ViewModel->GetItemInstanceViewModel()->GetGuid() == ItemInstance.GetGuid())
+		if (ViewModel->GetItemInstanceViewModel()->GetHandle().GetGuid() == ItemInstance.GetGuid())
 		{
 			ViewModel->GetItemInstanceViewModel()->SetItemInstance(ItemInstance);
 		}
