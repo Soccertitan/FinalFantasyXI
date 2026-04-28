@@ -75,7 +75,7 @@ namespace Crys::NativeGameplayTag
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(MessageVerb);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_CharacterNameUpdated);
 	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_WeaponDamage);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_BaseMagnitude);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(WeaponSkill);
 }

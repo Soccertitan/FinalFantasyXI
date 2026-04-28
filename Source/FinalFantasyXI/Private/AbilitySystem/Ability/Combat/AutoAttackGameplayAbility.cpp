@@ -112,7 +112,7 @@ void UAutoAttackGameplayAbility::AttackTarget(const FWeaponData& WeaponData, AAc
 			SpecHandle.Data.Get()->GetContext().Get()->SetEffectCauser(EffectCauser);
 		}
 		SpecHandle.Data.Get()->AddDynamicAssetTag(WeaponData.WeaponSkill);
-		SpecHandle.Data.Get()->SetSetByCallerMagnitude(Crys::NativeGameplayTag::SetByCaller_WeaponDamage, 
+		SpecHandle.Data.Get()->SetSetByCallerMagnitude(Crys::NativeGameplayTag::SetByCaller_BaseMagnitude, 
 			WeaponData.Damage.GetValueAtLevel(WeaponData.Level));
 		
 		TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());

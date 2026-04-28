@@ -25,3 +25,6 @@
 [submodule "Plugins/CrimWidgetPoolSystem"]
 	path = Plugins/CrimWidgetPoolSystem
 	url = https://github.com/Soccertitan/CrimWidgetPoolSystem
+[submodule "Plugins/NiagaraTextToolkit"]
+	path = Plugins/NiagaraTextToolkit
+	url = https://github.com/Soccertitan/NiagaraTextToolkit

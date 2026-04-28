@@ -75,7 +75,7 @@ namespace Crys::NativeGameplayTag
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(MessageVerb, "MessageVerb", "Root GameplayTag associated with messages via Gameplay Message Subsystem.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Message_CharacterNameUpdated, "Message.CharacterNameUpdated", "Broadcasts when the character name updates.");
 	
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_WeaponDamage, "SetByCaller.WeaponDamage", "Abilities will use this tag to pass weapon damage to the gameplay effect spec.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_BaseMagnitude, "SetByCaller.BaseMagnitude", "Abilities will use this tag to pass the base magnitude to the gameplay effect spec.");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(WeaponSkill, "WeaponSkill", "Root GameplayTag for weapon skill types.");
 }

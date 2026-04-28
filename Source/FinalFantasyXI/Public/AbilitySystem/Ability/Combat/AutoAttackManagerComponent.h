@@ -20,6 +20,11 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FINALFANTASYXI_API UAutoAttackManagerComponent : public UActorComponent, public ICrimAbilitySystemInterface
 {
 	GENERATED_BODY()
+	
+	/**
+	 * Something to consider for future me. Instead of having the ability decide number of attacks. This component will
+	 * calculate the number of attack rounds. Then outside systems, can queue up additional attacks or different types of attacks?
+	 */
 
 public:
 	UAutoAttackManagerComponent();

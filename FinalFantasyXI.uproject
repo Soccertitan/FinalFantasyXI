@@ -142,6 +142,10 @@
 		{
 			"Name": "CrimWidgetPoolSystem",
 			"Enabled": true
+		},
+		{
+			"Name": "NiagaraTextToolkit",
+			"Enabled": true
 		}
 	]
 }
