@@ -15,7 +15,6 @@ bool UCrysAction::TryActivateAction()
 	if (CanActivateAction())
 	{
 		ActivateAction();
-		K2_ActivateAction();
 		return true;
 	}
 	
@@ -30,9 +29,4 @@ bool UCrysAction::CanActivateAction() const
 	}
 
 	return false;
-}
-
-bool UCrysAction::K2_CanActivateAction_Implementation() const
-{
-	return true;
 }

@@ -39,27 +39,27 @@ public:
 protected:
 	virtual void InitializeAction() {}
 
-	virtual void ActivateAction() {}
-	UFUNCTION(BlueprintImplementableEvent, DisplayName = "ActivateAction")
-	void K2_ActivateAction();
+	UFUNCTION(BlueprintNativeEvent, DisplayName = "ActivateAction")
+	void ActivateAction();
+	virtual void ActivateAction_Implementation() {}
 	
-	UFUNCTION(BlueprintNativeEvent, DisplayName = "CanActivateAction")
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "CanActivateAction")
 	bool K2_CanActivateAction() const;
 	
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "CrysAction")
 	ACrysPlayerController* GetPlayerController() const { return PlayerController; }
 	
 private:
 	/** The name of the action. */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	FText ActionName;
 	
 	/** The user facing icon on the hotbar. */
-	UPROPERTY(EditAnywhere, meta = (AssetBundles = "UI"))
+	UPROPERTY(EditDefaultsOnly, meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> Icon;
 	
 	/** Displays information about the action in a widget. */
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(EditDefaultsOnly, NoClear)
 	TSoftClassPtr<UActionViewModel> ActionViewModel;
 	
 	UPROPERTY()
