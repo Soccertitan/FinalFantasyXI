@@ -6,6 +6,8 @@
 #include "Engine/DeveloperSettings.h"
 #include "FinalFantasyXIGameData.generated.h"
 
+class UInputAction;
+class UInputMappingContext;
 class UCrysGameplayTagRelationship;
 class UAttributeTagRelationship;
 class UGameplayEffect;
@@ -27,6 +29,13 @@ public:
 	// Gameplay effect used to add and remove dynamic tags.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem|Gameplay Effect")
 	TSoftClassPtr<UGameplayEffect> DynamicTagGameplayEffect;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem|WaitConfirmTarget")
+	TSoftObjectPtr<UInputAction> InputActionConfirmAbilityTarget;
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem|WaitConfirmTarget")
+	TSoftObjectPtr<UInputAction> InputActionCancelAbilityTarget;
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem|WaitConfirmTarget")
+	TSoftObjectPtr<UInputAction> InputActionCycleAbilityTarget;
 	
 	// Maps non attribute GameplayTags for UI user facing data.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI")

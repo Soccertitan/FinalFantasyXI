@@ -55,6 +55,7 @@ namespace Crys::NativeGameplayTag
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DamageType);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EnhancedInput_Modes_UI);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EnhancedInput_Modes_AbilityTargeting);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(EquipSlot_Hand);
