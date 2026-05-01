@@ -25,7 +25,6 @@ class FINALFANTASYXI_API ACrysPlayerController : public APlayerController, publi
 
 public:
 	ACrysPlayerController();
-	virtual void SetupInputComponent() override;
 
 	/**
 	 * Creates a widget and then adds it to the Viewport. If a UINavWidget already exists, removes it and all parents
@@ -62,6 +61,8 @@ protected:
 	TObjectPtr<UUINavPCComponent> UINavPCComponent;
 	UPROPERTY()
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem;
+	
+	virtual void SetupInputComponent() override;
 
 	/**
 	 * Calls InitializeHUD() from the CrysHUD class. This will only call it once, setting up the widget and ViewModel.

@@ -67,33 +67,9 @@ bool UCrysGameplayAbility::IsTargetValid(AActor* TargetActor) const
 		return false;
 	}
 	
-	if (GetTargetType() != EAbilityTargetType::Any)
+	if (!IsTargetOfAbilityTargetType(TargetActor))
 	{
-		if (GetTargetType() == EAbilityTargetType::SelfOnly &&
-			GetCrimAbilitySystemComponentFromActorInfo() != TargetASC)
-		{
-			return false;
-		}
-		
-		ETeamAttitude::Type AttitudeTowardsTarget = UCrysBlueprintFunctionLibrary::GetAttitudeTowardsActor(GetAvatarActorFromActorInfo(), TargetActor);
-		if (GetTargetType() == EAbilityTargetType::Friendly &&
-			AttitudeTowardsTarget != ETeamAttitude::Friendly)
-		{
-			return false;
-		}
-	
-		if (GetTargetType() == EAbilityTargetType::FriendlyExcludeSelf && (
-			AttitudeTowardsTarget != ETeamAttitude::Friendly ||
-			GetCrimAbilitySystemComponentFromActorInfo() == TargetASC))
-		{
-			return false;
-		}
-	
-		if (GetTargetType() == EAbilityTargetType::Hostile &&
-			AttitudeTowardsTarget != ETeamAttitude::Hostile)
-		{
-			return false;
-		}
+		return false;
 	}
 	
 	if (UCrimMathStatics::DistanceBetweenActors(GetAvatarActorFromActorInfo(), TargetActor) > GetTargetRange())
@@ -111,4 +87,46 @@ bool UCrysGameplayAbility::IsTargetValid(AActor* TargetActor) const
 	}
 	
 	return true;
+}
+
+bool UCrysGameplayAbility::IsTargetOfAbilityTargetType(AActor* TargetActor) const
+{
+	if (GetTargetType() != EAbilityTargetType::Any)
+	{
+		if (GetTargetType() == EAbilityTargetType::SelfOnly &&
+			GetAvatarActorFromActorInfo() != TargetActor)
+		{
+			return false;
+		}
+		
+		ETeamAttitude::Type AttitudeTowardsTarget = UCrysBlueprintFunctionLibrary::GetAttitudeTowardsActor(GetAvatarActorFromActorInfo(), TargetActor);
+		if (GetTargetType() == EAbilityTargetType::Friendly &&
+			AttitudeTowardsTarget != ETeamAttitude::Friendly)
+		{
+			return false;
+		}
+	
+		if (GetTargetType() == EAbilityTargetType::FriendlyExcludeSelf && (
+			AttitudeTowardsTarget != ETeamAttitude::Friendly ||
+			GetAvatarActorFromActorInfo() == TargetActor))
+		{
+			return false;
+		}
+	
+		if (GetTargetType() == EAbilityTargetType::Hostile &&
+			AttitudeTowardsTarget != ETeamAttitude::Hostile)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+TArray<AActor*> UCrysGameplayAbility::GetValidTargetsInCone(const FVector Origin, const FVector ForwardVector, const float HalfAngle, const float Distance)
+{
+	TArray<AActor*> Results;
+	
+	
+	
+	return Results;
 }

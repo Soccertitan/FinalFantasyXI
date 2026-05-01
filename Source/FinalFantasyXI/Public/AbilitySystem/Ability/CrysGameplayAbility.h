@@ -37,6 +37,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ability")
 	bool IsTargetValid(AActor* TargetActor) const;
 	
+	/** Returns true if the target meets the AbilityTargetType requirement. */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	bool IsTargetOfAbilityTargetType(AActor* TargetActor) const;
+	
+	/** Returns an array of Actors that is the appropriate TargetType and within the cone. */
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Ability")
+	TArray<AActor*> GetValidTargetsInCone(const FVector Origin, const FVector ForwardVector, const float HalfAngle, const float Distance);
+
 protected:
 	/** Used in Apply GameplayEffectToTarget to automatically set the SetByCaller magnitudes. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Ability")
